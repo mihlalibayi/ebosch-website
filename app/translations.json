@@ -1,0 +1,98 @@
+{
+  "en": {
+    "header": {
+      "heritage": "Heritage",
+      "community": "Community",
+      "leadership": "Leadership"
+    },
+    "categories": {
+      "events": "Events",
+      "marketplace": "Marketplace",
+      "membership": "Membership",
+      "schoolHoliday": "School Holiday Program",
+      "heritage": "Heritage Program",
+      "publicity": "Publicity"
+    },
+    "newsletter": {
+      "title": "Subscribe to Our Newsletter",
+      "description": "Stay updated with events, programs, and community news",
+      "placeholder": "Enter your email",
+      "button": "Subscribe"
+    },
+    "footer": {
+      "npo": "The e'Bosch project is a registered Non-Profit Organisation (Reg 150-564)"
+    },
+    "wordcloud": {
+      "words": [
+        "Heritage", "Community", "Leadership",
+        "Youth", "Sport", "Lecture", "School Holiday", "Social", "Festivals", "School Choir",
+        "Events", "Marketplace", "Membership", "Heritage Program", "Publicity",
+        "Gallery", "Calendar", "Sponsors"
+      ]
+    }
+  },
+  "af": {
+    "header": {
+      "heritage": "Erfenis",
+      "community": "Gemeenskap",
+      "leadership": "Leierskap"
+    },
+    "categories": {
+      "events": "Geleenthede",
+      "marketplace": "Handelsplek",
+      "membership": "Lidmaatskap",
+      "schoolHoliday": "Skoolvakansie Program",
+      "heritage": "Erfenis Program",
+      "publicity": "Publisiteit"
+    },
+    "newsletter": {
+      "title": "Teken In Vir Ons Nuusbrief",
+      "description": "Bly op hoogte met geleenthede, programme en gemeenskapnieuws",
+      "placeholder": "Voer jou e-pos in",
+      "button": "Teken In"
+    },
+    "footer": {
+      "npo": "Die e'Bosch-projek is 'n geregistreerde Non-Profit Organisasie (Reg 150-564)"
+    },
+    "wordcloud": {
+      "words": [
+        "Erfenis", "Gemeenskap", "Leierskap",
+        "Jeugd", "Sport", "Lezing", "Skoolvakansia", "Sosiaal", "Festiwale", "Skoolkoor",
+        "Geleenthede", "Handelsplek", "Lidmaatskap", "Erfenis Program", "Publisiteit",
+        "Galery", "Kalender", "Sponsore"
+      ]
+    }
+  },
+  "xh": {
+    "header": {
+      "heritage": "Inkcubeko",
+      "community": "Uluntu",
+      "leadership": "Ubunkokheli"
+    },
+    "categories": {
+      "events": "Iziganeko",
+      "marketplace": "Intsangano",
+      "membership": "Ubulungu",
+      "schoolHoliday": "Umkhosi Wezilali",
+      "heritage": "Ikhaya Lengcali",
+      "publicity": "Isaziso"
+    },
+    "newsletter": {
+      "title": "Yibhalisa ku-Newsletter",
+      "description": "Hlala ufumaniswe ngobusuku, iiprogramu kunye neendaba zoluntu",
+      "placeholder": "Faka i-imeyile yakho",
+      "button": "Yibhalisa"
+    },
+    "footer": {
+      "npo": "Ikhaya lengcali le-e'Bosch lisiko elumandelwe Non-Profit Organisation (Reg 150-564)"
+    },
+    "wordcloud": {
+      "words": [
+        "Inkcubeko", "Uluntu", "Ubunkokheli",
+        "Umuntu", "Umdlalo", "Isifundo", "Izilali", "Zizwe", "Izithwala", "Iqela",
+        "Iziganeko", "Intsangano", "Ubulungu", "Ikhaya Lengcali", "Isaziso",
+        "Igalari", "Ikhalenda", "Abaxhasi"
+      ]
+    }
+  }
+}
