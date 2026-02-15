@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import eventsData from '@/app/events-calendar.json';
 
 type Language = 'en' | 'af' | 'xh';
 
@@ -15,6 +16,15 @@ interface EventFolder {
   descriptionAf: string;
   descriptionXh: string;
   images: string[];
+}
+
+interface CalendarEvent {
+  date: string;
+  time: string;
+  event: string;
+  venue: string;
+  contact: string;
+  ticketLink: string;
 }
 
 const EVENT_FOLDERS: EventFolder[] = [
@@ -73,6 +83,8 @@ export default function EventsPage() {
     'festival-lights': 0,
   });
   const [selectedDate, setSelectedDate] = useState(new Date(2026, 1, 15));
+  const [selectedEventDetails, setSelectedEventDetails] = useState<CalendarEvent | null>(null);
+  const [showEventModal, setShowEventModal] = useState(false);
 
   const getTitle = (folder: EventFolder) => {
     if (language === 'en') return folder.titleEn;
@@ -96,6 +108,11 @@ export default function EventsPage() {
       pageSubtitle: 'Explore our signature celebrations throughout the year',
       calendarTitle: 'Event Calendar',
       noEventsMessage: 'Check back soon for event dates',
+      eventDetails: 'Event Details',
+      time: 'Time',
+      venue: 'Venue',
+      contact: 'Contact',
+      buyTickets: 'Buy Tickets',
     },
     af: {
       home: 'Tuis',
@@ -106,6 +123,11 @@ export default function EventsPage() {
       pageSubtitle: 'Verken ons handtekening seisoenevierings deur die jaar',
       calendarTitle: 'Gebeure Kalender',
       noEventsMessage: 'Kyk gou terug vir gebeure datums',
+      eventDetails: 'Gebeure Besonderhede',
+      time: 'Tyd',
+      venue: 'Plek',
+      contact: 'Kontak',
+      buyTickets: 'Koop Kaartjies',
     },
     xh: {
       home: 'Ikhaya',
@@ -116,6 +138,11 @@ export default function EventsPage() {
       pageSubtitle: 'Jongana iziqwekelelo zethu imigubungulo kule nyaka',
       calendarTitle: 'Ikhalerindar Yemigubungulo',
       noEventsMessage: 'Buye kamuva ukuze ukwazi imihlaka yemigubungulo',
+      eventDetails: 'Iinkcukacha zeMigubungulo',
+      time: 'Ixesha',
+      venue: 'Indawo',
+      contact: 'Unxibelelwano',
+      buyTickets: 'Thenga Itikhiti',
     },
   };
 
@@ -145,6 +172,15 @@ export default function EventsPage() {
     return weeks;
   };
 
+  const getEventsForDate = (date: Date): CalendarEvent[] => {
+    const dateStr = date.toISOString().split('T')[0];
+    return eventsData.filter(event => event.date === dateStr);
+  };
+
+  const hasEventsOnDate = (date: Date): boolean => {
+    return getEventsForDate(date).length > 0;
+  };
+
   const monthName = selectedDate.toLocaleString(language === 'en' ? 'en-US' : language === 'af' ? 'af-ZA' : 'xh-ZA', {
     month: 'long',
     year: 'numeric',
@@ -168,6 +204,15 @@ export default function EventsPage() {
       ...prev,
       [folderId]: index
     }));
+  };
+
+  const handleDateClick = (date: Date) => {
+    const events = getEventsForDate(date);
+    if (events.length > 0) {
+      setSelectedEventDetails(events[0]);
+      setShowEventModal(true);
+    }
+    setSelectedDate(date);
   };
 
   return (
@@ -285,7 +330,7 @@ export default function EventsPage() {
             {t.calendarTitle}
           </h2>
 
-          <div className="bg-white rounded-xl shadow-lg p-8" style={{ margin: '0 auto', maxWidth: '600px' }}>
+          <div className="bg-white rounded-xl shadow-lg p-8" style={{ margin: '0 auto', maxWidth: '700px' }}>
             {/* Month Navigation */}
             <div className="flex justify-between items-center mb-8">
               <button
@@ -319,19 +364,23 @@ export default function EventsPage() {
               {renderCalendar().map((week, weekIndex) => (
                 week.map((day, dayIndex) => {
                   const isToday = day && day.toDateString() === getTodayDateString();
+                  const hasEvents = day && hasEventsOnDate(day);
 
                   return (
                     <button
                       key={`${weekIndex}-${dayIndex}`}
-                      onClick={() => day && setSelectedDate(day)}
-                      className={`aspect-square rounded-lg font-semibold transition text-sm ${
+                      onClick={() => day && handleDateClick(day)}
+                      className={`aspect-square rounded-lg font-semibold transition text-sm relative ${
                         isToday
                           ? 'text-gray-900 hover:opacity-90'
                           : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                       }`}
-                      style={isToday ? { backgroundColor: '#a1f5d8' } : {}}
+                      style={isToday ? { backgroundColor: '#9ca3af' } : {}}
                     >
                       {day ? day.getDate() : ''}
+                      {hasEvents && (
+                        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#2d5016' }}></div>
+                      )}
                     </button>
                   );
                 })
@@ -343,6 +392,75 @@ export default function EventsPage() {
           </div>
         </div>
       </main>
+
+      {/* Event Details Modal */}
+      {showEventModal && selectedEventDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b" style={{ backgroundColor: '#f5f5f5' }}>
+              <h2 className="text-xl font-bold" style={{ color: '#2d5016' }}>
+                {t.eventDetails}
+              </h2>
+              <button
+                onClick={() => setShowEventModal(false)}
+                className="p-1 hover:bg-gray-200 rounded-lg transition"
+              >
+                <X size={24} style={{ color: '#2d5016' }} />
+              </button>
+            </div>
+
+            {/* Event Content */}
+            <div className="p-6">
+              <h3 className="text-lg font-bold mb-4" style={{ color: '#2d5016' }}>
+                {selectedEventDetails.event}
+              </h3>
+
+              <div className="space-y-3 mb-6">
+                <div>
+                  <p className="text-sm font-semibold text-gray-600">{t.time}</p>
+                  <p className="text-gray-800">{selectedEventDetails.time}</p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold text-gray-600">{t.venue}</p>
+                  <p className="text-gray-800">{selectedEventDetails.venue}</p>
+                </div>
+
+                {selectedEventDetails.contact && (
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">{t.contact}</p>
+                    <p className="text-gray-800">{selectedEventDetails.contact}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Ticket Link Button */}
+              {selectedEventDetails.ticketLink && (
+                <a
+                  href={selectedEventDetails.ticketLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full px-4 py-2 rounded-lg font-semibold text-white transition text-center block"
+                  style={{ backgroundColor: '#2d5016' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
+                >
+                  {t.buyTickets}
+                </a>
+              )}
+
+              {/* Close Button */}
+              <button
+                onClick={() => setShowEventModal(false)}
+                className="w-full mt-3 px-4 py-2 rounded-lg font-semibold transition bg-gray-200 text-gray-800 hover:bg-gray-300"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
