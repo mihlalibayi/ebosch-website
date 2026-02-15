@@ -1,10 +1,7 @@
 {
   "en": {
-    "header": {
-      "heritage": "Heritage",
-      "community": "Community",
-      "leadership": "Leadership"
-    },
+    "welcome": "Welcome to e'Bosch",
+    "tagline": "Community | Heritage | Leadership",
     "categories": {
       "events": "Events",
       "marketplace": "Marketplace",
@@ -19,24 +16,32 @@
       "placeholder": "Enter your email",
       "button": "Subscribe"
     },
+    "about": {
+      "sections": [
+        {
+          "title": "What is e'Bosch?",
+          "content": [
+            "e'Bosch is a future heritage project",
+            "Working together so that Stellenbosch has a heritage where it is welcoming, safe, and everybody is thriving.",
+            "We achieve the future heritage by getting to know each other, appreciate each other and respect each other.",
+            "Finally, we weave a trust fabric in which all the problems in society can be solved at a minimum cost."
+          ]
+        }
+      ]
+    },
     "footer": {
       "npo": "The e'Bosch project is a registered Non-Profit Organisation (Reg 150-564)"
     },
     "wordcloud": {
       "words": [
         "Heritage", "Community", "Leadership",
-        "Youth", "Sport", "Lecture", "School Holiday", "Social", "Festivals", "School Choir",
-        "Events", "Marketplace", "Membership", "Heritage Program", "Publicity",
-        "Gallery", "Calendar", "Sponsors"
+        "Youth", "Sport", "Lecture", "School Holiday", "Social", "Festivals", "School Choir"
       ]
     }
   },
   "af": {
-    "header": {
-      "heritage": "Erfenis",
-      "community": "Gemeenskap",
-      "leadership": "Leierskap"
-    },
+    "welcome": "Welkom by e'Bosch",
+    "tagline": "Gemeenskap | Erfenis | Leierskap",
     "categories": {
       "events": "Geleenthede",
       "marketplace": "Handelsplek",
@@ -51,24 +56,32 @@
       "placeholder": "Voer jou e-pos in",
       "button": "Teken In"
     },
+    "about": {
+      "sections": [
+        {
+          "title": "Wat is e'Bosch?",
+          "content": [
+            "e'Bosch is 'n toekomstige erfenisprojek",
+            "Saam werk sodat Stellenbosch 'n erfenis het waar dit welkom, veilig is, en almal floreer.",
+            "Ons bereik die toekomstige erfenis deur mekaar te leer ken, mekaar te waardeer en mekaar te respekteer.",
+            "Laastens weef ons 'n vertroueweefsel waarin al die probleme in die samelewing teen minimale koste opgelos kan word."
+          ]
+        }
+      ]
+    },
     "footer": {
       "npo": "Die e'Bosch-projek is 'n geregistreerde Non-Profit Organisasie (Reg 150-564)"
     },
     "wordcloud": {
       "words": [
         "Erfenis", "Gemeenskap", "Leierskap",
-        "Jeugd", "Sport", "Lezing", "Skoolvakansia", "Sosiaal", "Festiwale", "Skoolkoor",
-        "Geleenthede", "Handelsplek", "Lidmaatskap", "Erfenis Program", "Publisiteit",
-        "Galery", "Kalender", "Sponsore"
+        "Jeugd", "Sport", "Lezing", "Skoolvakansia", "Sosiaal", "Festiwale", "Skoolkoor"
       ]
     }
   },
   "xh": {
-    "header": {
-      "heritage": "Inkcubeko",
-      "community": "Uluntu",
-      "leadership": "Ubunkokheli"
-    },
+    "welcome": "Wamkelekile ku-e'Bosch",
+    "tagline": "Uluntu | Inkcubeko | Ubunkokheli",
     "categories": {
       "events": "Iziganeko",
       "marketplace": "Intsangano",
@@ -83,15 +96,26 @@
       "placeholder": "Faka i-imeyile yakho",
       "button": "Yibhalisa"
     },
+    "about": {
+      "sections": [
+        {
+          "title": "Yintoni i-e'Bosch?",
+          "content": [
+            "i-e'Bosch yiprojekthi yefutyela yenkcubeko",
+            "Kusebenza ngokudibanisa ukuze iStellenbosh ibe nenkcubeko apho ikhululekile, ilungile, kwaye wonke umntu ukulungele.",
+            "Siyayiphumeza ifutyela yenkcubeko ngokwazi enye enye, ukuhlonipha enye enye nokukhulelwa kwenye enye.",
+            "Okokugqibela, siyayibheka iqabane lokuthembana apho zonke iingxaki kwi-society zinokusulungwa ngamaxabiso amancinci."
+          ]
+        }
+      ]
+    },
     "footer": {
       "npo": "Ikhaya lengcali le-e'Bosch lisiko elumandelwe Non-Profit Organisation (Reg 150-564)"
     },
     "wordcloud": {
       "words": [
         "Inkcubeko", "Uluntu", "Ubunkokheli",
-        "Umuntu", "Umdlalo", "Isifundo", "Izilali", "Zizwe", "Izithwala", "Iqela",
-        "Iziganeko", "Intsangano", "Ubulungu", "Ikhaya Lengcali", "Isaziso",
-        "Igalari", "Ikhalenda", "Abaxhasi"
+        "Umuntu", "Umdlalo", "Isifundo", "Izilali", "Zizwe", "Izithwala", "Iqela"
       ]
     }
   }

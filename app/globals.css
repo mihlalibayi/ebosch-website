@@ -20,7 +20,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Green color scheme */
 :root {
   --color-green-light: #6ba539;
   --color-green: #4a7c2c;
@@ -29,7 +28,6 @@ body {
   --color-green-pear: #5a9e3d;
 }
 
-/* Smooth transitions */
 a {
   transition: all 0.3s ease;
 }
@@ -38,7 +36,6 @@ button {
   transition: all 0.3s ease;
 }
 
-/* Image optimization */
 img {
   max-width: 100%;
   height: auto;
