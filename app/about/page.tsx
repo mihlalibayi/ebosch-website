@@ -123,7 +123,7 @@ export default function About() {
         </section>
 
         {/* Board of Directors */}
-        <section>
+        <section style={{ marginBottom: '80px' }}>
           <h2 style={{
             fontSize: '32px',
             fontWeight: 'bold',
@@ -188,6 +188,35 @@ export default function About() {
                 </p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Declaration of Intent Section */}
+        <section style={{ textAlign: 'center' }}>
+          <h3 style={{
+            fontSize: '24px',
+            fontWeight: '400',
+            color: '#374151',
+            marginBottom: '40px',
+            textAlign: 'center'
+          }}>
+            {language === 'en' && 'Declaration of Intent'}
+            {language === 'af' && 'Verklaring van Voorneme'}
+            {language === 'xh' && 'Isibhaso Sesiphumo'}
+          </h3>
+
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <img
+              src="/about/declofint.jpg"
+              alt="Declaration of Intent"
+              style={{
+                maxWidth: '900px',
+                width: '100%',
+                height: 'auto',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              }}
+            />
           </div>
         </section>
       </main>
