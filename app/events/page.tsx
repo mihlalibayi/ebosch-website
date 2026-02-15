@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import eventsData from '@/app/events-calendar.json';
+import { db } from '@/lib/firebase-config';
+import { collection, getDocs } from 'firebase/firestore';
 
 type Language = 'en' | 'af' | 'xh';
 
@@ -19,6 +20,7 @@ interface EventFolder {
 }
 
 interface CalendarEvent {
+  id: string;
   date: string;
   time: string;
   event: string;
@@ -85,6 +87,8 @@ export default function EventsPage() {
   const [selectedDate, setSelectedDate] = useState(new Date(2026, 1, 15));
   const [selectedEventDetails, setSelectedEventDetails] = useState<CalendarEvent | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
 
   const getTitle = (folder: EventFolder) => {
     if (language === 'en') return folder.titleEn;
@@ -104,10 +108,8 @@ export default function EventsPage() {
       about: 'About',
       events: 'Events',
       contact: 'Contact',
-      pageTitle: 'Annual Events',
-      pageSubtitle: 'Explore our signature celebrations throughout the year',
       calendarTitle: 'Event Calendar',
-      noEventsMessage: 'Check back soon for event dates',
+      noEventsMessage: 'Click on a date with events to see details',
       eventDetails: 'Event Details',
       time: 'Time',
       venue: 'Venue',
@@ -119,10 +121,8 @@ export default function EventsPage() {
       about: 'Oor Ons',
       events: 'Geleenthede',
       contact: 'Kontak',
-      pageTitle: 'Jaarlikse Gebeure',
-      pageSubtitle: 'Verken ons handtekening seisoenevierings deur die jaar',
       calendarTitle: 'Gebeure Kalender',
-      noEventsMessage: 'Kyk gou terug vir gebeure datums',
+      noEventsMessage: 'Klik op \'n datum met geleenthede vir besonderhede',
       eventDetails: 'Gebeure Besonderhede',
       time: 'Tyd',
       venue: 'Plek',
@@ -134,10 +134,8 @@ export default function EventsPage() {
       about: 'Malunga',
       events: 'Iziganeko',
       contact: 'Unxibelelwano',
-      pageTitle: 'Imigubungulo Yonyaka',
-      pageSubtitle: 'Jongana iziqwekelelo zethu imigubungulo kule nyaka',
       calendarTitle: 'Ikhalerindar Yemigubungulo',
-      noEventsMessage: 'Buye kamuva ukuze ukwazi imihlaka yemigubungulo',
+      noEventsMessage: 'Cofa umhla one events ukuze ubone iinkcukacha',
       eventDetails: 'Iinkcukacha zeMigubungulo',
       time: 'Ixesha',
       venue: 'Indawo',
@@ -147,6 +145,28 @@ export default function EventsPage() {
   };
 
   const t = translations[language];
+
+  // Load events from Firebase
+  useEffect(() => {
+    const loadEventsFromFirebase = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'events'));
+        const eventsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        } as CalendarEvent));
+        eventsData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        setEvents(eventsData);
+        console.log('Events loaded from Firebase:', eventsData.length);
+      } catch (error) {
+        console.error('Error loading events from Firebase:', error);
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+
+    loadEventsFromFirebase();
+  }, []);
 
   const renderCalendar = () => {
     const year = selectedDate.getFullYear();
@@ -172,12 +192,32 @@ export default function EventsPage() {
     return weeks;
   };
 
-  const getEventsForDate = (date: Date): CalendarEvent[] => {
-    const dateStr = date.toISOString().split('T')[0];
-    return eventsData.filter(event => event.date === dateStr);
+  const getEventCountText = (count: number): string => {
+    const numbers: { [key: number]: string } = {
+      1: 'one',
+      2: 'two',
+      3: 'three',
+      4: 'four',
+      5: 'five',
+      6: 'six',
+      7: 'seven',
+      8: 'eight',
+      9: 'nine',
+      10: 'ten',
+    };
+    return numbers[count] || count.toString();
   };
 
-  const hasEventsOnDate = (date: Date): boolean => {
+  const getEventsForDate = (date: Date | null): CalendarEvent[] => {
+    if (!date) return [];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    return events.filter(event => event.date === dateStr);
+  };
+
+  const hasEventsOnDate = (date: Date | null): boolean => {
     return getEventsForDate(date).length > 0;
   };
 
@@ -206,11 +246,16 @@ export default function EventsPage() {
     }));
   };
 
-  const handleDateClick = (date: Date) => {
-    const events = getEventsForDate(date);
-    if (events.length > 0) {
-      setSelectedEventDetails(events[0]);
+  const handleDateClick = (date: Date | null) => {
+    if (!date) return;
+    
+    const dateEvents = getEventsForDate(date);
+    console.log('Date clicked:', date.toDateString(), 'Events:', dateEvents.length);
+    
+    if (dateEvents.length > 0) {
+      setSelectedEventDetails(dateEvents[0]);
       setShowEventModal(true);
+      console.log('Modal opened for:', dateEvents[0].event);
     }
     setSelectedDate(date);
   };
@@ -249,14 +294,6 @@ export default function EventsPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Page Header */}
-        <div className="mb-24">
-          <h1 className="text-5xl font-bold mb-3" style={{ color: '#2d5016', fontFamily: 'Georgia, serif' }}>
-            {t.pageTitle}
-          </h1>
-          <p className="text-xl text-gray-600">{t.pageSubtitle}</p>
-        </div>
-
         {/* Event Gallery - CENTERED CONTAINER */}
         <div className="flex justify-center mb-32" style={{ marginTop: '60px' }}>
           <div className="flex gap-32">
@@ -330,7 +367,7 @@ export default function EventsPage() {
             {t.calendarTitle}
           </h2>
 
-          <div className="bg-white rounded-xl shadow-lg p-8" style={{ margin: '0 auto', maxWidth: '700px' }}>
+          <div className="bg-white rounded-xl shadow-lg p-8" style={{ margin: '0 auto', maxWidth: '800px' }}>
             {/* Month Navigation */}
             <div className="flex justify-between items-center mb-8">
               <button
@@ -364,22 +401,29 @@ export default function EventsPage() {
               {renderCalendar().map((week, weekIndex) => (
                 week.map((day, dayIndex) => {
                   const isToday = day && day.toDateString() === getTodayDateString();
-                  const hasEvents = day && hasEventsOnDate(day);
+                  const dayHasEvents = hasEventsOnDate(day);
 
                   return (
                     <button
                       key={`${weekIndex}-${dayIndex}`}
-                      onClick={() => day && handleDateClick(day)}
-                      className={`aspect-square rounded-lg font-semibold transition text-sm relative ${
+                      type="button"
+                      onClick={() => {
+                        if (day) {
+                          handleDateClick(day);
+                        }
+                      }}
+                      className={`aspect-square rounded-lg font-semibold transition text-sm relative cursor-pointer flex flex-col items-center justify-center ${
                         isToday
                           ? 'text-gray-900 hover:opacity-90'
                           : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                       }`}
                       style={isToday ? { backgroundColor: '#9ca3af' } : {}}
                     >
-                      {day ? day.getDate() : ''}
-                      {hasEvents && (
-                        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#2d5016' }}></div>
+                      <span>{day ? day.getDate() : ''}</span>
+                      {dayHasEvents && (
+                        <span className="text-xs font-bold" style={{ color: '#2d5016' }}>
+                          {getEventCountText(getEventsForDate(day!).length)} event{getEventsForDate(day!).length > 1 ? 's' : ''}
+                        </span>
                       )}
                     </button>
                   );
@@ -441,7 +485,7 @@ export default function EventsPage() {
                   href={selectedEventDetails.ticketLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full px-4 py-2 rounded-lg font-semibold text-white transition text-center block"
+                  className="w-full px-4 py-2 rounded-lg font-semibold text-white transition text-center block mb-3"
                   style={{ backgroundColor: '#2d5016' }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
@@ -453,7 +497,7 @@ export default function EventsPage() {
               {/* Close Button */}
               <button
                 onClick={() => setShowEventModal(false)}
-                className="w-full mt-3 px-4 py-2 rounded-lg font-semibold transition bg-gray-200 text-gray-800 hover:bg-gray-300"
+                className="w-full px-4 py-2 rounded-lg font-semibold transition bg-gray-200 text-gray-800 hover:bg-gray-300"
               >
                 Close
               </button>
