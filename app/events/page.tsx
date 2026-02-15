@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 type Language = 'en' | 'af' | 'xh';
 
@@ -14,7 +14,6 @@ interface EventFolder {
   descriptionEn: string;
   descriptionAf: string;
   descriptionXh: string;
-  coverImage: string;
   images: string[];
 }
 
@@ -27,7 +26,6 @@ const EVENT_FOLDERS: EventFolder[] = [
     descriptionEn: 'Celebrate the voices of our youth.',
     descriptionAf: 'Vier die stemme van ons jeug.',
     descriptionXh: 'Siyibhalisele amazwi ethu abatsha.',
-    coverImage: '/events/image1.jpg',
     images: [
       '/events/image1.jpg',
       '/events/image2.jpg',
@@ -38,11 +36,9 @@ const EVENT_FOLDERS: EventFolder[] = [
       '/events/image7.jpg',
       '/events/image8.jpg',
       '/events/image9.jpg',
-      '/events/image10.jpg',
       '/events/image11.jpg',
       '/events/image12.jpg',
       '/events/image13.jpg',
-      '/events/image14.jpg',
     ],
   },
   {
@@ -50,10 +46,9 @@ const EVENT_FOLDERS: EventFolder[] = [
     titleEn: 'Annual Festival of Lights',
     titleAf: 'Jaarlikse Lig Fees',
     titleXh: 'Umkosi Wonyaka Wezibane',
-    descriptionEn: 'A magical celebration of light and community.',
-    descriptionAf: 'Towerkrag viering van lig en gemeenskap.',
-    descriptionXh: 'Umkosi omangalisayo wezibane kunye noluntu.',
-    coverImage: '/events/image15.jpg',
+    descriptionEn: 'A magical celebration of light.',
+    descriptionAf: 'Towerkrag viering van lig.',
+    descriptionXh: 'Umkosi omangalisayo wezibane.',
     images: [
       '/events/image15.jpg',
       '/events/image16.jpg',
@@ -73,9 +68,11 @@ const EVENT_FOLDERS: EventFolder[] = [
 
 export default function EventsPage() {
   const [language, setLanguage] = useState<Language>('en');
-  const [showGallery, setShowGallery] = useState(false);
-  const [galleryFolder, setGalleryFolder] = useState<EventFolder | null>(null);
-  const [imageIndex, setImageIndex] = useState(0);
+  const [selectedImageIndexes, setSelectedImageIndexes] = useState<{ [key: string]: number }>({
+    'school-choir': 0,
+    'festival-lights': 0,
+  });
+  const [selectedDate, setSelectedDate] = useState(new Date(2026, 1, 15));
 
   const getTitle = (folder: EventFolder) => {
     if (language === 'en') return folder.titleEn;
@@ -99,11 +96,6 @@ export default function EventsPage() {
       pageSubtitle: 'Explore our signature celebrations throughout the year',
       calendarTitle: 'Event Calendar',
       noEventsMessage: 'Check back soon for event dates',
-      closeGallery: 'Close',
-      next: 'Next',
-      prev: 'Previous',
-      viewGallery: 'View Gallery',
-      of: 'of',
     },
     af: {
       home: 'Tuis',
@@ -114,11 +106,6 @@ export default function EventsPage() {
       pageSubtitle: 'Verken ons handtekening seisoenevierings deur die jaar',
       calendarTitle: 'Gebeure Kalender',
       noEventsMessage: 'Kyk gou terug vir gebeure datums',
-      closeGallery: 'Sluit',
-      next: 'Volgende',
-      prev: 'Vorige',
-      viewGallery: 'Sien Galerij',
-      of: 'van',
     },
     xh: {
       home: 'Ikhaya',
@@ -129,17 +116,10 @@ export default function EventsPage() {
       pageSubtitle: 'Jongana iziqwekelelo zethu imigubungulo kule nyaka',
       calendarTitle: 'Ikhalerindar Yemigubungulo',
       noEventsMessage: 'Buye kamuva ukuze ukwazi imihlaka yemigubungulo',
-      closeGallery: 'Vala',
-      next: 'Okulandelayo',
-      prev: 'Okwangaphambili',
-      viewGallery: 'Jonga Igaleri',
-      of: 'ye',
     },
   };
 
   const t = translations[language];
-
-  const [selectedDate, setSelectedDate] = useState(new Date(2026, 1, 15));
 
   const renderCalendar = () => {
     const year = selectedDate.getFullYear();
@@ -178,27 +158,16 @@ export default function EventsPage() {
     setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1));
   };
 
-  const openGallery = (folder: EventFolder) => {
-    setGalleryFolder(folder);
-    setImageIndex(0);
-    setShowGallery(true);
+  const getTodayDateString = () => {
+    const today = new Date();
+    return today.toDateString();
   };
 
-  const closeGalleryModal = () => {
-    setShowGallery(false);
-    setGalleryFolder(null);
-  };
-
-  const nextImage = () => {
-    if (galleryFolder) {
-      setImageIndex((prev) => (prev === galleryFolder.images.length - 1 ? 0 : prev + 1));
-    }
-  };
-
-  const prevImage = () => {
-    if (galleryFolder) {
-      setImageIndex((prev) => (prev === 0 ? galleryFolder.images.length - 1 : prev - 1));
-    }
+  const selectImage = (folderId: string, index: number) => {
+    setSelectedImageIndexes(prev => ({
+      ...prev,
+      [folderId]: index
+    }));
   };
 
   return (
@@ -236,62 +205,87 @@ export default function EventsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Page Header */}
-        <div className="mb-16">
+        <div className="mb-24">
           <h1 className="text-5xl font-bold mb-3" style={{ color: '#2d5016', fontFamily: 'Georgia, serif' }}>
             {t.pageTitle}
           </h1>
           <p className="text-xl text-gray-600">{t.pageSubtitle}</p>
         </div>
 
-        {/* Event Folders Grid - MUCH SMALLER */}
-        <div className="mb-20">
-          <div className="flex justify-center gap-8">
-            {EVENT_FOLDERS.map((folder) => (
-              <div key={folder.id} className="flex flex-col" style={{ maxWidth: '180px' }}>
-                {/* Small Cover Image */}
-                <div 
-                  className="relative w-full rounded-lg overflow-hidden bg-gray-300 cursor-pointer group shadow-md hover:shadow-lg transition mb-2"
-                  style={{ height: '120px' }}
-                  onClick={() => openGallery(folder)}
-                >
-                  <img
-                    src={folder.coverImage}
-                    alt={getTitle(folder)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition"></div>
+        {/* Event Gallery - CENTERED CONTAINER */}
+        <div className="flex justify-center mb-32" style={{ marginTop: '60px' }}>
+          <div className="flex gap-32">
+            {EVENT_FOLDERS.map((folder) => {
+              const currentImageIndex = selectedImageIndexes[folder.id] || 0;
+              const currentImage = folder.images[currentImageIndex];
+
+              return (
+                <div key={folder.id}>
+                  {/* Event Title and Description */}
+                  <div className="mb-6 max-w-xs">
+                    <h2 className="text-xl font-bold mb-2" style={{ color: '#2d5016' }}>
+                      {getTitle(folder)}
+                    </h2>
+                    <p className="text-gray-600 text-sm">
+                      {getDescription(folder)}
+                    </p>
+                  </div>
+
+                  {/* Image LEFT + Double Thumbnails RIGHT */}
+                  <div className="flex gap-6">
+                    {/* MAIN IMAGE - LEFT - LARGE */}
+                    <div className="flex-shrink-0">
+                      <img
+                        src={currentImage}
+                        alt={`${getTitle(folder)} - Image ${currentImageIndex + 1}`}
+                        className="rounded-lg shadow-lg"
+                        style={{ width: '380px', height: '380px', objectFit: 'contain', backgroundColor: '#ffffff' }}
+                      />
+                    </div>
+
+                    {/* DOUBLE COLUMN THUMBNAILS - RIGHT */}
+                    <div className="flex-shrink-0">
+                      <div className="grid grid-cols-2 gap-2">
+                        {folder.images.map((image, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => selectImage(folder.id, idx)}
+                            className={`rounded-lg overflow-hidden transition-all cursor-pointer ${
+                              idx === currentImageIndex
+                                ? 'ring-3 ring-green-600 shadow-lg'
+                                : 'hover:shadow-md opacity-70 hover:opacity-100'
+                            }`}
+                            style={{
+                              width: '60px',
+                              height: '60px',
+                            }}
+                          >
+                            <img
+                              src={image}
+                              alt={`Thumbnail ${idx + 1}`}
+                              className="w-full h-full object-cover hover:scale-105 transition"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-600 mt-2 text-center">
+                        {currentImageIndex + 1} / {folder.images.length}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-
-                {/* Content */}
-                <h3 className="text-sm font-bold mb-1" style={{ color: '#2d5016' }}>
-                  {getTitle(folder)}
-                </h3>
-                <p className="text-gray-600 mb-2 text-xs flex-grow leading-tight">
-                  {getDescription(folder)}
-                </p>
-
-                {/* View Gallery Button */}
-                <button
-                  onClick={() => openGallery(folder)}
-                  className="w-full px-2 py-1 rounded font-semibold transition text-xs"
-                  style={{ backgroundColor: '#2d5016', color: 'white' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
-                >
-                  {t.viewGallery}
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Calendar Section - WITH SPACE BEFORE */}
-        <div className="mt-32 pt-16 border-t-2 border-gray-300">
+        {/* Calendar Section - WITH LARGE SPACE BEFORE */}
+        <div className="mt-40 pt-20 border-t-2 border-gray-300">
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: '#2d5016', fontFamily: 'Georgia, serif' }}>
             {t.calendarTitle}
           </h2>
 
-          <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl mx-auto">
+          <div className="bg-white rounded-xl shadow-lg p-8" style={{ margin: '0 auto', maxWidth: '600px' }}>
             {/* Month Navigation */}
             <div className="flex justify-between items-center mb-8">
               <button
@@ -324,21 +318,18 @@ export default function EventsPage() {
             <div className="grid grid-cols-7 gap-2">
               {renderCalendar().map((week, weekIndex) => (
                 week.map((day, dayIndex) => {
-                  const isSelected = day && day.toDateString() === selectedDate.toDateString();
-                  const isToday = day && day.toDateString() === new Date().toDateString();
+                  const isToday = day && day.toDateString() === getTodayDateString();
 
                   return (
                     <button
                       key={`${weekIndex}-${dayIndex}`}
                       onClick={() => day && setSelectedDate(day)}
                       className={`aspect-square rounded-lg font-semibold transition text-sm ${
-                        isSelected
-                          ? 'text-white shadow-lg'
-                          : isToday
-                          ? 'bg-yellow-50 border-2 border-yellow-400'
-                          : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                        isToday
+                          ? 'text-gray-900 hover:opacity-90'
+                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                       }`}
-                      style={isSelected ? { backgroundColor: '#2d5016' } : {}}
+                      style={isToday ? { backgroundColor: '#a1f5d8' } : {}}
                     >
                       {day ? day.getDate() : ''}
                     </button>
@@ -352,90 +343,6 @@ export default function EventsPage() {
           </div>
         </div>
       </main>
-
-      {/* Gallery Modal */}
-      {showGallery && galleryFolder && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl">
-            {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b" style={{ backgroundColor: '#f5f5f5' }}>
-              <h2 className="text-xl font-bold" style={{ color: '#2d5016' }}>
-                {getTitle(galleryFolder)}
-              </h2>
-              <button
-                onClick={closeGalleryModal}
-                className="p-1 hover:bg-gray-200 rounded-lg transition"
-              >
-                <X size={24} style={{ color: '#2d5016' }} />
-              </button>
-            </div>
-
-            {/* Image Display */}
-            <div className="relative w-full h-96 bg-gray-300 flex items-center justify-center overflow-hidden">
-              <img
-                src={galleryFolder.images[imageIndex]}
-                alt={`Image ${imageIndex + 1}`}
-                className="w-full h-full object-cover"
-              />
-
-              {/* Navigation Buttons */}
-              {galleryFolder.images.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-lg hover:bg-opacity-75 transition"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-lg hover:bg-opacity-75 transition"
-                  >
-                    <ChevronRight size={24} />
-                  </button>
-                </>
-              )}
-
-              {/* Counter */}
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                {imageIndex + 1} {t.of} {galleryFolder.images.length}
-              </div>
-            </div>
-
-            {/* Thumbnails */}
-            {galleryFolder.images.length > 1 && (
-              <div className="p-4 bg-gray-50 flex gap-2 overflow-x-auto">
-                {galleryFolder.images.map((image, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setImageIndex(idx)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${
-                      idx === imageIndex
-                        ? 'border-green-600'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <img src={image} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Footer */}
-            <div className="p-4 text-center">
-              <button
-                onClick={closeGalleryModal}
-                className="px-6 py-2 rounded-lg font-semibold transition text-sm"
-                style={{ backgroundColor: '#2d5016', color: 'white' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
-              >
-                {t.closeGallery}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
