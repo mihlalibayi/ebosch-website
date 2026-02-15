@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import translations from '@/app/translations.json';
 
@@ -122,16 +121,18 @@ export default function About() {
           <div className="grid grid-cols-2 gap-8 mb-8">
             {directors.slice(0, 2).map((director) => (
               <div key={director.id} className="text-center bg-white rounded-lg shadow-md p-6">
-                <div className="w-64 h-64 mx-auto mb-4 rounded-lg overflow-hidden relative">
-                  <Image
-                    src={director.image}
-                    alt={director.name}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                    sizes="256px"
-                  />
-                </div>
+                <img
+                  src={director.image}
+                  alt={director.name}
+                  style={{
+                    width: '250px',
+                    height: '250px',
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                    margin: '0 auto 16px auto',
+                    display: 'block'
+                  }}
+                />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {director.name}
                 </h3>
@@ -145,16 +146,18 @@ export default function About() {
           <div className="grid grid-cols-2 gap-8">
             {directors.slice(2, 4).map((director) => (
               <div key={director.id} className="text-center bg-white rounded-lg shadow-md p-6">
-                <div className="w-64 h-64 mx-auto mb-4 rounded-lg overflow-hidden relative">
-                  <Image
-                    src={director.image}
-                    alt={director.name}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                    sizes="256px"
-                  />
-                </div>
+                <img
+                  src={director.image}
+                  alt={director.name}
+                  style={{
+                    width: '250px',
+                    height: '250px',
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                    margin: '0 auto 16px auto',
+                    display: 'block'
+                  }}
+                />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {director.name}
                 </h3>
