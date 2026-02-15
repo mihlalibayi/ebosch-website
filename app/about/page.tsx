@@ -95,12 +95,25 @@ export default function About() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* About Content Section */}
-        <section className="mb-32">
-          <div className="bg-white rounded-lg shadow-md p-8 max-w-3xl mx-auto">
+        <section style={{ marginBottom: '80px' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%)',
+            borderLeft: '4px solid #2d5016',
+            borderRadius: '8px',
+            padding: '40px',
+            maxWidth: '900px',
+            margin: '0 auto'
+          }}>
             {t.about.sections.map((section, idx) => (
-              <div key={idx} className="text-center">
+              <div key={idx} style={{ textAlign: 'center' }}>
                 {section.content.map((paragraph, pIdx) => (
-                  <p key={pIdx} className="text-gray-700 mb-4 leading-relaxed text-lg">
+                  <p key={pIdx} style={{
+                    color: '#374151',
+                    marginBottom: '20px',
+                    lineHeight: '1.8',
+                    fontSize: '17px',
+                    fontWeight: pIdx === 0 ? '600' : '400'
+                  }}>
                     {paragraph}
                   </p>
                 ))}
@@ -111,7 +124,13 @@ export default function About() {
 
         {/* Board of Directors */}
         <section>
-          <h2 className="text-3xl font-bold text-gray-900 mb-20 text-center">
+          <h2 style={{
+            fontSize: '32px',
+            fontWeight: 'bold',
+            color: '#111827',
+            marginBottom: '60px',
+            textAlign: 'center'
+          }}>
             {language === 'en' && 'Board of Directors'}
             {language === 'af' && 'Raad van Direkteure'}
             {language === 'xh' && 'Ibhodi Yabaphathi'}
@@ -137,7 +156,7 @@ export default function About() {
                 <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
                   {director.name}
                 </h3>
-                <p style={{ color: '#16a34a', fontWeight: '500', fontSize: '18px' }}>
+                <p style={{ color: '#2d5016', fontWeight: '600', fontSize: '16px' }}>
                   {getDirectorRole(director)}
                 </p>
               </div>
@@ -164,7 +183,7 @@ export default function About() {
                 <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
                   {director.name}
                 </h3>
-                <p style={{ color: '#16a34a', fontWeight: '500', fontSize: '18px' }}>
+                <p style={{ color: '#2d5016', fontWeight: '600', fontSize: '16px' }}>
                   {getDirectorRole(director)}
                 </p>
               </div>
