@@ -68,6 +68,11 @@ const categories: Category[] = [
 ];
 
 const greens = ['#4a7c2c', '#2d5016', '#6ba539', '#3d6b1f', '#5a9e3d'];
+const taglineWords = {
+  en: ['Community', 'Heritage', 'Leadership'],
+  af: ['Gemeenskap', 'Erfenis', 'Leierskap'],
+  xh: ['Uluntu', 'Inkcubeko', 'Ubunkokheli']
+};
 
 export default function Home() {
   const [language, setLanguage] = useState<Language>('en');
@@ -92,7 +97,7 @@ export default function Home() {
     const cloudWords = words.map((word) => ({
       word,
       color: greens[Math.floor(Math.random() * greens.length)],
-      size: Math.random() * 24 + 12
+      size: Math.random() * 18 + 14
     }));
     setWordCloudWords(cloudWords.sort(() => Math.random() - 0.5));
   }, [language]);
@@ -167,57 +172,99 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center gap-12">
+          {/* Logo and Word Cloud */}
+          <div className="flex items-center gap-8">
             <div className="flex-shrink-0">
               <img
                 src="/logo.jpg"
                 alt="e'Bosch Logo"
                 style={{
-                  width: '250px',
-                  height: '250px',
+                  width: '200px',
+                  height: '200px',
                   borderRadius: '8px',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                 }}
               />
             </div>
 
-            <div className="flex-1 p-8 bg-gradient-to-br from-green-50 to-white rounded-lg border border-green-200">
-              <div className="flex flex-wrap gap-4 items-center justify-center">
-                {wordCloudWords.map((item, idx) => (
-                  <span
-                    key={idx}
-                    style={{
-                      color: item.color,
-                      fontSize: `${item.size}px`,
-                      fontWeight: 'bold',
-                      fontFamily: 'Georgia, serif'
-                    }}
-                    className="whitespace-nowrap"
-                  >
-                    {item.word}
-                  </span>
-                ))}
-              </div>
+            <div style={{
+              width: '200px',
+              height: '200px',
+              background: 'linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%)',
+              border: '1px solid #dcfce7',
+              borderRadius: '8px',
+              padding: '16px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignContent: 'flex-start',
+              gap: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            }}>
+              {wordCloudWords.map((item, idx) => (
+                <span
+                  key={idx}
+                  style={{
+                    color: item.color,
+                    fontSize: `${item.size}px`,
+                    fontWeight: 'bold',
+                    fontFamily: 'Georgia, serif',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {item.word}
+                </span>
+              ))}
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        {/* Welcome Section */}
+        <div className="text-center mb-16">
+          <h1 style={{
+            fontSize: '48px',
+            fontWeight: '700',
+            background: 'linear-gradient(135deg, #2d5016 0%, #4a7c2c 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            marginBottom: '32px',
+            fontFamily: 'Georgia, serif'
+          }}>
             {t.welcome}
           </h1>
-          <p className="text-gray-600 text-lg">
-            {t.tagline}
-          </p>
+
+          {/* Tagline Words in Boxes */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '16px',
+            flexWrap: 'wrap'
+          }}>
+            {taglineWords[language].map((word, idx) => (
+              <div key={idx} style={{
+                backgroundColor: '#ffffff',
+                border: '2px solid #2d5016',
+                color: '#2d5016',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                fontWeight: '600',
+                fontSize: '16px',
+                boxShadow: '0 2px 8px rgba(45, 80, 22, 0.1)'
+              }}>
+                {word}
+              </div>
+            ))}
+          </div>
         </div>
 
+        {/* Categories Carousel */}
         <div className="relative mb-12 px-20">
           <div className={`grid gap-6 ${itemsPerPage === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
             {visibleCategories.map((category) => (
               <Link key={category.id} href={category.href}>
-                <div className="relative h-96 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:scale-105">
+                <div className="relative rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:scale-105" style={{ width: '100%', height: '240px' }}>
                   <img
                     src={category.image}
                     alt={getCategoryName(category)}
@@ -267,22 +314,43 @@ export default function Home() {
           )}
         </div>
 
-        <div id="newsletter" className="mt-20 bg-gradient-to-r from-green-600 to-green-700 rounded-lg p-8 text-white">
+        {/* Newsletter Section */}
+        <div id="newsletter" className="mt-20 bg-gradient-to-r from-green-600 to-green-700 rounded-lg p-12 text-white">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-2">{t.newsletter.title}</h2>
-            <p className="text-green-100 mb-6">{t.newsletter.description}</p>
-            <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+            <p className="text-green-100 mb-8">{t.newsletter.description}</p>
+            <form onSubmit={handleNewsletterSubmit} style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <input
                 type="email"
                 placeholder={t.newsletter.placeholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 px-4 py-3 rounded text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-300"
+                style={{
+                  padding: '12px 20px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  color: '#111827',
+                  outline: 'none',
+                  width: '300px',
+                  maxWidth: '100%'
+                }}
                 required
               />
               <button
                 type="submit"
-                className="px-6 py-3 bg-white text-green-600 font-bold rounded hover:bg-gray-100 transition-all"
+                style={{
+                  padding: '12px 32px',
+                  backgroundColor: '#ffffff',
+                  color: '#2d5016',
+                  fontWeight: 'bold',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
               >
                 {t.newsletter.button}
               </button>
