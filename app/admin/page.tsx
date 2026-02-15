@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
 import Link from 'next/link';
+import { LogIn, ArrowLeft } from 'lucide-react';
 
 export default function AdminLogin() {
   const [user, setUser] = useState<any>(null);
@@ -43,84 +44,269 @@ export default function AdminLogin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f8fafb' }}>
         <div className="text-center">
-          <p className="text-gray-600">Loading...</p>
+          <div className="inline-block w-12 h-12 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin"></div>
+          <p className="text-gray-600 mt-4">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Header with Home Link */}
-      <div className="border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <Link href="/" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
-            ← Back to website
+    <div className="min-h-screen" style={{ backgroundColor: '#f8fafb' }}>
+      {/* Header with Back Link */}
+      <div style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="max-w-7xl mx-auto px-4 py-5">
+          <Link 
+            href="/" 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
+            style={{
+              color: '#2d5016',
+              backgroundColor: '#f0fdf4',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#dcfce7';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f0fdf4';
+            }}
+          >
+            <ArrowLeft size={18} />
+            Back to website
           </Link>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          {/* Logo/Title */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-2" style={{ color: '#2d5016' }}>
-              e'Bosch
+      <div className="flex-1 flex items-center justify-center px-4 py-20">
+        <div style={{ maxWidth: '500px', width: '100%' }}>
+          {/* Logo Circle */}
+          <div className="flex justify-center mb-12">
+            <div 
+              style={{
+                width: '160px',
+                height: '160px',
+                borderRadius: '50%',
+                backgroundColor: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 20px 50px rgba(45, 80, 22, 0.15)',
+                padding: '8px',
+                overflow: 'hidden',
+              }}
+            >
+              <img 
+                src="/logo.jpg" 
+                alt="e'Bosch Logo"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '50%',
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Title and Subtitle */}
+          <div className="text-center mb-10">
+            <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
+              Welcome Back
             </h1>
-            <p className="text-gray-600 text-lg">Admin Panel</p>
+            <p style={{ fontSize: '16px', color: '#6b7280', marginBottom: '6px' }}>
+              e'Bosch Admin Portal
+            </p>
+            <p style={{ fontSize: '14px', color: '#9ca3af' }}>
+              Manage your events and content
+            </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
+            <div style={{
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fecaca',
+              color: '#991b1b',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              marginBottom: '24px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
               {error}
             </div>
           )}
 
-          {/* Sign In Button */}
-          <button
-            onClick={handleGoogleSignIn}
-            className="w-full px-6 py-4 rounded-lg font-semibold text-white transition mb-8 flex items-center justify-center gap-3 text-lg"
-            style={{ backgroundColor: '#2d5016' }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
-          >
-            <svg className="w-6 h-6" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="currentColor"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="currentColor"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="currentColor"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
-            Sign in with Google
-          </button>
+          {/* Sign In Card */}
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '32px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
+            marginBottom: '20px'
+          }}>
+            {/* Google Sign In Button */}
+            <button
+              onClick={handleGoogleSignIn}
+              className="w-full transition-all"
+              style={{
+                padding: '14px 20px',
+                borderRadius: '10px',
+                fontSize: '16px',
+                fontWeight: '600',
+                backgroundColor: '#2d5016',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                marginBottom: '16px'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
+            >
+              <LogIn size={20} />
+              Sign in with Google
+            </button>
 
-          {/* Info Box */}
-          <div className="bg-gray-50 border border-gray-200 px-6 py-5 rounded-lg text-center">
-            <p className="text-gray-700 text-sm">
-              Sign in with: <span className="font-semibold">members.ebosch@gmail.com</span>
-            </p>
+            {/* Divider */}
+            <div style={{ position: 'relative', marginBottom: '20px' }}>
+              <div style={{ borderTop: '1px solid #e5e7eb' }}></div>
+              <span style={{
+                position: 'absolute',
+                top: '-12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: 'white',
+                padding: '0 8px',
+                fontSize: '14px',
+                color: '#9ca3af'
+              }}>
+                or
+              </span>
+            </div>
+
+            {/* Email Input */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '6px'
+              }}>
+                Email Address
+              </label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  transition: 'border-color 0.2s'
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
+              />
+            </div>
+
+            {/* Password Input */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '6px'
+              }}>
+                Password
+              </label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  transition: 'border-color 0.2s'
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
+              />
+            </div>
+
+            {/* Sign In Button */}
+            <button
+              style={{
+                width: '100%',
+                padding: '12px 20px',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: '600',
+                backgroundColor: '#2d5016',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
+            >
+              Sign In
+            </button>
+
+            {/* Info Message */}
+            <div style={{
+              backgroundColor: '#f3fce8',
+              border: '1px solid #d1fae5',
+              borderRadius: '8px',
+              padding: '14px 16px',
+              textAlign: 'center',
+              marginTop: '20px'
+            }}>
+              <p style={{ fontSize: '14px', color: '#065f46', fontWeight: '500', marginBottom: '4px' }}>
+                Admin Access Only
+              </p>
+              <p style={{ fontSize: '13px', color: '#047857' }}>
+                Use: <span style={{ fontWeight: '600' }}>members.ebosch@gmail.com</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Security Note */}
+          <div style={{
+            textAlign: 'center',
+            fontSize: '12px',
+            color: '#9ca3af',
+            paddingTop: '12px'
+          }}>
+            <p>🔒 Secure login with Google OAuth 2.0</p>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 py-4 text-center text-gray-500 text-sm">
-        <p>e'Bosch Event Management System</p>
+      <div style={{
+        borderTop: '1px solid #e5e7eb',
+        backgroundColor: 'white',
+        textAlign: 'center',
+        padding: '20px',
+        fontSize: '13px',
+        color: '#9ca3af'
+      }}>
+        <p>e'Bosch Event Management System • Admin Portal</p>
       </div>
     </div>
   );
