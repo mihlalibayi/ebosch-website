@@ -67,7 +67,6 @@ const categories: Category[] = [
   }
 ];
 
-const greens = ['#4a7c2c', '#2d5016', '#6ba539', '#3d6b1f', '#5a9e3d'];
 const taglineWords = {
   en: ['Community', 'Heritage', 'Leadership'],
   af: ['Gemeenskap', 'Erfenis', 'Leierskap'],
@@ -78,7 +77,6 @@ export default function Home() {
   const [language, setLanguage] = useState<Language>('en');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [email, setEmail] = useState('');
-  const [wordCloudWords, setWordCloudWords] = useState<Array<{ word: string; color: string; size: number }>>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -91,16 +89,6 @@ export default function Home() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  useEffect(() => {
-    const words = translations[language].wordcloud.words;
-    const cloudWords = words.map((word) => ({
-      word,
-      color: greens[Math.floor(Math.random() * greens.length)],
-      size: Math.random() * 18 + 14
-    }));
-    setWordCloudWords(cloudWords.sort(() => Math.random() - 0.5));
-  }, [language]);
 
   if (!mounted) return null;
 
@@ -135,8 +123,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
             <nav className="flex gap-6">
               <Link href="/" className="text-green-600 font-medium border-b-2 border-green-600">
                 {language === 'en' && 'Home'}
@@ -168,51 +156,6 @@ export default function Home() {
                 >
                   {lang.toUpperCase()}
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Logo and Word Cloud */}
-          <div className="flex items-center gap-8">
-            <div className="flex-shrink-0">
-              <img
-                src="/logo.jpg"
-                alt="e'Bosch Logo"
-                style={{
-                  width: '200px',
-                  height: '200px',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                }}
-              />
-            </div>
-
-            <div style={{
-              width: '200px',
-              height: '200px',
-              background: 'linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%)',
-              border: '1px solid #dcfce7',
-              borderRadius: '8px',
-              padding: '16px',
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignContent: 'flex-start',
-              gap: '8px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-            }}>
-              {wordCloudWords.map((item, idx) => (
-                <span
-                  key={idx}
-                  style={{
-                    color: item.color,
-                    fontSize: `${item.size}px`,
-                    fontWeight: 'bold',
-                    fontFamily: 'Georgia, serif',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {item.word}
-                </span>
               ))}
             </div>
           </div>
@@ -260,11 +203,11 @@ export default function Home() {
         </div>
 
         {/* Categories Carousel */}
-        <div className="relative mb-12 px-20">
+        <div className="relative mb-12 px-20" style={{ marginTop: '80px' }}>
           <div className={`grid gap-6 ${itemsPerPage === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
             {visibleCategories.map((category) => (
               <Link key={category.id} href={category.href}>
-                <div className="relative rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:scale-105" style={{ width: '100%', height: '240px' }}>
+                <div className="relative rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:scale-105" style={{ width: '100%', height: '380px' }}>
                   <img
                     src={category.image}
                     alt={getCategoryName(category)}
