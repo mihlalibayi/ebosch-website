@@ -1,229 +1,228 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import translations from '@/app/translations.json';
+import { useState } from 'react';
 
-type Language = 'en' | 'af' | 'xh';
+interface Director {
+  id: string;
+  name: string;
+  titleEn: string;
+  titleAf: string;
+  titleXh: string;
+  bioEn: string;
+  bioAf: string;
+  bioXh: string;
+  image: string;
+}
 
-const directors = [
+const DIRECTORS: Director[] = [
   {
-    id: 'sias',
+    id: 'sias-mostert',
     name: 'Dr. Sias Mostert',
-    role: 'Director',
-    roleAf: 'Direkteur',
-    roleXh: 'Umongameli',
-    image: '/about/siasdirector.jpg'
+    titleEn: 'Director',
+    titleAf: 'Direkteur',
+    titleXh: 'Umongameli',
+    bioEn: 'Visionary leader with decades of experience in community development and heritage preservation.',
+    bioAf: 'Visionêre leier met dekades van ondervinding in gemeenskapsontwikkeling en erfenisbehoud.',
+    bioXh: 'Umongameli onobulumko onobuthongo bokhuselelo lwesilizali nokugcinela indalo.',
+    image: '/about/director1.jpg',
   },
   {
-    id: 'matilda',
+    id: 'matilda-burden',
     name: 'Prof. Matilda Burden',
-    role: 'Chairperson',
-    roleAf: 'Voorsitter',
-    roleXh: 'Ummeli',
-    image: '/about/matildachairperson.jpg'
+    titleEn: 'Co-Director',
+    titleAf: 'Mede-Direkteur',
+    titleXh: 'Umongameli Ofela',
+    bioEn: 'Leading academic and cultural advocate dedicated to youth empowerment and leadership development.',
+    bioAf: 'Leidende akademikus en kultuurvoorstander wat toegewyd is aan jongstevernuwing en leierskap.',
+    bioXh: 'Umfundisi omkhulu kunye nomthameli woluntu ozingela ukuthuthukisa abatsha nobukumkani.',
+    image: '/about/director2.jpg',
   },
   {
-    id: 'johann',
+    id: 'johann-murray',
     name: 'Johann Murray',
-    role: 'Director',
-    roleAf: 'Direkteur',
-    roleXh: 'Umongameli',
-    image: '/about/johanndirector.jpg'
+    titleEn: 'Board Member',
+    titleAf: 'Raadslid',
+    titleXh: 'Ilungu leBoadi',
+    bioEn: 'Strategic thinker driving operational excellence and sustainable community initiatives.',
+    bioAf: 'Strategiese denker wat operasionele uitnemendheid en volhoubare gemeenskapsprojekel voordryf.',
+    bioXh: 'Umceli ophakamising okuqulunquluntu kunye nenkuthazo eyomeleleyo yoluntu.',
+    image: '/about/director3.jpg',
   },
   {
-    id: 'paul',
+    id: 'paul-khambule',
     name: 'Paul Roviss Khambule',
-    role: 'Director',
-    roleAf: 'Direkteur',
-    roleXh: 'Umongameli',
-    image: '/about/pauldirector.jpg'
-  }
+    titleEn: 'Board Member',
+    titleAf: 'Raadslid',
+    titleXh: 'Ilungu leBoadi',
+    bioEn: 'Community advocate passionate about bridging cultural gaps and fostering inclusive growth.',
+    bioAf: 'Gemeenskapsvoorstander passievol oor kultuurklowe oorbrugga en inklusiewe groei bevorder.',
+    bioXh: 'Umthameli woluntu onomdla ekufumana inkalo kunye nokuthuthukisa bonke abantu.',
+    image: '/about/director4.jpg',
+  },
 ];
 
 export default function About() {
-  const [language, setLanguage] = useState<Language>('en');
-  const t = translations[language];
+  const [language, setLanguage] = useState('en');
 
-  const getDirectorRole = (director: typeof directors[0]) => {
-    if (language === 'af') return director.roleAf;
-    if (language === 'xh') return director.roleXh;
-    return director.role;
+  const translations = {
+    en: {
+      home: 'Home',
+      about: 'About',
+      events: 'Events',
+      contact: 'Contact',
+      pageTitle: 'About e\'Bosch',
+      pageSubtitle: 'Building community, preserving heritage, developing leadership',
+      aboutText: 'e\'Bosch is a community-based organization dedicated to preserving cultural heritage, developing leadership skills, and fostering meaningful community engagement. Our mission is to create a thriving community where culture, education, and social development go hand in hand.',
+      directors: 'Our Leadership',
+      declaration: 'Declaration of Intent',
+    },
+    af: {
+      home: 'Tuisblad',
+      about: 'Oor ons',
+      events: 'Gebeure',
+      contact: 'Kontak',
+      pageTitle: 'Oor e\'Bosch',
+      pageSubtitle: 'Gemeenskap bou, erfenis bewaar, leierskap ontwikkel',
+      aboutText: 'e\'Bosch is \'n gemeenskapgebaseerde organisasie toegewyd aan erfenisbehoud, leierskapontwikkeling en betekenisvolle gemeenskapsdeelname. Ons missie is \'n bleiende gemeenskap skep waar kultuur, onderwys en maatskaplike ontwikkeling hand aan hand gaan.',
+      directors: 'Ons Leierskap',
+      declaration: 'Verklaring van Doel',
+    },
+    xh: {
+      home: 'Ikhaya',
+      about: 'Malunga',
+      events: 'Imigubungulo',
+      contact: 'Unxibelelwano',
+      pageTitle: 'Malunga ne-e\'Bosch',
+      pageSubtitle: 'Ukwakha luntu, ukugcinela indalo, ukuthuthukisa ubukumkani',
+      aboutText: 'e\'Bosch yi indawo yoluntu ezingela ukugcinela inkcubeko, uthuthukisa ubukumkani kunye nokubandakanya koluntu. Injongo yethu yi ukwakha luntu elikhulayo apho inkcubeko, ifundo kunye nothuthuko lwentlalontle zisebenza kunye.',
+      directors: 'Ababoneleli Bethu',
+      declaration: 'Isitatimende Senzolo',
+    },
+  };
+
+  const t = translations[language as keyof typeof translations];
+
+  const getTitle = (director: Director) => {
+    if (language === 'en') return director.titleEn;
+    if (language === 'af') return director.titleAf;
+    return director.titleXh;
+  };
+
+  const getBio = (director: Director) => {
+    if (language === 'en') return director.bioEn;
+    if (language === 'af') return director.bioAf;
+    return director.bioXh;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <nav className="flex gap-6">
-              <Link href="/" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
-                {language === 'en' && 'Home'}
-                {language === 'af' && 'Tuis'}
-                {language === 'xh' && 'Ikhaya'}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Navigation Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <div></div>
+            <nav className="flex items-center gap-8">
+              <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium">
+                {t.home}
               </Link>
-              <Link href="/about" className="text-green-600 font-medium border-b-2 border-green-600">
-                {language === 'en' && 'About'}
-                {language === 'af' && 'Oor Ons'}
-                {language === 'xh' && 'Malunga Nathi'}
+              <Link href="/about" className="font-bold" style={{ color: '#2d5016' }}>
+                {t.about}
               </Link>
-              <Link href="/contact" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
-                {language === 'en' && 'Contact'}
-                {language === 'af' && 'Kontak'}
-                {language === 'xh' && 'Xhomekela'}
+              <Link href="/events" className="text-gray-600 hover:text-gray-900 font-medium">
+                {t.events}
               </Link>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600"
+              >
+                <option value="en">English</option>
+                <option value="af">Afrikaans</option>
+                <option value="xh">Xhosa</option>
+              </select>
             </nav>
-
-            <div className="flex gap-2">
-              {(['en', 'af', 'xh'] as Language[]).map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => setLanguage(lang)}
-                  className={`px-4 py-2 rounded text-sm font-medium transition-all ${
-                    language === lang
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                  }`}
-                >
-                  {lang.toUpperCase()}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* About Content Section */}
-        <section style={{ marginBottom: '80px' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%)',
-            borderLeft: '4px solid #2d5016',
-            borderRadius: '8px',
-            padding: '40px',
-            maxWidth: '900px',
-            margin: '0 auto'
-          }}>
-            {t.about.sections.map((section, idx) => (
-              <div key={idx} style={{ textAlign: 'center' }}>
-                {section.content.map((paragraph, pIdx) => (
-                  <p key={pIdx} style={{
-                    color: '#374151',
-                    marginBottom: '20px',
-                    lineHeight: '1.8',
-                    fontSize: '17px',
-                    fontWeight: pIdx === 0 ? '600' : '400'
-                  }}>
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            ))}
-          </div>
-        </section>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Page Header */}
+        <div className="mb-16">
+          <h1 className="text-5xl font-bold mb-3" style={{ color: '#2d5016', fontFamily: 'Georgia, serif' }}>
+            {t.pageTitle}
+          </h1>
+          <p className="text-xl text-gray-600">{t.pageSubtitle}</p>
+        </div>
 
-        {/* Board of Directors */}
-        <section style={{ marginBottom: '80px' }}>
-          <h2 style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            color: '#111827',
-            marginBottom: '60px',
-            textAlign: 'center'
-          }}>
-            {language === 'en' && 'Board of Directors'}
-            {language === 'af' && 'Raad van Direkteure'}
-            {language === 'xh' && 'Ibhodi Yabaphathi'}
+        {/* About Text */}
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-20 max-w-3xl">
+          <p className="text-gray-700 leading-relaxed text-lg">{t.aboutText}</p>
+        </div>
+
+        {/* Directors Section */}
+        <div className="mb-20">
+          <h2 className="text-3xl font-bold mb-12 text-center" style={{ color: '#2d5016', fontFamily: 'Georgia, serif' }}>
+            {t.directors}
           </h2>
-
-          {/* First Row - Sias and Matilda */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '120px', marginBottom: '80px' }}>
-            {directors.slice(0, 2).map((director) => (
-              <div key={director.id} style={{ textAlign: 'center' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {DIRECTORS.map((director) => (
+              <div key={director.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
                 <img
                   src={director.image}
                   alt={director.name}
-                  style={{
-                    width: '320px',
-                    height: '320px',
-                    objectFit: 'cover',
-                    borderRadius: '10px',
-                    marginBottom: '16px',
-                    display: 'block',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
+                  className="w-full h-80 object-cover"
                 />
-                <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
-                  {director.name}
-                </h3>
-                <p style={{ color: '#2d5016', fontWeight: '600', fontSize: '16px' }}>
-                  {getDirectorRole(director)}
-                </p>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold mb-1" style={{ color: '#2d5016' }}>
+                    {director.name}
+                  </h3>
+                  <p className="text-sm font-semibold text-green-700 mb-3">
+                    {getTitle(director)}
+                  </p>
+                  <p className="text-sm text-gray-600">{getBio(director)}</p>
+                </div>
               </div>
             ))}
           </div>
+        </div>
 
-          {/* Second Row - Johann and Paul */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '120px' }}>
-            {directors.slice(2, 4).map((director) => (
-              <div key={director.id} style={{ textAlign: 'center' }}>
-                <img
-                  src={director.image}
-                  alt={director.name}
-                  style={{
-                    width: '320px',
-                    height: '320px',
-                    objectFit: 'cover',
-                    borderRadius: '10px',
-                    marginBottom: '16px',
-                    display: 'block',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
-                />
-                <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
-                  {director.name}
-                </h3>
-                <p style={{ color: '#2d5016', fontWeight: '600', fontSize: '16px' }}>
-                  {getDirectorRole(director)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Declaration of Intent Section */}
-        <section style={{ textAlign: 'center' }}>
-          <h3 style={{
-            fontSize: '24px',
-            fontWeight: '400',
-            color: '#374151',
-            marginBottom: '40px',
-            textAlign: 'center'
-          }}>
-            {language === 'en' && 'Declaration of Intent'}
-            {language === 'af' && 'Verklaring van Voorneme'}
-            {language === 'xh' && 'Isibhaso Sesiphumo'}
-          </h3>
-
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <img
-              src="/about/declofint.jpg"
-              alt="Declaration of Intent"
-              style={{
-                maxWidth: '900px',
-                width: '100%',
-                height: 'auto',
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-              }}
-            />
-          </div>
-        </section>
+        {/* Declaration Section */}
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: '#2d5016' }}>
+            {t.declaration}
+          </h2>
+          <img
+            src="/about/declaration.jpg"
+            alt="Declaration of Intent"
+            className="w-full rounded-lg"
+          />
+        </div>
       </main>
 
-      <footer className="bg-gray-900 text-gray-300 py-8 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm"></p>
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-300 mt-20 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <h4 className="text-white font-bold mb-4">e'Bosch</h4>
+              <p className="text-sm text-gray-400">Building community, preserving heritage, developing leadership.</p>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-4">{t.events}</h4>
+              <ul className="text-sm space-y-2 text-gray-400">
+                <li><a href="/events" className="hover:text-white transition">Annual Events</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-4">{t.contact}</h4>
+              <p className="text-sm text-gray-400">Email: info@ebosch.org</p>
+              <p className="text-sm text-gray-400">Phone: +27 (0) XX XXX XXXX</p>
+            </div>
+          </div>
+          <div className="border-t border-gray-700 pt-8 text-sm text-center text-gray-400">
+            <p>&copy; 2026 e'Bosch Community. Registration 150-564. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

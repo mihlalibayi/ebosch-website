@@ -195,9 +195,7 @@ export default function EventsPage() {
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="text-2xl font-bold" style={{ color: '#2d5016' }}>
-              e'Bosch
-            </Link>
+            <div></div>
             <nav className="flex items-center gap-8">
               <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium">
                 {t.home}
@@ -224,7 +222,7 @@ export default function EventsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Page Header */}
-        <div className="mb-12">
+        <div className="mb-16">
           <h1 className="text-5xl font-bold mb-3" style={{ color: '#2d5016', fontFamily: 'Georgia, serif' }}>
             {t.pageTitle}
           </h1>
@@ -232,7 +230,7 @@ export default function EventsPage() {
         </div>
 
         {/* Event Folders Grid */}
-        <div className="mb-16">
+        <div className="mb-24">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {EVENT_FOLDERS.map((folder) => (
               <div
@@ -243,8 +241,8 @@ export default function EventsPage() {
                   setCurrentImageIndex(0);
                 }}
               >
-                {/* Landscape Image Container */}
-                <div className="relative w-full h-48 overflow-hidden bg-gray-200">
+                {/* Landscape Image Container - Smaller */}
+                <div className="relative w-full h-32 overflow-hidden bg-gray-200">
                   <img
                     src={folder.coverImage}
                     alt={getTitle(folder)}
@@ -256,17 +254,17 @@ export default function EventsPage() {
 
                 {/* Content */}
                 <div className="p-6 bg-white">
-                  <h3 className="text-2xl font-bold mb-2" style={{ color: '#2d5016' }}>
+                  <h3 className="text-xl font-bold mb-2" style={{ color: '#2d5016' }}>
                     {getTitle(folder)}
                   </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-2">{getDescription(folder)}</p>
+                  <p className="text-gray-600 mb-4 text-sm line-clamp-2">{getDescription(folder)}</p>
 
                   {/* Years */}
                   <div className="flex gap-2 mb-4">
                     {folder.years.map((year) => (
                       <span
                         key={year}
-                        className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold"
+                        className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold"
                       >
                         {year}
                       </span>
@@ -275,7 +273,7 @@ export default function EventsPage() {
 
                   {/* View Gallery Button */}
                   <button
-                    className="w-full px-4 py-2 rounded-lg font-semibold transition"
+                    className="w-full px-4 py-2 rounded-lg font-semibold transition text-sm"
                     style={{ backgroundColor: '#2d5016', color: 'white' }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
@@ -289,7 +287,7 @@ export default function EventsPage() {
         </div>
 
         {/* Calendar Section */}
-        <div className="mt-20 pt-16 border-t-2 border-gray-300">
+        <div className="mt-24 pt-16 border-t-2 border-gray-300">
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: '#2d5016', fontFamily: 'Georgia, serif' }}>
             {t.calendarTitle}
           </h2>
@@ -317,7 +315,7 @@ export default function EventsPage() {
             {/* Day Headers */}
             <div className="grid grid-cols-7 gap-2 mb-4">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <div key={day} className="text-center font-bold text-gray-700 py-3">
+                <div key={day} className="text-center font-bold text-gray-700 py-3 text-sm">
                   {day}
                 </div>
               ))}
@@ -359,22 +357,22 @@ export default function EventsPage() {
       {/* Lightbox Gallery Modal */}
       {selectedFolder && (
         <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-96">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-96">
             {/* Header */}
             <div className="flex justify-between items-center p-6 border-b" style={{ backgroundColor: '#f5f5f5' }}>
-              <h2 className="text-2xl font-bold" style={{ color: '#2d5016' }}>
+              <h2 className="text-xl font-bold" style={{ color: '#2d5016' }}>
                 {getTitle(selectedFolder)}
               </h2>
               <button
                 onClick={() => setSelectedFolder(null)}
                 className="p-1 hover:bg-gray-200 rounded-lg transition"
               >
-                <X size={28} style={{ color: '#2d5016' }} />
+                <X size={24} style={{ color: '#2d5016' }} />
               </button>
             </div>
 
             {/* Image Display */}
-            <div className="relative w-full h-80 bg-gray-200 flex items-center justify-center overflow-hidden">
+            <div className="relative w-full h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
               <img
                 src={selectedFolder.images[currentImageIndex]}
                 alt={`Gallery ${currentImageIndex + 1}`}
@@ -388,13 +386,13 @@ export default function EventsPage() {
                     onClick={handlePrevImage}
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-75 transition"
                   >
-                    <ChevronLeft size={24} />
+                    <ChevronLeft size={20} />
                   </button>
                   <button
                     onClick={handleNextImage}
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-75 transition"
                   >
-                    <ChevronRight size={24} />
+                    <ChevronRight size={20} />
                   </button>
                 </>
               )}
@@ -407,12 +405,12 @@ export default function EventsPage() {
 
             {/* Thumbnails */}
             {selectedFolder.images.length > 1 && (
-              <div className="p-4 bg-gray-50 flex gap-2 overflow-x-auto">
+              <div className="p-4 bg-gray-50 flex gap-2 overflow-x-auto max-h-20">
                 {selectedFolder.images.map((image, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentImageIndex(idx)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${
+                    className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition ${
                       idx === currentImageIndex
                         ? 'border-green-600'
                         : 'border-gray-300 hover:border-gray-400'
@@ -428,7 +426,7 @@ export default function EventsPage() {
             <div className="p-4 text-center">
               <button
                 onClick={() => setSelectedFolder(null)}
-                className="px-6 py-2 rounded-lg font-semibold transition"
+                className="px-6 py-2 rounded-lg font-semibold transition text-sm"
                 style={{ backgroundColor: '#2d5016', color: 'white' }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
