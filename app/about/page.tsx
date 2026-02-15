@@ -43,7 +43,6 @@ const directors = [
 
 export default function About() {
   const [language, setLanguage] = useState<Language>('en');
-  const t = translations[language];
 
   const getDirectorRole = (director: typeof directors[0]) => {
     if (language === 'af') return director.roleAf;
@@ -94,34 +93,16 @@ export default function About() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* About Section */}
-        <section className="mb-24">
-          <div className="bg-white rounded-lg shadow-md p-8">
-            {t.about.sections.map((section, idx) => (
-              <div key={idx} className="mb-6 text-center">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  {section.title}
-                </h2>
-                {section.content.map((paragraph, pIdx) => (
-                  <p key={pIdx} className="text-gray-700 mb-4 leading-relaxed text-lg max-w-3xl mx-auto">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Board of Directors */}
         <section>
-          <h2 className="text-3xl font-bold text-gray-900 mb-16 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-20 text-center">
             {language === 'en' && 'Board of Directors'}
             {language === 'af' && 'Raad van Direkteure'}
             {language === 'xh' && 'Ibhodi Yabaphathi'}
           </h2>
 
           {/* First Row - Sias and Matilda */}
-          <div className="flex justify-center gap-12 mb-16">
+          <div className="flex justify-center gap-20 mb-20">
             {directors.slice(0, 2).map((director) => (
               <div key={director.id} className="text-center">
                 <img
@@ -148,7 +129,7 @@ export default function About() {
           </div>
 
           {/* Second Row - Johann and Paul */}
-          <div className="flex justify-center gap-12">
+          <div className="flex justify-center gap-20">
             {directors.slice(2, 4).map((director) => (
               <div key={director.id} className="text-center">
                 <img
@@ -178,7 +159,7 @@ export default function About() {
 
       <footer className="bg-gray-900 text-gray-300 py-8 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm">{t.footer.npo}</p>
+          <p className="text-sm"></p>
         </div>
       </footer>
     </div>
