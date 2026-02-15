@@ -26,7 +26,11 @@ interface CalendarEvent {
   event: string;
   venue: string;
   contact: string;
+  contacts: Array<{name: string; email: string; phone: string}>;
   ticketLink: string;
+  eventType?: string;
+  eventLink?: string;
+  detailsConfirmed?: boolean;
 }
 
 const EVENT_FOLDERS: EventFolder[] = [
@@ -210,11 +214,6 @@ export default function EventsPage() {
           <Link href="/about" className="text-gray-600 hover:text-gray-900">{t.about}</Link>
           <Link href="/events" style={{ color: '#2d5016' }} className="font-bold">{t.events}</Link>
           <Link href="/contact" className="text-gray-600 hover:text-gray-900">{t.contact}</Link>
-          <select value={language} onChange={(e) => setLanguage(e.target.value as Language)} className="border rounded px-2">
-            <option value="en">EN</option>
-            <option value="af">AF</option>
-            <option value="xh">XH</option>
-          </select>
         </div>
       </header>
 
@@ -322,35 +321,132 @@ export default function EventsPage() {
         </div>
       </main>
 
-      {/* MODAL - Simple and Direct */}
+      {/* MODAL - Show All Details */}
       {modalOpen && modalEvent && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', maxWidth: '400px', width: '90%', boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', color: '#2d5016' }}>{modalEvent.event}</h3>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, overflowY: 'auto' }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', maxWidth: '500px', width: '90%', boxShadow: '0 10px 40px rgba(0,0,0,0.3)', margin: '20px auto' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px', color: '#2d5016' }}>{modalEvent.event}</h3>
+            
+            {/* Date */}
+            <div style={{ marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Date</p>
+              <p style={{ color: '#1f2937' }}>{modalEvent.date}</p>
+            </div>
+
+            {/* Time */}
             <div style={{ marginBottom: '16px' }}>
               <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.time}</p>
               <p style={{ color: '#1f2937' }}>{modalEvent.time}</p>
             </div>
+
+            {/* Event Type */}
             <div style={{ marginBottom: '16px' }}>
-              <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.venue}</p>
-              <p style={{ color: '#1f2937' }}>{modalEvent.venue}</p>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Event Type</p>
+              <p style={{ color: '#1f2937', textTransform: 'capitalize' }}>{modalEvent.eventType}</p>
             </div>
-            {modalEvent.contact && (
+
+            {/* Venue or Link */}
+            {modalEvent.eventType === 'in-person' ? (
               <div style={{ marginBottom: '16px' }}>
-                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.contact}</p>
-                <p style={{ color: '#1f2937' }}>{modalEvent.contact}</p>
+                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.venue}</p>
+                <p style={{ color: '#1f2937' }}>{modalEvent.venue || 'TBD'}</p>
+              </div>
+            ) : (
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Event Link</p>
+                <a href={modalEvent.eventLink} target="_blank" rel="noopener noreferrer" style={{ color: '#2d5016', textDecoration: 'underline' }}>
+                  {modalEvent.eventLink || 'N/A'}
+                </a>
               </div>
             )}
-            {modalEvent.ticketLink && (
-              <a href={modalEvent.ticketLink} target="_blank" rel="noopener noreferrer" 
-                style={{ display: 'block', width: '100%', padding: '10px', backgroundColor: '#2d5016', color: 'white', textAlign: 'center', borderRadius: '6px', marginBottom: '8px', textDecoration: 'none' }}>
-                {t.buyTickets}
-              </a>
+
+            {/* Details Confirmed - ONLY if present */}
+            {modalEvent.detailsConfirmed !== undefined && (
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Details Status</p>
+                <p style={{ color: '#1f2937' }}>{modalEvent.detailsConfirmed ? 'Confirmed' : 'To Be Confirmed'}</p>
+              </div>
             )}
-            <button onClick={() => setModalOpen(false)} 
-              style={{ width: '100%', padding: '10px', backgroundColor: '#e5e7eb', color: '#1f2937', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
-              Close
-            </button>
+
+            {/* Contact - ONLY if has value - Extract from array */}
+            {modalEvent.contacts && Array.isArray(modalEvent.contacts) && modalEvent.contacts.length > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.contact}</p>
+                <div style={{ color: '#1f2937' }}>
+                  {modalEvent.contacts.map((contact: any, idx: number) => (
+                    <div key={idx}>
+                      <p style={{ margin: '4px 0' }}>
+                        {contact.name}
+                        {contact.email && <span> • {contact.email}</span>}
+                        {contact.phone && <span> • {contact.phone}</span>}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Ticket Link - ONLY if has value */}
+            {modalEvent.ticketLink && (
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Tickets</p>
+                <a href={modalEvent.ticketLink} target="_blank" rel="noopener noreferrer" style={{ color: '#2d5016', textDecoration: 'underline' }}>
+                  {modalEvent.ticketLink}
+                </a>
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {modalEvent.ticketLink && (
+                <a href={modalEvent.ticketLink} target="_blank" rel="noopener noreferrer" 
+                  style={{ display: 'block', width: '100%', padding: '10px', backgroundColor: '#2d5016', color: 'white', textAlign: 'center', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}>
+                  {t.buyTickets}
+                </a>
+              )}
+              <button 
+                onClick={() => {
+                  const startTime = modalEvent.time.split(' - ')[0];
+                  const endTime = modalEvent.time.split(' - ')[1];
+                  const startDate = new Date(modalEvent.date + 'T' + startTime);
+                  const endDate = new Date(modalEvent.date + 'T' + endTime);
+                  
+                  const formatDate = (date: Date) => {
+                    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                  };
+
+                  const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//e'Bosch//Calendar//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:${modalEvent.date}-${modalEvent.event}
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTART:${formatDate(startDate)}
+DTEND:${formatDate(endDate)}
+SUMMARY:${modalEvent.event}
+DESCRIPTION:${modalEvent.event}
+LOCATION:${modalEvent.venue || ''}
+END:VEVENT
+END:VCALENDAR`;
+
+                  const blob = new Blob([icsContent], { type: 'text/calendar' });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `${modalEvent.event.replace(/\s+/g, '_')}.ics`;
+                  link.click();
+                  URL.revokeObjectURL(url);
+                }}
+                style={{ width: '100%', padding: '10px', backgroundColor: '#a1f5d8', color: '#000000', textAlign: 'center', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
+                Add to Calendar
+              </button>
+              <button onClick={() => setModalOpen(false)} 
+                style={{ width: '100%', padding: '10px', backgroundColor: '#e5e7eb', color: '#1f2937', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -5,7 +5,13 @@ import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase-config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
-import { Plus, X, Edit2, Trash2, LogOut } from 'lucide-react';
+import { Plus, X, LogOut } from 'lucide-react';
+
+interface Contact {
+  name: string;
+  email: string;
+  phone: string;
+}
 
 interface Event {
   id: string;
@@ -16,7 +22,7 @@ interface Event {
   eventType: string;
   eventLink?: string;
   venue: string;
-  contact: any[];
+  contacts: Contact[];
   detailsConfirmed: boolean;
   clickToBuyLink: string;
 }
@@ -36,7 +42,7 @@ export default function AdminDashboard() {
     eventType: 'in-person',
     eventLink: '',
     venue: '',
-    contact: [{ name: '', email: '', phone: '' }],
+    contacts: [{ name: '', email: '', phone: '' }],
     detailsConfirmed: true,
     clickToBuyLink: '',
   });
@@ -56,16 +62,44 @@ export default function AdminDashboard() {
   const loadEvents = async () => {
     try {
       const snap = await getDocs(collection(db, 'events'));
-      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Event));
+      const data = snap.docs.map(d => {
+        const docData = d.data() as any;
+        // Safely handle contacts - ensure it's always an array of contact objects
+        let contacts: Contact[] = [];
+        if (Array.isArray(docData.contacts)) {
+          contacts = docData.contacts.map((c: any) => ({
+            name: typeof c === 'object' && c?.name ? c.name : '',
+            email: typeof c === 'object' && c?.email ? c.email : '',
+            phone: typeof c === 'object' && c?.phone ? c.phone : '',
+          }));
+        }
+        
+        return {
+          id: d.id,
+          event: docData.event || '',
+          date: docData.date || '',
+          startTime: docData.startTime || '',
+          endTime: docData.endTime || '',
+          eventType: docData.eventType || 'in-person',
+          eventLink: docData.eventLink || '',
+          venue: docData.venue || '',
+          contacts: contacts.length > 0 ? contacts : [],
+          detailsConfirmed: docData.detailsConfirmed ?? true,
+          clickToBuyLink: docData.clickToBuyLink || '',
+        } as Event;
+      });
       setEvents(data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error loading events:', error);
     }
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Filter contacts - only save if name exists
+      const contactsToSave = form.contacts.filter((c: Contact) => c.name.trim().length > 0);
+
       const saveData = {
         event: form.event,
         date: form.date,
@@ -75,7 +109,7 @@ export default function AdminDashboard() {
         eventType: form.eventType,
         eventLink: form.eventType === 'online' ? form.eventLink : '',
         venue: form.eventType === 'in-person' ? form.venue : '',
-        contact: form.contact.filter(c => c.name),
+        contacts: contactsToSave,
         detailsConfirmed: form.detailsConfirmed,
         clickToBuyLink: form.clickToBuyLink,
         ticketLink: form.clickToBuyLink,
@@ -89,7 +123,8 @@ export default function AdminDashboard() {
       resetForm();
       loadEvents();
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error saving event:', error);
+      alert('Error saving event');
     }
   };
 
@@ -102,7 +137,7 @@ export default function AdminDashboard() {
       eventType: 'in-person',
       eventLink: '',
       venue: '',
-      contact: [{ name: '', email: '', phone: '' }],
+      contacts: [{ name: '', email: '', phone: '' }],
       detailsConfirmed: true,
       clickToBuyLink: '',
     });
@@ -118,7 +153,6 @@ export default function AdminDashboard() {
   };
 
   const handleEdit = (event: Event) => {
-    console.log('Editing event:', event);
     setForm({
       event: event.event || '',
       date: event.date || '',
@@ -127,13 +161,32 @@ export default function AdminDashboard() {
       eventType: event.eventType || 'in-person',
       eventLink: event.eventLink || '',
       venue: event.venue || '',
-      contact: (event.contact && event.contact.length > 0) ? event.contact : [{ name: '', email: '', phone: '' }],
+      contacts: event.contacts && event.contacts.length > 0 ? event.contacts : [{ name: '', email: '', phone: '' }],
       detailsConfirmed: event.detailsConfirmed !== undefined ? event.detailsConfirmed : true,
       clickToBuyLink: event.clickToBuyLink || '',
     });
     setEditingId(event.id);
     setShowForm(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const addContact = () => {
+    setForm({
+      ...form,
+      contacts: [...form.contacts, { name: '', email: '', phone: '' }],
+    });
+  };
+
+  const removeContact = (index: number) => {
+    setForm({
+      ...form,
+      contacts: form.contacts.filter((_, i) => i !== index),
+    });
+  };
+
+  const updateContact = (index: number, field: keyof Contact, value: string) => {
+    const newContacts = [...form.contacts];
+    newContacts[index] = { ...newContacts[index], [field]: value };
+    setForm({ ...form, contacts: newContacts });
   };
 
   return (
@@ -147,9 +200,7 @@ export default function AdminDashboard() {
           <button
             onClick={() => signOut(auth).then(() => router.push('/admin'))}
             className="px-6 py-2 rounded-lg font-semibold text-white text-base flex items-center gap-2"
-            style={{ backgroundColor: '#a1f5d8' }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#7dd5c0')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#a1f5d8')}
+            style={{ backgroundColor: '#a1f5d8', color: '#000000' }}
           >
             <LogOut size={18} /> Logout
           </button>
@@ -167,9 +218,7 @@ export default function AdminDashboard() {
                   setShowForm(true);
                 }}
                 className="px-10 py-3 rounded-lg font-semibold text-white text-lg flex items-center gap-2 mx-auto"
-                style={{ backgroundColor: '#a1f5d8' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#7dd5c0')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#a1f5d8')}
+                style={{ backgroundColor: '#a1f5d8', color: '#000000' }}
               >
                 <Plus size={20} /> Add New Event
               </button>
@@ -252,7 +301,7 @@ export default function AdminDashboard() {
                   <label className="block font-bold text-lg mb-4" style={{ color: '#2d5016' }}>
                     <strong>Event Type</strong> *
                   </label>
-                  <div className="flex gap-6">
+                  <div className="flex flex-col gap-5">
                     <label className="flex items-center gap-2 text-base font-semibold cursor-pointer">
                       <input
                         type="radio"
@@ -321,55 +370,43 @@ export default function AdminDashboard() {
                   </label>
                 </div>
 
-                {/* Contacts */}
+                {/* Contact Persons */}
                 <div>
                   <label className="block font-bold text-lg mb-4" style={{ color: '#2d5016' }}>
-                    <strong>Contact Person(s)</strong>
+                    <strong>Contact Person(s)</strong> (optional)
                   </label>
-                  <div className="space-y-4">
-                    {form.contact.map((c, i) => (
-                      <div key={i} className="border-2 border-gray-300 rounded-lg p-5 relative bg-gray-50">
-                        {form.contact.length > 1 && (
+                  <div className="space-y-5">
+                    {form.contacts.map((contact, idx) => (
+                      <div key={idx} className="border-2 border-gray-300 rounded-lg p-5 relative bg-gray-50">
+                        {form.contacts.length > 1 && (
                           <button
                             type="button"
-                            onClick={() => setForm({...form, contact: form.contact.filter((_, idx) => idx !== i)})}
+                            onClick={() => removeContact(idx)}
                             className="absolute top-3 right-3 p-1 hover:bg-gray-200 rounded"
                           >
                             <X size={20} />
                           </button>
                         )}
-                        <div className="space-y-3 pr-6">
+                        <div className="space-y-4 pr-6">
                           <input
                             type="text"
-                            value={c.name}
-                            onChange={(e) => {
-                              const newContact = [...form.contact];
-                              newContact[i].name = e.target.value;
-                              setForm({...form, contact: newContact});
-                            }}
-                            className="w-full p-2 border-2 border-gray-300 rounded-lg text-base"
+                            value={contact.name}
+                            onChange={(e) => updateContact(idx, 'name', e.target.value)}
+                            className="w-full p-3 border-2 border-gray-300 rounded-lg text-base"
                             placeholder="Name"
                           />
                           <input
                             type="email"
-                            value={c.email || ''}
-                            onChange={(e) => {
-                              const newContact = [...form.contact];
-                              newContact[i].email = e.target.value;
-                              setForm({...form, contact: newContact});
-                            }}
-                            className="w-full p-2 border-2 border-gray-300 rounded-lg text-base"
+                            value={contact.email}
+                            onChange={(e) => updateContact(idx, 'email', e.target.value)}
+                            className="w-full p-3 border-2 border-gray-300 rounded-lg text-base"
                             placeholder="Email (optional)"
                           />
                           <input
                             type="tel"
-                            value={c.phone || ''}
-                            onChange={(e) => {
-                              const newContact = [...form.contact];
-                              newContact[i].phone = e.target.value;
-                              setForm({...form, contact: newContact});
-                            }}
-                            className="w-full p-2 border-2 border-gray-300 rounded-lg text-base"
+                            value={contact.phone}
+                            onChange={(e) => updateContact(idx, 'phone', e.target.value)}
+                            className="w-full p-3 border-2 border-gray-300 rounded-lg text-base"
                             placeholder="Phone (optional)"
                           />
                         </div>
@@ -378,7 +415,7 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setForm({...form, contact: [...form.contact, {name: '', email: '', phone: ''}]})}
+                    onClick={addContact}
                     className="mt-4 px-4 py-2 border-2 border-gray-300 rounded-lg font-semibold text-base hover:bg-gray-50"
                   >
                     + Add Another Contact
@@ -404,9 +441,7 @@ export default function AdminDashboard() {
                   <button
                     type="submit"
                     className="px-10 py-3 rounded-lg font-semibold text-white text-base"
-                    style={{ backgroundColor: '#a1f5d8' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#7dd5c0')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#a1f5d8')}
+                    style={{ backgroundColor: '#a1f5d8', color: '#000000' }}
                   >
                     {editingId ? 'Update Event' : 'Add Event'}
                   </button>
@@ -434,32 +469,50 @@ export default function AdminDashboard() {
                       <th className="p-4 text-left font-bold text-base">Event</th>
                       <th className="p-4 text-left font-bold text-base">Time</th>
                       <th className="p-4 text-left font-bold text-base">Type</th>
+                      <th className="p-4 text-left font-bold text-base">Venue/Link</th>
+                      <th className="p-4 text-left font-bold text-base">Contact</th>
+                      <th className="p-4 text-left font-bold text-base">Details</th>
+                      <th className="p-4 text-left font-bold text-base">Tickets</th>
                       <th className="p-4 text-right font-bold text-base">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {events.map((e) => (
-                      <tr key={e.id} className="border-b border-gray-300 hover:bg-gray-50">
-                        <td className="p-4 text-base">{e.date}</td>
-                        <td className="p-4 text-base font-semibold">{e.event}</td>
-                        <td className="p-4 text-base">{e.startTime} - {e.endTime}</td>
-                        <td className="p-4 text-base capitalize">{e.eventType}</td>
-                        <td className="p-4 text-right space-x-2">
-                          <button
-                            onClick={() => handleEdit(e)}
-                            className="px-3 py-1 text-blue-600 font-semibold hover:bg-blue-50 rounded text-sm"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(e.id)}
-                            className="px-3 py-1 text-red-600 font-semibold hover:bg-red-50 rounded text-sm"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {events.map((e) => {
+                      // Safely render contact names - only strings, never objects
+                      const contactNames = e.contacts && Array.isArray(e.contacts)
+                        ? e.contacts
+                            .filter((c: any) => c && typeof c === 'object' && c.name)
+                            .map((c: any) => c.name)
+                            .join(', ')
+                        : '';
+                      
+                      return (
+                        <tr key={e.id} className="border-b border-gray-300 hover:bg-gray-50">
+                          <td className="p-4 text-base">{e.date}</td>
+                          <td className="p-4 text-base font-semibold">{e.event}</td>
+                          <td className="p-4 text-base">{e.startTime} - {e.endTime}</td>
+                          <td className="p-4 text-base capitalize">{e.eventType}</td>
+                          <td className="p-4 text-base text-sm">{e.eventType === 'in-person' ? e.venue : e.eventLink ? 'Link set' : '-'}</td>
+                          <td className="p-4 text-base">{contactNames || '-'}</td>
+                          <td className="p-4 text-base">{e.detailsConfirmed ? 'Confirmed' : 'TBD'}</td>
+                          <td className="p-4 text-base">{e.clickToBuyLink ? 'Yes' : 'No'}</td>
+                          <td className="p-4 text-right space-x-2">
+                            <button
+                              onClick={() => handleEdit(e)}
+                              className="px-3 py-1 text-blue-600 font-semibold hover:bg-blue-50 rounded text-sm"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(e.id)}
+                              className="px-3 py-1 text-red-600 font-semibold hover:bg-red-50 rounded text-sm"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
