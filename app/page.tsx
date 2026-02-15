@@ -23,7 +23,7 @@ const categories: Category[] = [
     name: 'Events',
     nameAf: 'Geleenthede',
     nameXh: 'Iziganeko',
-    image: '/events.jpg',
+    image: '/categories/events.jpg',
     href: '/events'
   },
   {
@@ -31,7 +31,7 @@ const categories: Category[] = [
     name: 'Marketplace',
     nameAf: 'Handelsplek',
     nameXh: 'Intsangano',
-    image: '/marketplace.jpeg',
+    image: '/categories/marketplace.jpeg',
     href: '/marketplace'
   },
   {
@@ -39,7 +39,7 @@ const categories: Category[] = [
     name: 'Membership',
     nameAf: 'Lidmaatskap',
     nameXh: 'Ubulungu',
-    image: '/membership.jpg',
+    image: '/categories/membership.jpg',
     href: '/membership'
   },
   {
@@ -47,7 +47,7 @@ const categories: Category[] = [
     name: 'School Holiday Program',
     nameAf: 'Skoolvakansie Program',
     nameXh: 'Umkhosi Wezilali',
-    image: '/schoolholiday.png',
+    image: '/categories/schoolholiday.png',
     href: '/school-holiday'
   },
   {
@@ -55,7 +55,7 @@ const categories: Category[] = [
     name: 'Heritage Program',
     nameAf: 'Erfenis Program',
     nameXh: 'Ikhaya Lengcali',
-    image: '/heritageproject.jpg',
+    image: '/categories/heritageproject.jpg',
     href: '/heritage'
   },
   {
@@ -63,7 +63,7 @@ const categories: Category[] = [
     name: 'Publicity',
     nameAf: 'Publisiteit',
     nameXh: 'Isaziso',
-    image: '/publicity.jpg',
+    image: '/categories/publicity.jpg',
     href: '/publicity'
   }
 ];
@@ -132,7 +132,6 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Top Navigation - Left Side */}
           <div className="flex items-center justify-between mb-6">
             <nav className="flex gap-6">
               <Link href="/" className="text-green-600 font-medium border-b-2 border-green-600">
@@ -152,7 +151,6 @@ export default function Home() {
               </Link>
             </nav>
 
-            {/* Center Language Switcher */}
             <div className="flex gap-2">
               {(['en', 'af', 'xh'] as Language[]).map((lang) => (
                 <button
@@ -170,7 +168,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Logo and Word Cloud */}
           <div className="flex items-center gap-12">
             <div className="flex-shrink-0">
               <Image

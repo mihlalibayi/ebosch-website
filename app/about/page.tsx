@@ -14,7 +14,7 @@ const directors = [
     role: 'Director',
     roleAf: 'Direkteur',
     roleXh: 'Umongameli',
-    image: '/siasdirector.jpg'
+    image: '/about/siasdirector.jpg'
   },
   {
     id: 'matilda',
@@ -22,7 +22,7 @@ const directors = [
     role: 'Chairperson',
     roleAf: 'Voorsitter',
     roleXh: 'Ummeli',
-    image: '/matildachairperson.jpg'
+    image: '/about/matildachairperson.jpg'
   },
   {
     id: 'johann',
@@ -30,7 +30,7 @@ const directors = [
     role: 'Director',
     roleAf: 'Direkteur',
     roleXh: 'Umongameli',
-    image: '/johanndirector.jpg'
+    image: '/about/johanndirector.jpg'
   },
   {
     id: 'paul',
@@ -38,7 +38,7 @@ const directors = [
     role: 'Director',
     roleAf: 'Direkteur',
     roleXh: 'Umongameli',
-    image: '/pauldirector.jpg'
+    image: '/about/pauldirector.jpg'
   }
 ];
 
@@ -56,7 +56,6 @@ export default function About() {
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Top Navigation - Left Side */}
           <div className="flex items-center justify-between mb-6">
             <nav className="flex gap-6">
               <Link href="/" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
@@ -76,7 +75,6 @@ export default function About() {
               </Link>
             </nav>
 
-            {/* Center Language Switcher */}
             <div className="flex gap-2">
               {(['en', 'af', 'xh'] as Language[]).map((lang) => (
                 <button
@@ -97,7 +95,6 @@ export default function About() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* About Section */}
         <section className="mb-16">
           <div className="bg-white rounded-lg shadow-md p-8">
             {t.about.sections.map((section, idx) => (
@@ -115,7 +112,6 @@ export default function About() {
           </div>
         </section>
 
-        {/* Board of Directors */}
         <section>
           <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
             {language === 'en' && 'Board of Directors'}
@@ -126,13 +122,14 @@ export default function About() {
           <div className="grid grid-cols-2 gap-8 mb-8">
             {directors.slice(0, 2).map((director) => (
               <div key={director.id} className="text-center bg-white rounded-lg shadow-md p-6">
-                <div className="relative h-64 w-64 mx-auto mb-4 rounded-lg overflow-hidden">
+                <div className="w-64 h-64 mx-auto mb-4 rounded-lg overflow-hidden relative">
                   <Image
                     src={director.image}
                     alt={director.name}
                     fill
                     className="object-cover"
                     unoptimized
+                    sizes="256px"
                   />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -148,13 +145,14 @@ export default function About() {
           <div className="grid grid-cols-2 gap-8">
             {directors.slice(2, 4).map((director) => (
               <div key={director.id} className="text-center bg-white rounded-lg shadow-md p-6">
-                <div className="relative h-64 w-64 mx-auto mb-4 rounded-lg overflow-hidden">
+                <div className="w-64 h-64 mx-auto mb-4 rounded-lg overflow-hidden relative">
                   <Image
                     src={director.image}
                     alt={director.name}
                     fill
                     className="object-cover"
                     unoptimized
+                    sizes="256px"
                   />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -168,7 +166,6 @@ export default function About() {
           </div>
         </section>
 
-        {/* NPO Registration */}
         <div className="mt-16 bg-green-50 border-l-4 border-green-600 p-6 rounded">
           <p className="text-gray-700 text-center italic">
             {t.footer.npo}
