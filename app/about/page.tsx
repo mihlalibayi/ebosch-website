@@ -94,15 +94,8 @@ export default function About() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* NPO Notice - Top */}
-        <div className="mb-12 text-center bg-green-100 border-l-4 border-green-600 p-4 rounded">
-          <p className="text-green-700 font-semibold italic text-lg">
-            {t.footer.npo}
-          </p>
-        </div>
-
         {/* About Section */}
-        <section className="mb-16">
+        <section className="mb-24">
           <div className="bg-white rounded-lg shadow-md p-8">
             {t.about.sections.map((section, idx) => (
               <div key={idx} className="mb-6 text-center">
@@ -121,14 +114,14 @@ export default function About() {
 
         {/* Board of Directors */}
         <section>
-          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-16 text-center">
             {language === 'en' && 'Board of Directors'}
             {language === 'af' && 'Raad van Direkteure'}
             {language === 'xh' && 'Ibhodi Yabaphathi'}
           </h2>
 
           {/* First Row - Sias and Matilda */}
-          <div className="flex justify-center gap-6 mb-12">
+          <div className="flex justify-center gap-12 mb-16">
             {directors.slice(0, 2).map((director) => (
               <div key={director.id} className="text-center">
                 <img
@@ -139,7 +132,7 @@ export default function About() {
                     height: '320px',
                     objectFit: 'cover',
                     borderRadius: '10px',
-                    marginBottom: '12px',
+                    marginBottom: '16px',
                     display: 'block',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}
@@ -155,7 +148,7 @@ export default function About() {
           </div>
 
           {/* Second Row - Johann and Paul */}
-          <div className="flex justify-center gap-6">
+          <div className="flex justify-center gap-12">
             {directors.slice(2, 4).map((director) => (
               <div key={director.id} className="text-center">
                 <img
@@ -166,7 +159,7 @@ export default function About() {
                     height: '320px',
                     objectFit: 'cover',
                     borderRadius: '10px',
-                    marginBottom: '12px',
+                    marginBottom: '16px',
                     display: 'block',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}
