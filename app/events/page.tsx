@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '@/lib/firebase-config';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -85,10 +85,9 @@ export default function EventsPage() {
     'festival-lights': 0,
   });
   const [selectedDate, setSelectedDate] = useState(new Date(2026, 1, 15));
-  const [selectedEventDetails, setSelectedEventDetails] = useState<CalendarEvent | null>(null);
-  const [showEventModal, setShowEventModal] = useState(false);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalEvent, setModalEvent] = useState<CalendarEvent | null>(null);
 
   const getTitle = (folder: EventFolder) => {
     if (language === 'en') return folder.titleEn;
@@ -110,7 +109,6 @@ export default function EventsPage() {
       contact: 'Contact',
       calendarTitle: 'Event Calendar',
       noEventsMessage: 'Click on a date with events to see details',
-      eventDetails: 'Event Details',
       time: 'Time',
       venue: 'Venue',
       contact: 'Contact',
@@ -123,7 +121,6 @@ export default function EventsPage() {
       contact: 'Kontak',
       calendarTitle: 'Gebeure Kalender',
       noEventsMessage: 'Klik op \'n datum met geleenthede vir besonderhede',
-      eventDetails: 'Gebeure Besonderhede',
       time: 'Tyd',
       venue: 'Plek',
       contact: 'Kontak',
@@ -136,7 +133,6 @@ export default function EventsPage() {
       contact: 'Unxibelelwano',
       calendarTitle: 'Ikhalerindar Yemigubungulo',
       noEventsMessage: 'Cofa umhla one events ukuze ubone iinkcukacha',
-      eventDetails: 'Iinkcukacha zeMigubungulo',
       time: 'Ixesha',
       venue: 'Indawo',
       contact: 'Unxibelelwano',
@@ -148,153 +144,82 @@ export default function EventsPage() {
 
   // Load events from Firebase
   useEffect(() => {
-    const loadEventsFromFirebase = async () => {
+    const loadEvents = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'events'));
-        const eventsData = querySnapshot.docs.map((doc) => ({
+        const snapshot = await getDocs(collection(db, 'events'));
+        const data = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         } as CalendarEvent));
-        eventsData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        setEvents(eventsData);
-        console.log('Events loaded from Firebase:', eventsData.length);
+        data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        setEvents(data);
       } catch (error) {
-        console.error('Error loading events from Firebase:', error);
-      } finally {
-        setLoadingEvents(false);
+        console.error('Error:', error);
       }
     };
-
-    loadEventsFromFirebase();
+    loadEvents();
   }, []);
 
   const renderCalendar = () => {
     const year = selectedDate.getFullYear();
     const month = selectedDate.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const days = [];
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
-    }
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(new Date(year, month, i));
-    }
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
 
     const weeks = [];
     for (let i = 0; i < days.length; i += 7) {
       weeks.push(days.slice(i, i + 7));
     }
-
     return weeks;
   };
 
   const getEventCountText = (count: number): string => {
-    const numbers: { [key: number]: string } = {
-      1: 'one',
-      2: 'two',
-      3: 'three',
-      4: 'four',
-      5: 'five',
-      6: 'six',
-      7: 'seven',
-      8: 'eight',
-      9: 'nine',
-      10: 'ten',
+    const nums: { [key: number]: string } = {
+      1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five',
+      6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten',
     };
-    return numbers[count] || count.toString();
+    return nums[count] || count.toString();
   };
 
   const getEventsForDate = (date: Date | null): CalendarEvent[] => {
     if (!date) return [];
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const dateStr = `${year}-${month}-${day}`;
-    return events.filter(event => event.date === dateStr);
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return events.filter(e => e.date === dateStr);
   };
 
-  const hasEventsOnDate = (date: Date | null): boolean => {
-    return getEventsForDate(date).length > 0;
-  };
-
-  const monthName = selectedDate.toLocaleString(language === 'en' ? 'en-US' : language === 'af' ? 'af-ZA' : 'xh-ZA', {
-    month: 'long',
-    year: 'numeric',
-  });
-
-  const handlePrevMonth = () => {
-    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1));
-  };
-
-  const handleNextMonth = () => {
-    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1));
-  };
-
-  const getTodayDateString = () => {
-    const today = new Date();
-    return today.toDateString();
-  };
-
-  const selectImage = (folderId: string, index: number) => {
-    setSelectedImageIndexes(prev => ({
-      ...prev,
-      [folderId]: index
-    }));
-  };
-
-  const handleDateClick = (date: Date | null) => {
-    if (!date) return;
-    
-    const dateEvents = getEventsForDate(date);
-    console.log('Date clicked:', date.toDateString(), 'Events:', dateEvents.length);
-    
-    if (dateEvents.length > 0) {
-      setSelectedEventDetails(dateEvents[0]);
-      setShowEventModal(true);
-      console.log('Modal opened for:', dateEvents[0].event);
+  const handleDayClick = (day: Date) => {
+    const dayEvents = getEventsForDate(day);
+    if (dayEvents.length > 0) {
+      setModalEvent(dayEvents[0]);
+      setModalOpen(true);
     }
-    setSelectedDate(date);
   };
+
+  const monthName = selectedDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Navigation Header */}
+      {/* Navigation */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-end items-center">
-            <nav className="flex items-center gap-6">
-              <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                {t.home}
-              </Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                {t.about}
-              </Link>
-              <Link href="/events" className="font-bold transition-colors" style={{ color: '#2d5016' }}>
-                {t.events}
-              </Link>
-              <Link href="/contact" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                {t.contact}
-              </Link>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value as Language)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600"
-              >
-                <option value="en">English</option>
-                <option value="af">Afrikaans</option>
-                <option value="xh">Xhosa</option>
-              </select>
-            </nav>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-end gap-6">
+          <Link href="/" className="text-gray-600 hover:text-gray-900">{t.home}</Link>
+          <Link href="/about" className="text-gray-600 hover:text-gray-900">{t.about}</Link>
+          <Link href="/events" style={{ color: '#2d5016' }} className="font-bold">{t.events}</Link>
+          <Link href="/contact" className="text-gray-600 hover:text-gray-900">{t.contact}</Link>
+          <select value={language} onChange={(e) => setLanguage(e.target.value as Language)} className="border rounded px-2">
+            <option value="en">EN</option>
+            <option value="af">AF</option>
+            <option value="xh">XH</option>
+          </select>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Event Gallery - CENTERED CONTAINER */}
+      <main className="max-w-7xl mx-auto px-4 py-16">
+        {/* Gallery */}
         <div className="flex justify-center mb-32" style={{ marginTop: '60px' }}>
           <div className="flex gap-32">
             {EVENT_FOLDERS.map((folder) => {
@@ -331,7 +256,7 @@ export default function EventsPage() {
                         {folder.images.map((image, idx) => (
                           <button
                             key={idx}
-                            onClick={() => selectImage(folder.id, idx)}
+                            onClick={() => setSelectedImageIndexes({...selectedImageIndexes, [folder.id]: idx})}
                             className={`rounded-lg overflow-hidden transition-all cursor-pointer ${
                               idx === currentImageIndex
                                 ? 'ring-3 ring-green-600 shadow-lg'
@@ -361,147 +286,71 @@ export default function EventsPage() {
           </div>
         </div>
 
-        {/* Calendar Section - WITH LARGE SPACE BEFORE */}
+        {/* Calendar */}
         <div className="mt-40 pt-20 border-t-2 border-gray-300">
-          <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: '#2d5016', fontFamily: 'Georgia, serif' }}>
-            {t.calendarTitle}
-          </h2>
-
-          <div className="bg-white rounded-xl shadow-lg p-8" style={{ margin: '0 auto', maxWidth: '800px' }}>
-            {/* Month Navigation */}
+          <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: '#2d5016' }}>{t.calendarTitle}</h2>
+          <div className="bg-white rounded-xl shadow-lg p-8 mx-auto" style={{ maxWidth: '800px' }}>
+            {/* Month Nav */}
             <div className="flex justify-between items-center mb-8">
-              <button
-                onClick={handlePrevMonth}
-                className="p-2 hover:bg-gray-100 rounded-lg transition"
-              >
-                <ChevronLeft size={28} style={{ color: '#2d5016' }} />
-              </button>
-              <h3 className="text-2xl font-bold" style={{ color: '#2d5016' }}>
-                {monthName}
-              </h3>
-              <button
-                onClick={handleNextMonth}
-                className="p-2 hover:bg-gray-100 rounded-lg transition"
-              >
-                <ChevronRight size={28} style={{ color: '#2d5016' }} />
-              </button>
+              <button onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1))} className="p-2 hover:bg-gray-100 rounded">←</button>
+              <h3 className="text-2xl font-bold" style={{ color: '#2d5016' }}>{monthName}</h3>
+              <button onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1))} className="p-2 hover:bg-gray-100 rounded">→</button>
             </div>
 
-            {/* Day Headers */}
+            {/* Days */}
             <div className="grid grid-cols-7 gap-2 mb-4">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <div key={day} className="text-center font-bold text-gray-700 py-3 text-sm">
-                  {day}
-                </div>
-              ))}
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d} className="text-center font-bold text-gray-700 py-3">{d}</div>)}
             </div>
 
-            {/* Calendar Days */}
+            {/* Dates */}
             <div className="grid grid-cols-7 gap-2">
-              {renderCalendar().map((week, weekIndex) => (
-                week.map((day, dayIndex) => {
-                  const isToday = day && day.toDateString() === getTodayDateString();
-                  const dayHasEvents = hasEventsOnDate(day);
-
-                  return (
-                    <button
-                      key={`${weekIndex}-${dayIndex}`}
-                      type="button"
-                      onClick={() => {
-                        if (day) {
-                          handleDateClick(day);
-                        }
-                      }}
-                      className={`aspect-square rounded-lg font-semibold transition text-sm relative cursor-pointer flex flex-col items-center justify-center ${
-                        isToday
-                          ? 'text-gray-900 hover:opacity-90'
-                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                      }`}
-                      style={isToday ? { backgroundColor: '#9ca3af' } : {}}
-                    >
-                      <span>{day ? day.getDate() : ''}</span>
-                      {dayHasEvents && (
-                        <span className="text-xs font-bold" style={{ color: '#2d5016' }}>
-                          {getEventCountText(getEventsForDate(day!).length)} event{getEventsForDate(day!).length > 1 ? 's' : ''}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })
-              ))}
+              {renderCalendar().map((week, wi) => week.map((day, di) => {
+                const dayEvents = getEventsForDate(day);
+                const isToday = day?.toDateString() === new Date().toDateString();
+                return (
+                  <button key={`${wi}-${di}`} onClick={() => day && handleDayClick(day)} 
+                    className="aspect-square rounded-lg font-semibold transition flex flex-col items-center justify-center"
+                    style={{ backgroundColor: isToday ? '#9ca3af' : '#f9fafb', color: isToday ? '#1f2937' : '#4b5563' }}>
+                    <span>{day?.getDate() || ''}</span>
+                    {dayEvents.length > 0 && <span className="text-xs font-bold" style={{ color: '#2d5016' }}>{getEventCountText(dayEvents.length)} event{dayEvents.length > 1 ? 's' : ''}</span>}
+                  </button>
+                );
+              }))}
             </div>
-
-            {/* Info Text */}
             <p className="text-center text-gray-500 text-sm mt-6">{t.noEventsMessage}</p>
           </div>
         </div>
       </main>
 
-      {/* Event Details Modal */}
-      {showEventModal && selectedEventDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-            {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b" style={{ backgroundColor: '#f5f5f5' }}>
-              <h2 className="text-xl font-bold" style={{ color: '#2d5016' }}>
-                {t.eventDetails}
-              </h2>
-              <button
-                onClick={() => setShowEventModal(false)}
-                className="p-1 hover:bg-gray-200 rounded-lg transition"
-              >
-                <X size={24} style={{ color: '#2d5016' }} />
-              </button>
+      {/* MODAL - Simple and Direct */}
+      {modalOpen && modalEvent && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', maxWidth: '400px', width: '90%', boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', color: '#2d5016' }}>{modalEvent.event}</h3>
+            <div style={{ marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.time}</p>
+              <p style={{ color: '#1f2937' }}>{modalEvent.time}</p>
             </div>
-
-            {/* Event Content */}
-            <div className="p-6">
-              <h3 className="text-lg font-bold mb-4" style={{ color: '#2d5016' }}>
-                {selectedEventDetails.event}
-              </h3>
-
-              <div className="space-y-3 mb-6">
-                <div>
-                  <p className="text-sm font-semibold text-gray-600">{t.time}</p>
-                  <p className="text-gray-800">{selectedEventDetails.time}</p>
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold text-gray-600">{t.venue}</p>
-                  <p className="text-gray-800">{selectedEventDetails.venue}</p>
-                </div>
-
-                {selectedEventDetails.contact && (
-                  <div>
-                    <p className="text-sm font-semibold text-gray-600">{t.contact}</p>
-                    <p className="text-gray-800">{selectedEventDetails.contact}</p>
-                  </div>
-                )}
+            <div style={{ marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.venue}</p>
+              <p style={{ color: '#1f2937' }}>{modalEvent.venue}</p>
+            </div>
+            {modalEvent.contact && (
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.contact}</p>
+                <p style={{ color: '#1f2937' }}>{modalEvent.contact}</p>
               </div>
-
-              {/* Ticket Link Button */}
-              {selectedEventDetails.ticketLink && (
-                <a
-                  href={selectedEventDetails.ticketLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full px-4 py-2 rounded-lg font-semibold text-white transition text-center block mb-3"
-                  style={{ backgroundColor: '#2d5016' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
-                >
-                  {t.buyTickets}
-                </a>
-              )}
-
-              {/* Close Button */}
-              <button
-                onClick={() => setShowEventModal(false)}
-                className="w-full px-4 py-2 rounded-lg font-semibold transition bg-gray-200 text-gray-800 hover:bg-gray-300"
-              >
-                Close
-              </button>
-            </div>
+            )}
+            {modalEvent.ticketLink && (
+              <a href={modalEvent.ticketLink} target="_blank" rel="noopener noreferrer" 
+                style={{ display: 'block', width: '100%', padding: '10px', backgroundColor: '#2d5016', color: 'white', textAlign: 'center', borderRadius: '6px', marginBottom: '8px', textDecoration: 'none' }}>
+                {t.buyTickets}
+              </a>
+            )}
+            <button onClick={() => setModalOpen(false)} 
+              style={{ width: '100%', padding: '10px', backgroundColor: '#e5e7eb', color: '#1f2937', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
+              Close
+            </button>
           </div>
         </div>
       )}
