@@ -209,11 +209,21 @@ export default function EventsPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Navigation */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-end gap-6">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-end items-center gap-6">
           <Link href="/" className="text-gray-600 hover:text-gray-900">{t.home}</Link>
           <Link href="/about" className="text-gray-600 hover:text-gray-900">{t.about}</Link>
           <Link href="/events" style={{ color: '#2d5016' }} className="font-bold">{t.events}</Link>
           <Link href="/contact" className="text-gray-600 hover:text-gray-900">{t.contact}</Link>
+          
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as Language)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600"
+          >
+            <option value="en">English</option>
+            <option value="af">Afrikaans</option>
+            <option value="xh">Xhosa</option>
+          </select>
         </div>
       </header>
 
