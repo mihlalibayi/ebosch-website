@@ -16,6 +16,19 @@
       "placeholder": "Enter your email",
       "button": "Subscribe"
     },
+    "about": {
+      "sections": [
+        {
+          "title": "",
+          "content": [
+            "e'Bosch is a future heritage project",
+            "Working together so that Stellenbosch has a heritage where it is welcoming, safe, and everybody is thriving.",
+            "We achieve the future heritage by getting to know each other, appreciate each other and respect each other.",
+            "Finally, we weave a trust fabric in which all the problems in society can be solved at a minimum cost."
+          ]
+        }
+      ]
+    },
     "footer": {
       "npo": ""
     },
@@ -43,6 +56,19 @@
       "placeholder": "Voer jou e-pos in",
       "button": "Teken In"
     },
+    "about": {
+      "sections": [
+        {
+          "title": "",
+          "content": [
+            "e'Bosch is 'n toekomstige erfenisprojek",
+            "Saam werk sodat Stellenbosch 'n erfenis het waar dit welkom, veilig is, en almal floreer.",
+            "Ons bereik die toekomstige erfenis deur mekaar te leer ken, mekaar te waardeer en mekaar te respekteer.",
+            "Laastens weef ons 'n vertroueweefsel waarin al die probleme in die samelewing teen minimale koste opgelos kan word."
+          ]
+        }
+      ]
+    },
     "footer": {
       "npo": ""
     },
@@ -69,6 +95,19 @@
       "description": "Hlala ufumaniswe ngobusuku, iiprogramu kunye neendaba zoluntu",
       "placeholder": "Faka i-imeyile yakho",
       "button": "Yibhalisa"
+    },
+    "about": {
+      "sections": [
+        {
+          "title": "",
+          "content": [
+            "i-e'Bosch yiprojekthi yefutyela yenkcubeko",
+            "Kusebenza ngokudibanisa ukuze iStellenbosh ibe nenkcubeko apho ikhululekile, ilungile, kwaye wonke umntu ukulungele.",
+            "Siyayiphumeza ifutyela yenkcubeko ngokwazi enye enye, ukuhlonipha enye enye nokukhulelwa kwenye enye.",
+            "Okokugqibela, siyayibheka iqabane lokuthembana apho zonke iingxaki kwi-society zinokusulungwa ngamaxabiso amancinci."
+          ]
+        }
+      ]
     },
     "footer": {
       "npo": ""

@@ -43,6 +43,7 @@ const directors = [
 
 export default function About() {
   const [language, setLanguage] = useState<Language>('en');
+  const t = translations[language];
 
   const getDirectorRole = (director: typeof directors[0]) => {
     if (language === 'af') return director.roleAf;
@@ -93,6 +94,21 @@ export default function About() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* About Content Section */}
+        <section className="mb-32">
+          <div className="bg-white rounded-lg shadow-md p-8 max-w-3xl mx-auto">
+            {t.about.sections.map((section, idx) => (
+              <div key={idx} className="text-center">
+                {section.content.map((paragraph, pIdx) => (
+                  <p key={pIdx} className="text-gray-700 mb-4 leading-relaxed text-lg">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Board of Directors */}
         <section>
           <h2 className="text-3xl font-bold text-gray-900 mb-20 text-center">
@@ -102,9 +118,9 @@ export default function About() {
           </h2>
 
           {/* First Row - Sias and Matilda */}
-          <div className="flex justify-center gap-20 mb-20">
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '120px', marginBottom: '80px' }}>
             {directors.slice(0, 2).map((director) => (
-              <div key={director.id} className="text-center">
+              <div key={director.id} style={{ textAlign: 'center' }}>
                 <img
                   src={director.image}
                   alt={director.name}
@@ -118,10 +134,10 @@ export default function About() {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}
                 />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
                   {director.name}
                 </h3>
-                <p className="text-green-600 font-medium text-lg">
+                <p style={{ color: '#16a34a', fontWeight: '500', fontSize: '18px' }}>
                   {getDirectorRole(director)}
                 </p>
               </div>
@@ -129,9 +145,9 @@ export default function About() {
           </div>
 
           {/* Second Row - Johann and Paul */}
-          <div className="flex justify-center gap-20">
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '120px' }}>
             {directors.slice(2, 4).map((director) => (
-              <div key={director.id} className="text-center">
+              <div key={director.id} style={{ textAlign: 'center' }}>
                 <img
                   src={director.image}
                   alt={director.name}
@@ -145,10 +161,10 @@ export default function About() {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}
                 />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
                   {director.name}
                 </h3>
-                <p className="text-green-600 font-medium text-lg">
+                <p style={{ color: '#16a34a', fontWeight: '500', fontSize: '18px' }}>
                   {getDirectorRole(director)}
                 </p>
               </div>
