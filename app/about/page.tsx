@@ -94,15 +94,23 @@ export default function About() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* NPO Notice - Top */}
+        <div className="mb-12 text-center bg-green-100 border-l-4 border-green-600 p-4 rounded">
+          <p className="text-green-700 font-semibold italic text-lg">
+            {t.footer.npo}
+          </p>
+        </div>
+
+        {/* About Section */}
         <section className="mb-16">
           <div className="bg-white rounded-lg shadow-md p-8">
             {t.about.sections.map((section, idx) => (
-              <div key={idx} className="mb-6">
+              <div key={idx} className="mb-6 text-center">
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                   {section.title}
                 </h2>
                 {section.content.map((paragraph, pIdx) => (
-                  <p key={pIdx} className="text-gray-700 mb-4 leading-relaxed text-lg">
+                  <p key={pIdx} className="text-gray-700 mb-4 leading-relaxed text-lg max-w-3xl mx-auto">
                     {paragraph}
                   </p>
                 ))}
@@ -111,6 +119,7 @@ export default function About() {
           </div>
         </section>
 
+        {/* Board of Directors */}
         <section>
           <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
             {language === 'en' && 'Board of Directors'}
@@ -118,62 +127,60 @@ export default function About() {
             {language === 'xh' && 'Ibhodi Yabaphathi'}
           </h2>
 
-          <div className="grid grid-cols-2 gap-8 mb-8">
+          {/* First Row - Sias and Matilda */}
+          <div className="flex justify-center gap-6 mb-12">
             {directors.slice(0, 2).map((director) => (
-              <div key={director.id} className="text-center bg-white rounded-lg shadow-md p-6">
+              <div key={director.id} className="text-center">
                 <img
                   src={director.image}
                   alt={director.name}
                   style={{
-                    width: '250px',
-                    height: '250px',
+                    width: '320px',
+                    height: '320px',
                     objectFit: 'cover',
-                    borderRadius: '8px',
-                    margin: '0 auto 16px auto',
-                    display: 'block'
+                    borderRadius: '10px',
+                    marginBottom: '12px',
+                    display: 'block',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}
                 />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {director.name}
                 </h3>
-                <p className="text-green-600 font-medium">
+                <p className="text-green-600 font-medium text-lg">
                   {getDirectorRole(director)}
                 </p>
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-8">
+          {/* Second Row - Johann and Paul */}
+          <div className="flex justify-center gap-6">
             {directors.slice(2, 4).map((director) => (
-              <div key={director.id} className="text-center bg-white rounded-lg shadow-md p-6">
+              <div key={director.id} className="text-center">
                 <img
                   src={director.image}
                   alt={director.name}
                   style={{
-                    width: '250px',
-                    height: '250px',
+                    width: '320px',
+                    height: '320px',
                     objectFit: 'cover',
-                    borderRadius: '8px',
-                    margin: '0 auto 16px auto',
-                    display: 'block'
+                    borderRadius: '10px',
+                    marginBottom: '12px',
+                    display: 'block',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}
                 />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {director.name}
                 </h3>
-                <p className="text-green-600 font-medium">
+                <p className="text-green-600 font-medium text-lg">
                   {getDirectorRole(director)}
                 </p>
               </div>
             ))}
           </div>
         </section>
-
-        <div className="mt-16 bg-green-50 border-l-4 border-green-600 p-6 rounded">
-          <p className="text-gray-700 text-center italic">
-            {t.footer.npo}
-          </p>
-        </div>
       </main>
 
       <footer className="bg-gray-900 text-gray-300 py-8 mt-20">
