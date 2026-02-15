@@ -316,12 +316,43 @@ export default function EventsPage() {
               {renderCalendar().map((week, wi) => week.map((day, di) => {
                 const dayEvents = getEventsForDate(day);
                 const isToday = day?.toDateString() === new Date().toDateString();
+                const greenShades = ['#2d5016', '#16a34a', '#059669', '#10b981', '#14b8a6'];
+                
                 return (
                   <button key={`${wi}-${di}`} onClick={() => day && handleDayClick(day)} 
-                    className="aspect-square rounded-lg font-semibold transition flex flex-col items-center justify-center"
-                    style={{ backgroundColor: isToday ? '#9ca3af' : '#f9fafb', color: isToday ? '#1f2937' : '#4b5563' }}>
+                    className="aspect-square rounded-lg font-semibold transition flex flex-col items-center justify-center relative hover:shadow-md"
+                    style={{
+                      backgroundColor: isToday ? '#9ca3af' : '#f9fafb',
+                      color: isToday ? '#1f2937' : '#4b5563',
+                      cursor: day ? 'pointer' : 'default',
+                      border: dayEvents.length > 0 ? '2px solid #2d5016' : '1px solid #e5e7eb',
+                      transition: 'all 0.2s',
+                      overflow: 'visible',
+                      paddingBottom: dayEvents.length > 0 ? '18px' : '0'
+                    }}>
                     <span>{day?.getDate() || ''}</span>
-                    {dayEvents.length > 0 && <span className="text-xs font-bold" style={{ color: '#2d5016' }}>{getEventCountText(dayEvents.length)} event{dayEvents.length > 1 ? 's' : ''}</span>}
+                    {dayEvents.length > 0 && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '4px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        gap: '4px'
+                      }}>
+                        {dayEvents.map((_, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              width: '20px',
+                              height: '6px',
+                              backgroundColor: greenShades[i % greenShades.length],
+                              borderRadius: '2px'
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </button>
                 );
               }))}
