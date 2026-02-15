@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
+type Language = 'en' | 'af' | 'xh';
+
 interface EventFolder {
   id: string;
   titleEn: string;
@@ -14,7 +16,6 @@ interface EventFolder {
   descriptionXh: string;
   coverImage: string;
   images: string[];
-  years: string[];
 }
 
 const EVENT_FOLDERS: EventFolder[] = [
@@ -23,9 +24,9 @@ const EVENT_FOLDERS: EventFolder[] = [
     titleEn: 'Annual School Choir',
     titleAf: 'Jaarlikse Skoollied Koor',
     titleXh: 'Umkosi Wonyaka Wabafundi Abahlabeleli',
-    descriptionEn: 'Celebrate the voices of our youth. Annual performances showcasing talent, harmony, and cultural pride.',
-    descriptionAf: 'Vier die stemme van ons jeug. Jaarlikse optredens wat talent, harmonie en kulturele trots wys.',
-    descriptionXh: 'Siyibhalisele amazwi ethu abatsha. Imipahla yonyaka ibonisa talente, ukungathandabuzela, kunye nokuzihlomela.',
+    descriptionEn: 'Celebrate the voices of our youth.',
+    descriptionAf: 'Vier die stemme van ons jeug.',
+    descriptionXh: 'Siyibhalisele amazwi ethu abatsha.',
     coverImage: '/events/image1.jpg',
     images: [
       '/events/image1.jpg',
@@ -43,16 +44,15 @@ const EVENT_FOLDERS: EventFolder[] = [
       '/events/image13.jpg',
       '/events/image14.jpg',
     ],
-    years: ['2024', '2025', '2026'],
   },
   {
     id: 'festival-lights',
     titleEn: 'Annual Festival of Lights',
     titleAf: 'Jaarlikse Lig Fees',
     titleXh: 'Umkosi Wonyaka Wezibane',
-    descriptionEn: 'A magical celebration of light, culture, and community. Join us for an evening of dazzling performances and joy.',
-    descriptionAf: '\'n Towerkrag viering van lig, kultuur en gemeenskap. Sluit by ons aan vir \'n aand van verbluffende optreders.',
-    descriptionXh: 'Umkosi omangalisayo wezibane, inkcubeko, kunye noluntu. Siyalibhalisa umkosi onyakawaliwa olomdali kunye nenjoy.',
+    descriptionEn: 'A magical celebration of light and community.',
+    descriptionAf: 'Towerkrag viering van lig en gemeenskap.',
+    descriptionXh: 'Umkosi omangalisayo wezibane kunye noluntu.',
     coverImage: '/events/image15.jpg',
     images: [
       '/events/image15.jpg',
@@ -68,15 +68,14 @@ const EVENT_FOLDERS: EventFolder[] = [
       '/events/image25.jpg',
       '/events/image26.jpg',
     ],
-    years: ['2024', '2025', '2026'],
   },
 ];
 
 export default function EventsPage() {
-  const [language, setLanguage] = useState('en');
-  const [selectedFolder, setSelectedFolder] = useState<EventFolder | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedDate, setSelectedDate] = useState(new Date(2026, 1, 15));
+  const [language, setLanguage] = useState<Language>('en');
+  const [showGallery, setShowGallery] = useState(false);
+  const [galleryFolder, setGalleryFolder] = useState<EventFolder | null>(null);
+  const [imageIndex, setImageIndex] = useState(0);
 
   const getTitle = (folder: EventFolder) => {
     if (language === 'en') return folder.titleEn;
@@ -107,9 +106,9 @@ export default function EventsPage() {
       of: 'of',
     },
     af: {
-      home: 'Tuisblad',
-      about: 'Oor ons',
-      events: 'Gebeure',
+      home: 'Tuis',
+      about: 'Oor Ons',
+      events: 'Geleenthede',
       contact: 'Kontak',
       pageTitle: 'Jaarlikse Gebeure',
       pageSubtitle: 'Verken ons handtekening seisoenevierings deur die jaar',
@@ -124,7 +123,7 @@ export default function EventsPage() {
     xh: {
       home: 'Ikhaya',
       about: 'Malunga',
-      events: 'Imigubungulo',
+      events: 'Iziganeko',
       contact: 'Unxibelelwano',
       pageTitle: 'Imigubungulo Yonyaka',
       pageSubtitle: 'Jongana iziqwekelelo zethu imigubungulo kule nyaka',
@@ -138,7 +137,9 @@ export default function EventsPage() {
     },
   };
 
-  const t = translations[language as keyof typeof translations];
+  const t = translations[language];
+
+  const [selectedDate, setSelectedDate] = useState(new Date(2026, 1, 15));
 
   const renderCalendar = () => {
     const year = selectedDate.getFullYear();
@@ -177,15 +178,26 @@ export default function EventsPage() {
     setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1));
   };
 
-  const handlePrevImage = () => {
-    if (selectedFolder) {
-      setCurrentImageIndex((prev) => (prev === 0 ? selectedFolder.images.length - 1 : prev - 1));
+  const openGallery = (folder: EventFolder) => {
+    setGalleryFolder(folder);
+    setImageIndex(0);
+    setShowGallery(true);
+  };
+
+  const closeGalleryModal = () => {
+    setShowGallery(false);
+    setGalleryFolder(null);
+  };
+
+  const nextImage = () => {
+    if (galleryFolder) {
+      setImageIndex((prev) => (prev === galleryFolder.images.length - 1 ? 0 : prev + 1));
     }
   };
 
-  const handleNextImage = () => {
-    if (selectedFolder) {
-      setCurrentImageIndex((prev) => (prev === selectedFolder.images.length - 1 ? 0 : prev + 1));
+  const prevImage = () => {
+    if (galleryFolder) {
+      setImageIndex((prev) => (prev === 0 ? galleryFolder.images.length - 1 : prev - 1));
     }
   };
 
@@ -194,21 +206,23 @@ export default function EventsPage() {
       {/* Navigation Header */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div></div>
-            <nav className="flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium">
+          <div className="flex justify-end items-center">
+            <nav className="flex items-center gap-6">
+              <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
                 {t.home}
               </Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900 font-medium">
+              <Link href="/about" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
                 {t.about}
               </Link>
-              <Link href="/events" className="font-bold" style={{ color: '#2d5016' }}>
+              <Link href="/events" className="font-bold transition-colors" style={{ color: '#2d5016' }}>
                 {t.events}
+              </Link>
+              <Link href="/contact" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                {t.contact}
               </Link>
               <select
                 value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={(e) => setLanguage(e.target.value as Language)}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600"
               >
                 <option value="en">English</option>
@@ -229,65 +243,50 @@ export default function EventsPage() {
           <p className="text-xl text-gray-600">{t.pageSubtitle}</p>
         </div>
 
-        {/* Event Folders Grid */}
-        <div className="mb-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        {/* Event Folders Grid - MUCH SMALLER */}
+        <div className="mb-20">
+          <div className="flex justify-center gap-8">
             {EVENT_FOLDERS.map((folder) => (
-              <div
-                key={folder.id}
-                className="group cursor-pointer rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1"
-                onClick={() => {
-                  setSelectedFolder(folder);
-                  setCurrentImageIndex(0);
-                }}
-              >
-                {/* Landscape Image Container - Smaller */}
-                <div className="relative w-full h-32 overflow-hidden bg-gray-200">
+              <div key={folder.id} className="flex flex-col" style={{ maxWidth: '180px' }}>
+                {/* Small Cover Image */}
+                <div 
+                  className="relative w-full rounded-lg overflow-hidden bg-gray-300 cursor-pointer group shadow-md hover:shadow-lg transition mb-2"
+                  style={{ height: '120px' }}
+                  onClick={() => openGallery(folder)}
+                >
                   <img
                     src={folder.coverImage}
                     alt={getTitle(folder)}
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                   />
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-40 transition"></div>
+                  <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition"></div>
                 </div>
 
                 {/* Content */}
-                <div className="p-6 bg-white">
-                  <h3 className="text-xl font-bold mb-2" style={{ color: '#2d5016' }}>
-                    {getTitle(folder)}
-                  </h3>
-                  <p className="text-gray-600 mb-4 text-sm line-clamp-2">{getDescription(folder)}</p>
+                <h3 className="text-sm font-bold mb-1" style={{ color: '#2d5016' }}>
+                  {getTitle(folder)}
+                </h3>
+                <p className="text-gray-600 mb-2 text-xs flex-grow leading-tight">
+                  {getDescription(folder)}
+                </p>
 
-                  {/* Years */}
-                  <div className="flex gap-2 mb-4">
-                    {folder.years.map((year) => (
-                      <span
-                        key={year}
-                        className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold"
-                      >
-                        {year}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* View Gallery Button */}
-                  <button
-                    className="w-full px-4 py-2 rounded-lg font-semibold transition text-sm"
-                    style={{ backgroundColor: '#2d5016', color: 'white' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
-                  >
-                    {t.viewGallery}
-                  </button>
-                </div>
+                {/* View Gallery Button */}
+                <button
+                  onClick={() => openGallery(folder)}
+                  className="w-full px-2 py-1 rounded font-semibold transition text-xs"
+                  style={{ backgroundColor: '#2d5016', color: 'white' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
+                >
+                  {t.viewGallery}
+                </button>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Calendar Section */}
-        <div className="mt-24 pt-16 border-t-2 border-gray-300">
+        {/* Calendar Section - WITH SPACE BEFORE */}
+        <div className="mt-32 pt-16 border-t-2 border-gray-300">
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: '#2d5016', fontFamily: 'Georgia, serif' }}>
             {t.calendarTitle}
           </h2>
@@ -354,17 +353,17 @@ export default function EventsPage() {
         </div>
       </main>
 
-      {/* Lightbox Gallery Modal */}
-      {selectedFolder && (
+      {/* Gallery Modal */}
+      {showGallery && galleryFolder && (
         <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-96">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl">
             {/* Header */}
             <div className="flex justify-between items-center p-6 border-b" style={{ backgroundColor: '#f5f5f5' }}>
               <h2 className="text-xl font-bold" style={{ color: '#2d5016' }}>
-                {getTitle(selectedFolder)}
+                {getTitle(galleryFolder)}
               </h2>
               <button
-                onClick={() => setSelectedFolder(null)}
+                onClick={closeGalleryModal}
                 className="p-1 hover:bg-gray-200 rounded-lg transition"
               >
                 <X size={24} style={{ color: '#2d5016' }} />
@@ -372,46 +371,46 @@ export default function EventsPage() {
             </div>
 
             {/* Image Display */}
-            <div className="relative w-full h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+            <div className="relative w-full h-96 bg-gray-300 flex items-center justify-center overflow-hidden">
               <img
-                src={selectedFolder.images[currentImageIndex]}
-                alt={`Gallery ${currentImageIndex + 1}`}
+                src={galleryFolder.images[imageIndex]}
+                alt={`Image ${imageIndex + 1}`}
                 className="w-full h-full object-cover"
               />
 
-              {/* Image Navigation */}
-              {selectedFolder.images.length > 1 && (
+              {/* Navigation Buttons */}
+              {galleryFolder.images.length > 1 && (
                 <>
                   <button
-                    onClick={handlePrevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-75 transition"
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-lg hover:bg-opacity-75 transition"
                   >
-                    <ChevronLeft size={20} />
+                    <ChevronLeft size={24} />
                   </button>
                   <button
-                    onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-75 transition"
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-lg hover:bg-opacity-75 transition"
                   >
-                    <ChevronRight size={20} />
+                    <ChevronRight size={24} />
                   </button>
                 </>
               )}
 
-              {/* Image Counter */}
+              {/* Counter */}
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                {currentImageIndex + 1} {t.of} {selectedFolder.images.length}
+                {imageIndex + 1} {t.of} {galleryFolder.images.length}
               </div>
             </div>
 
             {/* Thumbnails */}
-            {selectedFolder.images.length > 1 && (
-              <div className="p-4 bg-gray-50 flex gap-2 overflow-x-auto max-h-20">
-                {selectedFolder.images.map((image, idx) => (
+            {galleryFolder.images.length > 1 && (
+              <div className="p-4 bg-gray-50 flex gap-2 overflow-x-auto">
+                {galleryFolder.images.map((image, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setCurrentImageIndex(idx)}
-                    className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition ${
-                      idx === currentImageIndex
+                    onClick={() => setImageIndex(idx)}
+                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${
+                      idx === imageIndex
                         ? 'border-green-600'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
@@ -425,7 +424,7 @@ export default function EventsPage() {
             {/* Footer */}
             <div className="p-4 text-center">
               <button
-                onClick={() => setSelectedFolder(null)}
+                onClick={closeGalleryModal}
                 className="px-6 py-2 rounded-lg font-semibold transition text-sm"
                 style={{ backgroundColor: '#2d5016', color: 'white' }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
@@ -437,33 +436,6 @@ export default function EventsPage() {
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 mt-20 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
-            <div>
-              <h4 className="text-white font-bold mb-4">e'Bosch</h4>
-              <p className="text-sm text-gray-400">Building community, preserving heritage, developing leadership.</p>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">{t.events}</h4>
-              <ul className="text-sm space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">Annual Events</a></li>
-                <li><a href="#" className="hover:text-white transition">Past Celebrations</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">{t.contact}</h4>
-              <p className="text-sm text-gray-400">Email: events@ebosch.org</p>
-              <p className="text-sm text-gray-400">Phone: +27 (0) XX XXX XXXX</p>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 pt-8 text-sm text-center text-gray-400">
-            <p>&copy; 2026 e'Bosch Community. Registration 150-564. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
