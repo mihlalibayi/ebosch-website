@@ -23,7 +23,7 @@ const categories: Category[] = [
     name: 'Events',
     nameAf: 'Geleenthede',
     nameXh: 'Iziganeko',
-    image: '/categories/events.jpg',
+    image: '/events.jpg',
     href: '/events'
   },
   {
@@ -31,7 +31,7 @@ const categories: Category[] = [
     name: 'Marketplace',
     nameAf: 'Handelsplek',
     nameXh: 'Intsangano',
-    image: '/categories/marketplace.jpeg',
+    image: '/marketplace.jpeg',
     href: '/marketplace'
   },
   {
@@ -39,7 +39,7 @@ const categories: Category[] = [
     name: 'Membership',
     nameAf: 'Lidmaatskap',
     nameXh: 'Ubulungu',
-    image: '/categories/membership.jpg',
+    image: '/membership.jpg',
     href: '/membership'
   },
   {
@@ -47,7 +47,7 @@ const categories: Category[] = [
     name: 'School Holiday Program',
     nameAf: 'Skoolvakansie Program',
     nameXh: 'Umkhosi Wezilali',
-    image: '/categories/schoolholiday.png',
+    image: '/schoolholiday.png',
     href: '/school-holiday'
   },
   {
@@ -55,7 +55,7 @@ const categories: Category[] = [
     name: 'Heritage Program',
     nameAf: 'Erfenis Program',
     nameXh: 'Ikhaya Lengcali',
-    image: '/categories/heritageproject.jpg',
+    image: '/heritageproject.jpg',
     href: '/heritage'
   },
   {
@@ -63,7 +63,7 @@ const categories: Category[] = [
     name: 'Publicity',
     nameAf: 'Publisiteit',
     nameXh: 'Isaziso',
-    image: '/categories/publicity.jpg',
+    image: '/publicity.jpg',
     href: '/publicity'
   }
 ];

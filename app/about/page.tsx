@@ -14,7 +14,7 @@ const directors = [
     role: 'Director',
     roleAf: 'Direkteur',
     roleXh: 'Umongameli',
-    image: '/about/siasdirector.jpg'
+    image: '/siasdirector.jpg'
   },
   {
     id: 'matilda',
@@ -22,7 +22,7 @@ const directors = [
     role: 'Chairperson',
     roleAf: 'Voorsitter',
     roleXh: 'Ummeli',
-    image: '/about/matildachairperson.jpg'
+    image: '/matildachairperson.jpg'
   },
   {
     id: 'johann',
@@ -30,7 +30,7 @@ const directors = [
     role: 'Director',
     roleAf: 'Direkteur',
     roleXh: 'Umongameli',
-    image: '/about/johanndirector.jpg'
+    image: '/johanndirector.jpg'
   },
   {
     id: 'paul',
@@ -38,7 +38,7 @@ const directors = [
     role: 'Director',
     roleAf: 'Direkteur',
     roleXh: 'Umongameli',
-    image: '/about/pauldirector.jpg'
+    image: '/pauldirector.jpg'
   }
 ];
 
