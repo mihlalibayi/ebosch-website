@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase-config';
-import { collection, getDocs, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot, setDoc, doc } from 'firebase/firestore';
 
 interface StoreView {
   timestamp: any;
@@ -186,6 +186,31 @@ export default function AdminOverview() {
     };
   };
 
+  const initializeCategories = async () => {
+    try {
+      const rootCategories = [
+        { id: 'ebosch', name: "e'BOSCH", subcategories: [] },
+        { id: 'local_businesses', name: 'LOCAL BUSINESSES', subcategories: [] },
+        { id: 'community_businesses', name: 'COMMUNITY BUSINESSES', subcategories: [] },
+        { id: 'services', name: 'SERVICES', subcategories: [] }
+      ];
+
+      for (const category of rootCategories) {
+        await setDoc(doc(db, 'categories', category.id), {
+          name: category.name,
+          type: 'root',
+          subcategories: category.subcategories
+        });
+      }
+
+      alert('Root categories initialized successfully!');
+      loadAllMetrics();
+    } catch (error) {
+      console.error('Error initializing categories:', error);
+      alert('Error initializing categories');
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -316,7 +341,33 @@ export default function AdminOverview() {
         color: '#065f46',
         fontSize: '14px'
       }}>
-        💡 As you create businesses, categories, and products in the admin panel, they will appear here in real-time!
+        <p style={{ margin: '0 0 12px 0' }}>
+          💡 As you create businesses, categories, and products in the admin panel, they will appear here in real-time!
+        </p>
+        {metrics.categories === 0 && (
+          <button
+            onClick={initializeCategories}
+            style={{
+              padding: '10px 16px',
+              backgroundColor: '#065f46',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              fontWeight: 'normal',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#047857';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#065f46';
+            }}
+          >
+            Initialize Root Categories
+          </button>
+        )}
       </div>
     </div>
   );
