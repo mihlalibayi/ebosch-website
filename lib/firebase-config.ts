@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA3rLOKDAFDTAmN873cZ2Mhqu6u1FQOt9E",
+  apiKey: "AIzaSyAZjKtPHNmRjlRbqugD2jVFyXO4vRhx82A",
   authDomain: "e-bosch.firebaseapp.com",
   projectId: "e-bosch",
   storageBucket: "e-bosch.firebasestorage.app",
