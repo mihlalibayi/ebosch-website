@@ -40,11 +40,9 @@ export default function CategoriesManagement() {
   
   const [showAddRootModal, setShowAddRootModal] = useState(false);
   const [showAddSubModal, setShowAddSubModal] = useState(false);
-  const [showAddSubSubModal, setShowAddSubSubModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [showEditRootModal, setShowEditRootModal] = useState(false);
   const [showEditSubModal, setShowEditSubModal] = useState(false);
-  const [showEditSubSubModal, setShowEditSubSubModal] = useState(false);
   
   const [imageModalType, setImageModalType] = useState<'root' | 'sub' | 'subsub'>('root');
   const [imageModalData, setImageModalData] = useState<{ rootId?: string; subId?: string; subSubId?: string }>({});
@@ -53,15 +51,11 @@ export default function CategoriesManagement() {
   const [selectedRootId, setSelectedRootId] = useState<string | null>(null);
   const [newSubName, setNewSubName] = useState('');
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
-  const [newSubSubName, setNewSubSubName] = useState('');
   
   const [editRootName, setEditRootName] = useState('');
   const [editRootId, setEditRootId] = useState<string | null>(null);
   const [editSubName, setEditSubName] = useState('');
   const [editSubRootId, setEditSubRootId] = useState<string | null>(null);
-  const [editSubSubName, setEditSubSubName] = useState('');
-  const [editSubSubRootId, setEditSubSubRootId] = useState<string | null>(null);
-  const [editSubSubSubId, setEditSubSubSubId] = useState<string | null>(null);
   
   const [sortBy, setSortBy] = useState<SortBy>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
@@ -235,37 +229,6 @@ export default function CategoriesManagement() {
     }
   };
 
-  const handleEditSubSub = async () => {
-    if (!editSubSubName.trim() || !editSubSubRootId || !editSubSubSubId || !selectedSubId) return;
-
-    try {
-      const rootCat = categories.find(c => c.id === editSubSubRootId);
-      if (rootCat?.subcategories) {
-        const updatedSubs = rootCat.subcategories.map(sub => {
-          if (sub.id === selectedSubId && sub.subSubcategories) {
-            return {
-              ...sub,
-              subSubcategories: sub.subSubcategories.map(ss =>
-                ss.id === editSubSubSubId ? { ...ss, name: editSubSubName } : ss
-              )
-            };
-          }
-          return sub;
-        });
-        await updateDoc(doc(db, 'categories', editSubSubRootId), { subcategories: updatedSubs });
-      }
-      loadCategories();
-      setShowEditSubSubModal(false);
-      setEditSubSubName('');
-      setEditSubSubRootId(null);
-      setEditSubSubSubId(null);
-      setSelectedSubId(null);
-    } catch (error) {
-      console.error('Error editing item:', error);
-      alert('Error editing item');
-    }
-  };
-
   const handleAddRoot = async () => {
     if (!newRootName.trim()) return;
 
@@ -311,44 +274,6 @@ export default function CategoriesManagement() {
     } catch (error) {
       console.error('Error adding subcategory:', error);
       alert('Error adding subcategory');
-    }
-  };
-
-  const handleAddSubSub = async () => {
-    if (!newSubSubName.trim() || !selectedRootId || !selectedSubId) return;
-
-    try {
-      const rootCategory = categories.find(c => c.id === selectedRootId);
-      if (!rootCategory || !rootCategory.subcategories) return;
-
-      const updatedSubs = rootCategory.subcategories.map(sub => {
-        if (sub.id === selectedSubId) {
-          return {
-            ...sub,
-            subSubcategories: [
-              ...(sub.subSubcategories || []),
-              {
-                id: newSubSubName.toLowerCase().replace(/\s+/g, '_'),
-                name: newSubSubName
-              }
-            ]
-          };
-        }
-        return sub;
-      });
-
-      await updateDoc(doc(db, 'categories', selectedRootId), {
-        subcategories: updatedSubs
-      });
-
-      loadCategories();
-      setNewSubSubName('');
-      setShowAddSubSubModal(false);
-      setSelectedRootId(null);
-      setSelectedSubId(null);
-    } catch (error) {
-      console.error('Error adding sub-subcategory:', error);
-      alert('Error adding sub-subcategory');
     }
   };
 
@@ -752,33 +677,6 @@ export default function CategoriesManagement() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedRootId(root.id);
-                              setSelectedSubId(sub.id);
-                              setShowAddSubSubModal(true);
-                            }}
-                            style={{
-                              padding: '4px 10px',
-                              backgroundColor: '#f0fdf4',
-                              color: '#2d5016',
-                              border: 'none',
-                              borderRadius: '4px',
-                              fontSize: '11px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              fontWeight: 'normal'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#dcfce7';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f0fdf4';
-                            }}
-                          >
-                            + Add
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
                               handleDeleteSub(root.id, sub.id);
                             }}
                             style={{
@@ -826,33 +724,6 @@ export default function CategoriesManagement() {
                                 <span>{subSub.name}</span>
                               </div>
                               <div style={{ display: 'flex', gap: '6px' }}>
-                                <button
-                                  onClick={() => {
-                                    setEditSubSubName(subSub.name);
-                                    setEditSubSubRootId(root.id);
-                                    setSelectedSubId(sub.id);
-                                    setEditSubSubSubId(subSub.id);
-                                    setShowEditSubSubModal(true);
-                                  }}
-                                  style={{
-                                    padding: '3px 8px',
-                                    backgroundColor: '#dbeafe',
-                                    color: '#0369a1',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    fontSize: '10px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'normal'
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#93c5fd';
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#dbeafe';
-                                  }}
-                                >
-                                  Edit
-                                </button>
                                 <button
                                   onClick={() => {
                                     setImageModalType('subsub');
@@ -1125,124 +996,6 @@ export default function CategoriesManagement() {
             </button>
             <button
               onClick={handleEditSub}
-              style={{
-                flex: 1,
-                padding: '10px 16px',
-                backgroundColor: '#2d5016',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 'normal'
-              }}
-            >
-              Update
-            </button>
-          </div>
-        </Modal>
-      )}
-
-      {/* Add Sub-Subcategory Modal */}
-      {showAddSubSubModal && (
-        <Modal onClose={() => { setShowAddSubSubModal(false); setSelectedRootId(null); setSelectedSubId(null); }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
-            Add Item
-          </h3>
-          <input
-            type="text"
-            value={newSubSubName}
-            onChange={(e) => setNewSubSubName(e.target.value)}
-            placeholder="Item name"
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              fontSize: '14px',
-              marginBottom: '16px',
-              boxSizing: 'border-box'
-            }}
-            onKeyPress={(e) => e.key === 'Enter' && handleAddSubSub()}
-          />
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={() => { setShowAddSubSubModal(false); setSelectedRootId(null); setSelectedSubId(null); }}
-              style={{
-                flex: 1,
-                padding: '10px 16px',
-                backgroundColor: '#f3f4f6',
-                color: '#374151',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 'normal'
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleAddSubSub}
-              style={{
-                flex: 1,
-                padding: '10px 16px',
-                backgroundColor: '#2d5016',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 'normal'
-              }}
-            >
-              Add
-            </button>
-          </div>
-        </Modal>
-      )}
-
-      {/* Edit Sub-Subcategory Modal */}
-      {showEditSubSubModal && (
-        <Modal onClose={() => { setShowEditSubSubModal(false); setEditSubSubName(''); setEditSubSubRootId(null); setEditSubSubSubId(null); setSelectedSubId(null); }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
-            Edit Item
-          </h3>
-          <input
-            type="text"
-            value={editSubSubName}
-            onChange={(e) => setEditSubSubName(e.target.value)}
-            placeholder="Item name"
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              fontSize: '14px',
-              marginBottom: '16px',
-              boxSizing: 'border-box'
-            }}
-            onKeyPress={(e) => e.key === 'Enter' && handleEditSubSub()}
-          />
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={() => { setShowEditSubSubModal(false); setEditSubSubName(''); setEditSubSubRootId(null); setEditSubSubSubId(null); setSelectedSubId(null); }}
-              style={{
-                flex: 1,
-                padding: '10px 16px',
-                backgroundColor: '#f3f4f6',
-                color: '#374151',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 'normal'
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleEditSubSub}
               style={{
                 flex: 1,
                 padding: '10px 16px',
