@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase-config';
 import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc } from 'firebase/firestore';
-import { Plus, X, ChevronDown, ChevronUp, Edit2, Trash2 } from 'lucide-react';
+import { Plus, X, ChevronDown, ChevronUp, Edit2, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface SubSubCategory {
   id: string;
@@ -24,7 +24,11 @@ interface Category {
   webpageLink?: string;
   webpageTitle?: string;
   webpageDescription?: string;
+  createdAt?: any;
 }
+
+type SortBy = 'name' | 'date' | 'size';
+type SortOrder = 'asc' | 'desc';
 
 export default function CategoriesManagement() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -41,8 +45,8 @@ export default function CategoriesManagement() {
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [newSubSubName, setNewSubSubName] = useState('');
   
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState('');
+  const [sortBy, setSortBy] = useState<SortBy>('name');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   useEffect(() => {
     loadCategories();
@@ -53,12 +57,60 @@ export default function CategoriesManagement() {
       const snap = await getDocs(collection(db, 'categories'));
       const data = snap.docs.map(d => ({
         id: d.id,
-        ...d.data()
+        ...d.data(),
+        createdAt: d.data().createdAt?.toDate?.() || new Date()
       })) as Category[];
-      setCategories(data.sort((a, b) => a.name.localeCompare(b.name)));
+      
+      const sorted = sortCategories(data);
+      setCategories(sorted);
     } catch (error) {
       console.error('Error loading categories:', error);
     }
+  };
+
+  const getCategorySize = (category: Category): number => {
+    return category.subcategories?.reduce((count, sub) => {
+      return count + (sub.subSubcategories?.length || 0);
+    }, 0) || 0;
+  };
+
+  const sortCategories = (cats: Category[]) => {
+    const sorted = [...cats];
+    
+    if (sortBy === 'name') {
+      sorted.sort((a, b) => {
+        const comparison = a.name.localeCompare(b.name);
+        return sortOrder === 'asc' ? comparison : -comparison;
+      });
+    } else if (sortBy === 'date') {
+      sorted.sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        const comparison = dateA - dateB;
+        return sortOrder === 'asc' ? comparison : -comparison;
+      });
+    } else if (sortBy === 'size') {
+      sorted.sort((a, b) => {
+        const sizeA = getCategorySize(a);
+        const sizeB = getCategorySize(b);
+        const comparison = sizeA - sizeB;
+        return sortOrder === 'asc' ? comparison : -comparison;
+      });
+    }
+    
+    return sorted;
+  };
+
+  const handleSort = (newSortBy: SortBy) => {
+    if (sortBy === newSortBy) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(newSortBy);
+      setSortOrder('asc');
+    }
+    
+    const sorted = sortCategories(categories);
+    setCategories(sorted);
   };
 
   const handleAddRoot = async () => {
@@ -69,7 +121,8 @@ export default function CategoriesManagement() {
       await setDoc(doc(db, 'categories', id), {
         name: newRootName,
         type: 'root',
-        subcategories: []
+        subcategories: [],
+        createdAt: new Date()
       });
       loadCategories();
       setNewRootName('');
@@ -216,35 +269,110 @@ export default function CategoriesManagement() {
         </p>
       </div>
 
-      <button
-        onClick={() => setShowAddRootModal(true)}
-        style={{
-          padding: '10px 16px',
-          backgroundColor: '#2d5016',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '14px',
-          fontWeight: 'normal',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          marginBottom: '24px',
-          transition: 'all 0.2s'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#1a3009';
-          e.currentTarget.style.transform = 'translateY(-2px)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = '#2d5016';
-          e.currentTarget.style.transform = 'translateY(0)';
-        }}
-      >
-        <Plus size={16} />
-        Add Root Category
-      </button>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', alignItems: 'center' }}>
+        <button
+          onClick={() => setShowAddRootModal(true)}
+          style={{
+            padding: '10px 16px',
+            backgroundColor: '#2d5016',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: 'normal',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#1a3009';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#2d5016';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          <Plus size={16} />
+          Add Root Category
+        </button>
+
+        <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto', alignItems: 'center' }}>
+          <span style={{ fontSize: '12px', color: '#6b7280', marginRight: '8px' }}>
+            Sort: {sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
+          </span>
+          <button
+            onClick={() => handleSort('name')}
+            style={{
+              padding: '8px 12px',
+              backgroundColor: sortBy === 'name' ? '#f0fdf4' : '#f3f4f6',
+              color: sortBy === 'name' ? '#2d5016' : '#6b7280',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: sortBy === 'name' ? '600' : 'normal',
+              transition: 'all 0.2s'
+            }}
+          >
+            Name
+            {sortBy === 'name' && (
+              sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />
+            )}
+          </button>
+
+          <button
+            onClick={() => handleSort('date')}
+            style={{
+              padding: '8px 12px',
+              backgroundColor: sortBy === 'date' ? '#f0fdf4' : '#f3f4f6',
+              color: sortBy === 'date' ? '#2d5016' : '#6b7280',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: sortBy === 'date' ? '600' : 'normal',
+              transition: 'all 0.2s'
+            }}
+          >
+            Date
+            {sortBy === 'date' && (
+              sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />
+            )}
+          </button>
+
+          <button
+            onClick={() => handleSort('size')}
+            style={{
+              padding: '8px 12px',
+              backgroundColor: sortBy === 'size' ? '#f0fdf4' : '#f3f4f6',
+              color: sortBy === 'size' ? '#2d5016' : '#6b7280',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: sortBy === 'size' ? '600' : 'normal',
+              transition: 'all 0.2s'
+            }}
+          >
+            Size
+            {sortBy === 'size' && (
+              sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />
+            )}
+          </button>
+        </div>
+      </div>
 
       <div style={{ backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
         {categories.length === 0 ? (
@@ -276,6 +404,9 @@ export default function CategoriesManagement() {
                   )}
                   <span style={{ fontSize: '16px', fontWeight: '600', color: '#111827' }}>
                     {root.name}
+                  </span>
+                  <span style={{ fontSize: '13px', color: '#9ca3af', marginLeft: '8px' }}>
+                    ({getCategorySize(root)} items)
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -360,6 +491,9 @@ export default function CategoriesManagement() {
                           )}
                           <span style={{ fontSize: '14px', color: '#374151' }}>
                             {sub.name}
+                          </span>
+                          <span style={{ fontSize: '12px', color: '#9ca3af', marginLeft: '8px' }}>
+                            ({sub.subSubcategories?.length || 0})
                           </span>
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
