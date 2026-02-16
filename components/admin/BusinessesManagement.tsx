@@ -16,15 +16,18 @@ interface Business {
   id: string;
   name: string;
   description: string;
-  ownerName: string;
-  email: string;
-  phone: string;
+  ownerName?: string;
+  email?: string;
+  phone?: string;
   address: string;
   website: string;
   logoUrl?: string;
   taxNumber?: string;
-  payfastMerchantId: string;
-  bankAccount: string;
+  payfastMerchantId?: string;
+  bankAccount?: string;
+  bankName?: string;
+  bankAccountHolder?: string;
+  paymentMethod: 'payfast' | 'bank' | 'both';
   status: 'active' | 'inactive';
   rootCategory: string;
   files: BusinessFile[];
@@ -51,6 +54,9 @@ export default function BusinessesManagement() {
     taxNumber: '',
     payfastMerchantId: '',
     bankAccount: '',
+    bankName: '',
+    bankAccountHolder: '',
+    paymentMethod: 'payfast' as 'payfast' | 'bank' | 'both',
     status: 'active' as 'active' | 'inactive',
     rootCategory: ''
   });
@@ -108,6 +114,23 @@ export default function BusinessesManagement() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate payment method
+    if (form.paymentMethod === 'payfast' && !form.payfastMerchantId) {
+      alert('Please enter PayFast Merchant ID');
+      return;
+    }
+    if (form.paymentMethod === 'bank' && !form.bankAccount) {
+      alert('Please enter Bank Account');
+      return;
+    }
+    if (form.paymentMethod === 'both') {
+      if (!form.payfastMerchantId || !form.bankAccount) {
+        alert('Please enter both PayFast Merchant ID and Bank Account');
+        return;
+      }
+    }
+
     try {
       let logoUrl = logoPreview;
 
@@ -172,6 +195,9 @@ export default function BusinessesManagement() {
       taxNumber: '',
       payfastMerchantId: '',
       bankAccount: '',
+      bankName: '',
+      bankAccountHolder: '',
+      paymentMethod: 'payfast',
       status: 'active',
       rootCategory: ''
     });
@@ -217,14 +243,17 @@ export default function BusinessesManagement() {
     setForm({
       name: business.name,
       description: business.description,
-      ownerName: business.ownerName,
-      email: business.email,
-      phone: business.phone,
+      ownerName: business.ownerName || '',
+      email: business.email || '',
+      phone: business.phone || '',
       address: business.address,
       website: business.website,
       taxNumber: business.taxNumber || '',
-      payfastMerchantId: business.payfastMerchantId,
-      bankAccount: business.bankAccount,
+      payfastMerchantId: business.payfastMerchantId || '',
+      bankAccount: business.bankAccount || '',
+      bankName: business.bankName || '',
+      bankAccountHolder: business.bankAccountHolder || '',
+      paymentMethod: business.paymentMethod,
       status: business.status,
       rootCategory: business.rootCategory
     });
@@ -381,13 +410,12 @@ export default function BusinessesManagement() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Owner Name *
+                    Owner Name (Optional)
                   </label>
                   <input
                     type="text"
                     value={form.ownerName}
                     onChange={(e) => setForm({ ...form, ownerName: e.target.value })}
-                    required
                     style={{
                       width: '100%',
                       padding: '12px 14px',
@@ -431,13 +459,12 @@ export default function BusinessesManagement() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Email *
+                    Email (Optional)
                   </label>
                   <input
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    required
                     style={{
                       width: '100%',
                       padding: '12px 14px',
@@ -451,13 +478,12 @@ export default function BusinessesManagement() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Phone *
+                    Phone (Optional)
                   </label>
                   <input
                     type="tel"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    required
                     style={{
                       width: '100%',
                       padding: '12px 14px',
@@ -516,57 +542,14 @@ export default function BusinessesManagement() {
                 Financial & Legal Information
               </h4>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Tax/Registration Number (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={form.taxNumber}
-                    onChange={(e) => setForm({ ...form, taxNumber: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Bank Account *
-                  </label>
-                  <input
-                    type="text"
-                    value={form.bankAccount}
-                    onChange={(e) => setForm({ ...form, bankAccount: e.target.value })}
-                    placeholder="Account number"
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-              </div>
-
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                  PayFast Merchant ID *
+                  Tax/Registration Number (Optional)
                 </label>
                 <input
                   type="text"
-                  value={form.payfastMerchantId}
-                  onChange={(e) => setForm({ ...form, payfastMerchantId: e.target.value })}
-                  required
+                  value={form.taxNumber}
+                  onChange={(e) => setForm({ ...form, taxNumber: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px 14px',
@@ -577,6 +560,125 @@ export default function BusinessesManagement() {
                   }}
                 />
               </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                  Payment Method *
+                </label>
+                <select
+                  value={form.paymentMethod}
+                  onChange={(e) => setForm({ ...form, paymentMethod: e.target.value as any })}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="payfast">PayFast Only</option>
+                  <option value="bank">Bank Account Only</option>
+                  <option value="both">Both (PayFast & Bank)</option>
+                </select>
+              </div>
+
+              {(form.paymentMethod === 'payfast' || form.paymentMethod === 'both') && (
+                <div style={{ marginBottom: '16px', padding: '16px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <h5 style={{ fontSize: '13px', fontWeight: '600', color: '#2d5016', margin: '0 0 12px 0' }}>
+                    PayFast Information
+                  </h5>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                      PayFast Merchant ID *
+                    </label>
+                    <input
+                      type="text"
+                      value={form.payfastMerchantId}
+                      onChange={(e) => setForm({ ...form, payfastMerchantId: e.target.value })}
+                      placeholder="Your PayFast Merchant ID"
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '8px 0 0 0' }}>
+                      Payments will be processed through PayFast to your linked bank account
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {(form.paymentMethod === 'bank' || form.paymentMethod === 'both') && (
+                <div style={{ marginBottom: '16px', padding: '16px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+                  <h5 style={{ fontSize: '13px', fontWeight: '600', color: '#0369a1', margin: '0 0 12px 0' }}>
+                    Bank Account Information
+                  </h5>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                      Bank Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={form.bankName}
+                      onChange={(e) => setForm({ ...form, bankName: e.target.value })}
+                      placeholder="e.g., FNB, ABSA, Capitec"
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                      Account Holder Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={form.bankAccountHolder}
+                      onChange={(e) => setForm({ ...form, bankAccountHolder: e.target.value })}
+                      placeholder="Name on bank account"
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                      Account Number *
+                    </label>
+                    <input
+                      type="text"
+                      value={form.bankAccount}
+                      onChange={(e) => setForm({ ...form, bankAccount: e.target.value })}
+                      placeholder="Account number"
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Logo Upload */}
@@ -742,7 +844,7 @@ export default function BusinessesManagement() {
                   <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Category</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Contact</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Status</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Files</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Payment</th>
                   <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Actions</th>
                 </tr>
               </thead>
@@ -764,7 +866,7 @@ export default function BusinessesManagement() {
                       {business.rootCategory === 'local_businesses' ? 'Local' : 'Community'}
                     </td>
                     <td style={{ padding: '16px', fontSize: '13px', color: '#6b7280' }}>
-                      {business.email}
+                      {business.email || 'N/A'}
                     </td>
                     <td style={{ padding: '16px', fontSize: '14px' }}>
                       <span style={{
@@ -779,8 +881,8 @@ export default function BusinessesManagement() {
                         {business.status === 'active' ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                      {business.files?.length || 0}
+                    <td style={{ padding: '16px', fontSize: '13px', color: '#6b7280' }}>
+                      {business.paymentMethod}
                     </td>
                     <td style={{ padding: '16px', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
