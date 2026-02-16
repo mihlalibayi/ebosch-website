@@ -2,15 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
 import Link from 'next/link';
-import { LogIn, ArrowLeft } from 'lucide-react';
+import { LogIn, ArrowLeft, X } from 'lucide-react';
 
 export default function AdminLogin() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -39,6 +43,37 @@ export default function AdminLogin() {
     } catch (err: any) {
       setError('Failed to sign in. Please try again.');
       console.error(err);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!forgotEmail) {
+      setForgotMessage('Please enter your email address.');
+      return;
+    }
+
+    setForgotLoading(true);
+    setForgotMessage('');
+
+    try {
+      await sendPasswordResetEmail(auth, forgotEmail);
+      setForgotMessage('Password reset email sent! Check your inbox.');
+      setForgotEmail('');
+      setTimeout(() => {
+        setShowForgotPassword(false);
+        setForgotMessage('');
+      }, 3000);
+    } catch (err: any) {
+      if (err.code === 'auth/user-not-found') {
+        setForgotMessage('No account found with this email address.');
+      } else if (err.code === 'auth/invalid-email') {
+        setForgotMessage('Please enter a valid email address.');
+      } else {
+        setForgotMessage('Error sending reset email. Please try again.');
+      }
+      console.error(err);
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -79,14 +114,14 @@ export default function AdminLogin() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4 py-20">
+      <div className="flex-1 flex items-center justify-center px-4 py-8">
         <div style={{ maxWidth: '500px', width: '100%' }}>
           {/* Logo Circle */}
-          <div className="flex justify-center mb-12">
+          <div className="flex justify-center mb-6">
             <div 
               style={{
-                width: '160px',
-                height: '160px',
+                width: '100px',
+                height: '100px',
                 borderRadius: '50%',
                 backgroundColor: 'white',
                 display: 'flex',
@@ -110,16 +145,10 @@ export default function AdminLogin() {
             </div>
           </div>
 
-          {/* Title and Subtitle */}
-          <div className="text-center mb-10">
-            <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
-              Welcome Back
-            </h1>
-            <p style={{ fontSize: '16px', color: '#6b7280', marginBottom: '6px' }}>
+          {/* Title */}
+          <div className="text-center mb-6">
+            <p style={{ fontSize: '14px', color: '#6b7280' }}>
               e'Bosch Admin Portal
-            </p>
-            <p style={{ fontSize: '14px', color: '#9ca3af' }}>
-              Manage your events and content
             </p>
           </div>
 
@@ -143,55 +172,73 @@ export default function AdminLogin() {
           <div style={{
             backgroundColor: 'white',
             borderRadius: '12px',
-            padding: '32px',
+            padding: '24px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
-            marginBottom: '20px'
+            marginBottom: '16px'
           }}>
             {/* Google Sign In Button */}
             <button
               onClick={handleGoogleSignIn}
-              className="w-full transition-all"
               style={{
-                padding: '14px 20px',
-                borderRadius: '10px',
-                fontSize: '16px',
-                fontWeight: '600',
+                width: '100%',
+                padding: '12px 20px',
+                borderRadius: '8px',
+                fontSize: '14px',
                 backgroundColor: '#2d5016',
                 color: 'white',
                 border: 'none',
                 cursor: 'pointer',
+                marginBottom: '16px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '10px',
-                marginBottom: '16px'
+                gap: '8px',
+                transition: 'background-color 0.2s'
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
             >
-              <LogIn size={20} />
+              <LogIn size={18} />
               Sign in with Google
             </button>
 
+            {/* Admin Access Box */}
+            <div style={{
+              backgroundColor: '#f3fce8',
+              border: '1px solid #d1fae5',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              textAlign: 'center',
+              marginBottom: '16px'
+            }}>
+              <p style={{ fontSize: '13px', color: '#065f46', fontWeight: 'normal', marginBottom: '4px' }}>
+                Admin Access Only
+              </p>
+              <p style={{ fontSize: '12px', color: '#047857' }}>
+                Use: <span style={{ fontWeight: 'normal' }}>members.ebosch@gmail.com</span>
+              </p>
+            </div>
+
             {/* Divider */}
-            <div style={{ position: 'relative', marginBottom: '20px' }}>
-              <div style={{ borderTop: '1px solid #e5e7eb' }}></div>
+            <div style={{ position: 'relative', marginBottom: '16px' }}>
+              <div style={{ borderTop: '2px solid #2d5016' }}></div>
               <span style={{
                 position: 'absolute',
-                top: '-12px',
+                top: '-14px',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 backgroundColor: 'white',
                 padding: '0 8px',
-                fontSize: '14px',
-                color: '#9ca3af'
+                fontSize: '13px',
+                color: '#2d5016',
+                fontWeight: '500'
               }}>
                 or
               </span>
             </div>
 
             {/* Email Input */}
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ marginBottom: '12px' }}>
               <label style={{
                 display: 'block',
                 fontSize: '14px',
@@ -220,7 +267,7 @@ export default function AdminLogin() {
             </div>
 
             {/* Password Input */}
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '16px' }}>
               <label style={{
                 display: 'block',
                 fontSize: '14px',
@@ -254,12 +301,12 @@ export default function AdminLogin() {
                 width: '100%',
                 padding: '12px 20px',
                 borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '600',
+                fontSize: '14px',
                 backgroundColor: '#2d5016',
                 color: 'white',
                 border: 'none',
                 cursor: 'pointer',
+                marginBottom: '12px'
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
@@ -267,32 +314,25 @@ export default function AdminLogin() {
               Sign In
             </button>
 
-            {/* Info Message */}
-            <div style={{
-              backgroundColor: '#f3fce8',
-              border: '1px solid #d1fae5',
-              borderRadius: '8px',
-              padding: '14px 16px',
-              textAlign: 'center',
-              marginTop: '20px'
-            }}>
-              <p style={{ fontSize: '14px', color: '#065f46', fontWeight: '500', marginBottom: '4px' }}>
-                Admin Access Only
-              </p>
-              <p style={{ fontSize: '13px', color: '#047857' }}>
-                Use: <span style={{ fontWeight: '600' }}>members.ebosch@gmail.com</span>
-              </p>
+            {/* Forgot Password Link */}
+            <div style={{ textAlign: 'center' }}>
+              <button
+                onClick={() => setShowForgotPassword(true)}
+                style={{
+                  fontSize: '12px',
+                  color: '#1e40af',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  padding: '4px 0'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#1e3a8a')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#1e40af')}
+              >
+                Forgot password?
+              </button>
             </div>
-          </div>
-
-          {/* Security Note */}
-          <div style={{
-            textAlign: 'center',
-            fontSize: '12px',
-            color: '#9ca3af',
-            paddingTop: '12px'
-          }}>
-            <p>🔒 Secure login with Google OAuth 2.0</p>
           </div>
         </div>
       </div>
@@ -308,6 +348,164 @@ export default function AdminLogin() {
       }}>
         <p>e'Bosch Event Management System • Admin Portal</p>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '32px',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
+            position: 'relative'
+          }}>
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setShowForgotPassword(false);
+                setForgotMessage('');
+                setForgotEmail('');
+              }}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#6b7280'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#111827')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
+            >
+              <X size={24} />
+            </button>
+
+            {/* Title */}
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              color: '#111827',
+              marginBottom: '8px'
+            }}>
+              Reset Password
+            </h2>
+            <p style={{
+              fontSize: '14px',
+              color: '#6b7280',
+              marginBottom: '20px'
+            }}>
+              Enter your email and we'll send you a link to reset your password.
+            </p>
+
+            {/* Email Input */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '6px'
+              }}>
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                placeholder="Enter your email"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  transition: 'border-color 0.2s'
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
+              />
+            </div>
+
+            {/* Message */}
+            {forgotMessage && (
+              <div style={{
+                backgroundColor: forgotMessage.includes('sent') ? '#dcfce7' : '#fee2e2',
+                border: `1px solid ${forgotMessage.includes('sent') ? '#86efac' : '#fecaca'}`,
+                color: forgotMessage.includes('sent') ? '#166534' : '#991b1b',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                marginBottom: '16px',
+                fontSize: '13px'
+              }}>
+                {forgotMessage}
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => {
+                  setShowForgotPassword(false);
+                  setForgotMessage('');
+                  setForgotEmail('');
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px 20px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e5e7eb')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleForgotPassword}
+                disabled={forgotLoading}
+                style={{
+                  flex: 1,
+                  padding: '12px 20px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  backgroundColor: forgotLoading ? '#9ca3af' : '#2d5016',
+                  color: 'white',
+                  border: 'none',
+                  cursor: forgotLoading ? 'not-allowed' : 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  if (!forgotLoading) e.currentTarget.style.backgroundColor = '#1a3009';
+                }}
+                onMouseLeave={(e) => {
+                  if (!forgotLoading) e.currentTarget.style.backgroundColor = '#2d5016';
+                }}
+              >
+                {forgotLoading ? 'Sending...' : 'Send Reset Link'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
