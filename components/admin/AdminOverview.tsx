@@ -235,53 +235,10 @@ export default function AdminOverview() {
       </div>
 
       <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        marginBottom: '32px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-      }}>
-        <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
-          Store Views
-        </h2>
-        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-          <div>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Today</p>
-            <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-              {metrics.storeViews.today}
-            </p>
-          </div>
-          <div>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Week</p>
-            <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-              {metrics.storeViews.week}
-            </p>
-          </div>
-          <div>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Month</p>
-            <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-              {metrics.storeViews.month}
-            </p>
-          </div>
-          <div>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Quarter</p>
-            <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-              {metrics.storeViews.quarter}
-            </p>
-          </div>
-          <div>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Year</p>
-            <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-              {metrics.storeViews.year}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '16px'
+        gap: '16px',
+        marginBottom: '32px'
       }}>
         <div style={{
           backgroundColor: 'white',
@@ -289,54 +246,62 @@ export default function AdminOverview() {
           padding: '24px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
         }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
-            Sales
+          <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
+            Store Views
+          </h2>
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+            <div>
+              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Today</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
+                {metrics.storeViews.today}
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Week</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
+                {metrics.storeViews.week}
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Month</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
+                {metrics.storeViews.month}
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Quarter</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
+                {metrics.storeViews.quarter}
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Year</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
+                {metrics.storeViews.year}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '24px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
+            Sales This Month
           </h3>
           <div style={{ marginBottom: '16px' }}>
             <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Total Orders</p>
             <p style={{ fontSize: '28px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-              {metrics.orders.total}
-            </p>
-          </div>
-          <div>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Month</p>
-            <p style={{ fontSize: '28px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
               {metrics.orders.thisMonth}
             </p>
           </div>
-          <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f3f4f6' }}>
+          <div>
             <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Total Revenue</p>
             <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-              R {metrics.revenue.total.toLocaleString()}
-            </p>
-          </div>
-          <div style={{ marginTop: '12px' }}>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Month</p>
-            <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
               R {metrics.revenue.thisMonth.toLocaleString()}
-            </p>
-          </div>
-        </div>
-
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '24px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-        }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
-            Annual Memberships
-          </h3>
-          <div style={{ marginBottom: '16px' }}>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Total Members</p>
-            <p style={{ fontSize: '28px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-              {metrics.memberships.total}
-            </p>
-          </div>
-          <div>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>New This Month</p>
-            <p style={{ fontSize: '28px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-              {metrics.memberships.thisMonth}
             </p>
           </div>
         </div>
@@ -347,7 +312,6 @@ export default function AdminOverview() {
         border: '1px solid #d1fae5',
         borderRadius: '8px',
         padding: '16px',
-        marginTop: '32px',
         textAlign: 'center',
         color: '#065f46',
         fontSize: '14px'
