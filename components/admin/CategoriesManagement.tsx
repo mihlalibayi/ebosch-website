@@ -269,7 +269,7 @@ export default function CategoriesManagement() {
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
         <button
           onClick={() => setShowAddRootModal(true)}
           style={{
@@ -299,9 +299,9 @@ export default function CategoriesManagement() {
           Add Root Category
         </button>
 
-        <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: '#6b7280', marginRight: '8px' }}>
-            Sort: {sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
+        <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '12px', color: '#6b7280' }}>
+            {sortOrder === 'asc' ? '↑ A→Z' : '↓ Z→A'}
           </span>
           <button
             onClick={() => handleSort('name')}
@@ -313,17 +313,11 @@ export default function CategoriesManagement() {
               borderRadius: '6px',
               fontSize: '12px',
               cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
               fontWeight: sortBy === 'name' ? '600' : 'normal',
               transition: 'all 0.2s'
             }}
           >
             Name
-            {sortBy === 'name' && (
-              sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />
-            )}
           </button>
 
           <button
@@ -336,17 +330,11 @@ export default function CategoriesManagement() {
               borderRadius: '6px',
               fontSize: '12px',
               cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
               fontWeight: sortBy === 'date' ? '600' : 'normal',
               transition: 'all 0.2s'
             }}
           >
             Date
-            {sortBy === 'date' && (
-              sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />
-            )}
           </button>
 
           <button
@@ -359,17 +347,11 @@ export default function CategoriesManagement() {
               borderRadius: '6px',
               fontSize: '12px',
               cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
               fontWeight: sortBy === 'size' ? '600' : 'normal',
               transition: 'all 0.2s'
             }}
           >
             Size
-            {sortBy === 'size' && (
-              sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />
-            )}
           </button>
         </div>
       </div>
@@ -424,7 +406,8 @@ export default function CategoriesManagement() {
                       borderRadius: '6px',
                       fontSize: '12px',
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      fontWeight: 'normal'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = '#dcfce7';
@@ -448,7 +431,8 @@ export default function CategoriesManagement() {
                       borderRadius: '6px',
                       fontSize: '12px',
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      fontWeight: 'normal'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = '#fee2e2';
@@ -512,7 +496,8 @@ export default function CategoriesManagement() {
                               borderRadius: '4px',
                               fontSize: '11px',
                               cursor: 'pointer',
-                              transition: 'all 0.2s'
+                              transition: 'all 0.2s',
+                              fontWeight: 'normal'
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.backgroundColor = '#dcfce7';
@@ -521,7 +506,7 @@ export default function CategoriesManagement() {
                               e.currentTarget.style.backgroundColor = '#f0fdf4';
                             }}
                           >
-                            + Add Item
+                            + Add
                           </button>
                           <button
                             onClick={(e) => {
@@ -536,7 +521,8 @@ export default function CategoriesManagement() {
                               borderRadius: '4px',
                               fontSize: '11px',
                               cursor: 'pointer',
-                              transition: 'all 0.2s'
+                              transition: 'all 0.2s',
+                              fontWeight: 'normal'
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.backgroundColor = '#fee2e2';
@@ -545,7 +531,7 @@ export default function CategoriesManagement() {
                               e.currentTarget.style.backgroundColor = '#fef2f2';
                             }}
                           >
-                            Delete
+                            Del
                           </button>
                         </div>
                       </div>
@@ -576,7 +562,8 @@ export default function CategoriesManagement() {
                                   borderRadius: '4px',
                                   fontSize: '11px',
                                   cursor: 'pointer',
-                                  transition: 'all 0.2s'
+                                  transition: 'all 0.2s',
+                                  fontWeight: 'normal'
                                 }}
                                 onMouseEnter={(e) => {
                                   e.currentTarget.style.backgroundColor = '#fef2f2';
@@ -585,7 +572,7 @@ export default function CategoriesManagement() {
                                   e.currentTarget.style.backgroundColor = 'transparent';
                                 }}
                               >
-                                Delete
+                                Del
                               </button>
                             </div>
                           ))}
@@ -609,7 +596,7 @@ export default function CategoriesManagement() {
             type="text"
             value={newRootName}
             onChange={(e) => setNewRootName(e.target.value)}
-            placeholder="Category name (e.g., LOCAL BUSINESSES)"
+            placeholder="Category name"
             style={{
               width: '100%',
               padding: '12px 14px',
@@ -632,7 +619,8 @@ export default function CategoriesManagement() {
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                fontWeight: 'normal'
               }}
             >
               Cancel
@@ -647,7 +635,8 @@ export default function CategoriesManagement() {
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                fontWeight: 'normal'
               }}
             >
               Add
@@ -665,7 +654,7 @@ export default function CategoriesManagement() {
             type="text"
             value={newSubName}
             onChange={(e) => setNewSubName(e.target.value)}
-            placeholder="Subcategory name (e.g., Bakeries)"
+            placeholder="Subcategory name"
             style={{
               width: '100%',
               padding: '12px 14px',
@@ -688,7 +677,8 @@ export default function CategoriesManagement() {
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                fontWeight: 'normal'
               }}
             >
               Cancel
@@ -703,7 +693,8 @@ export default function CategoriesManagement() {
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                fontWeight: 'normal'
               }}
             >
               Add
@@ -721,7 +712,7 @@ export default function CategoriesManagement() {
             type="text"
             value={newSubSubName}
             onChange={(e) => setNewSubSubName(e.target.value)}
-            placeholder="Item name (e.g., business name)"
+            placeholder="Item name"
             style={{
               width: '100%',
               padding: '12px 14px',
@@ -744,7 +735,8 @@ export default function CategoriesManagement() {
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                fontWeight: 'normal'
               }}
             >
               Cancel
@@ -759,7 +751,8 @@ export default function CategoriesManagement() {
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                fontWeight: 'normal'
               }}
             >
               Add
