@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
-import { LogOut, BarChart3, Calendar, Tag, Building2, Package, ClipboardList, Settings, Menu, X } from 'lucide-react';
+import { LogOut, BarChart3, Calendar, Tag, Building2, Package, ClipboardList, Settings } from 'lucide-react';
 
 // Import all sections
 import AdminOverview from '@/components/admin/AdminOverview';
@@ -36,7 +36,6 @@ const menuItems: MenuItem[] = [
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<SectionType>('overview');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -78,14 +77,12 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      {/* Sidebar */}
+      {/* Sidebar - Always Visible */}
       <div
         style={{
-          width: sidebarOpen ? '250px' : '0',
+          width: '250px',
           backgroundColor: 'white',
           boxShadow: '2px 0 8px rgba(0,0,0,0.08)',
-          transition: 'width 0.3s ease',
-          overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative'
@@ -97,56 +94,36 @@ export default function AdminDashboard() {
           borderBottom: '1px solid #e5e7eb',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-          justifyContent: 'space-between'
+          gap: '12px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              backgroundColor: '#2d5016',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden'
-            }}>
-              <img 
-                src="/logo.jpg" 
-                alt="e'Bosch"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
-              />
-            </div>
-            <div>
-              <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0' }}>
-                e'Bosch
-              </p>
-              <p style={{ fontSize: '11px', color: '#6b7280', margin: '2px 0 0 0' }}>
-                Admin Panel
-              </p>
-            </div>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '8px',
+            backgroundColor: '#2d5016',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden'
+          }}>
+            <img 
+              src="/logo.jpg" 
+              alt="e'Bosch"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+            />
           </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#6b7280',
-              padding: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#111827')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
-          >
-            <X size={18} />
-          </button>
+          <div>
+            <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0' }}>
+              e'Bosch
+            </p>
+            <p style={{ fontSize: '11px', color: '#6b7280', margin: '2px 0 0 0' }}>
+              Admin Panel
+            </p>
+          </div>
         </div>
 
         {/* Menu Items */}
@@ -158,10 +135,7 @@ export default function AdminDashboard() {
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => {
-                setActiveSection(item.id);
-                setSidebarOpen(false);
-              }}
+              onClick={() => setActiveSection(item.id)}
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -242,24 +216,8 @@ export default function AdminDashboard() {
           padding: '16px 24px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'flex-end'
         }}>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#2d5016',
-              padding: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <Menu size={24} />
-          </button>
-          
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -296,23 +254,6 @@ export default function AdminDashboard() {
           {renderSection()}
         </div>
       </div>
-
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            display: 'block',
-            zIndex: 999
-          }}
-        />
-      )}
     </div>
   );
 }
