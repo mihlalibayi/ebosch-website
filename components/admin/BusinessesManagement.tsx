@@ -27,7 +27,7 @@ interface Business {
   bankAccount?: string;
   bankName?: string;
   bankAccountHolder?: string;
-  paymentMethod: 'payfast' | 'bank' | 'both';
+  paymentMethod: 'payfast' | 'bank';
   status: 'active' | 'inactive';
   rootCategory: string;
   files: BusinessFile[];
@@ -56,7 +56,7 @@ export default function BusinessesManagement() {
     bankAccount: '',
     bankName: '',
     bankAccountHolder: '',
-    paymentMethod: 'payfast' as 'payfast' | 'bank' | 'both',
+    paymentMethod: 'payfast' as 'payfast' | 'bank',
     status: 'active' as 'active' | 'inactive',
     rootCategory: ''
   });
@@ -115,7 +115,6 @@ export default function BusinessesManagement() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate payment method
     if (form.paymentMethod === 'payfast' && !form.payfastMerchantId) {
       alert('Please enter PayFast Merchant ID');
       return;
@@ -123,12 +122,6 @@ export default function BusinessesManagement() {
     if (form.paymentMethod === 'bank' && !form.bankAccount) {
       alert('Please enter Bank Account');
       return;
-    }
-    if (form.paymentMethod === 'both') {
-      if (!form.payfastMerchantId || !form.bankAccount) {
-        alert('Please enter both PayFast Merchant ID and Bank Account');
-        return;
-      }
     }
 
     try {
@@ -410,7 +403,7 @@ export default function BusinessesManagement() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Owner Name (Optional)
+                    Owner Name
                   </label>
                   <input
                     type="text"
@@ -459,7 +452,7 @@ export default function BusinessesManagement() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Email (Optional)
+                    Email
                   </label>
                   <input
                     type="email"
@@ -478,7 +471,7 @@ export default function BusinessesManagement() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Phone (Optional)
+                    Phone
                   </label>
                   <input
                     type="tel"
@@ -544,7 +537,7 @@ export default function BusinessesManagement() {
 
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                  Tax/Registration Number (Optional)
+                  Tax/Registration Number
                 </label>
                 <input
                   type="text"
@@ -577,13 +570,12 @@ export default function BusinessesManagement() {
                     boxSizing: 'border-box'
                   }}
                 >
-                  <option value="payfast">PayFast Only</option>
-                  <option value="bank">Bank Account Only</option>
-                  <option value="both">Both (PayFast & Bank)</option>
+                  <option value="payfast">PayFast</option>
+                  <option value="bank">Bank Account</option>
                 </select>
               </div>
 
-              {(form.paymentMethod === 'payfast' || form.paymentMethod === 'both') && (
+              {form.paymentMethod === 'payfast' && (
                 <div style={{ marginBottom: '16px', padding: '16px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #d1fae5' }}>
                   <h5 style={{ fontSize: '13px', fontWeight: '600', color: '#2d5016', margin: '0 0 12px 0' }}>
                     PayFast Information
@@ -613,7 +605,7 @@ export default function BusinessesManagement() {
                 </div>
               )}
 
-              {(form.paymentMethod === 'bank' || form.paymentMethod === 'both') && (
+              {form.paymentMethod === 'bank' && (
                 <div style={{ marginBottom: '16px', padding: '16px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
                   <h5 style={{ fontSize: '13px', fontWeight: '600', color: '#0369a1', margin: '0 0 12px 0' }}>
                     Bank Account Information
@@ -882,7 +874,7 @@ export default function BusinessesManagement() {
                       </span>
                     </td>
                     <td style={{ padding: '16px', fontSize: '13px', color: '#6b7280' }}>
-                      {business.paymentMethod}
+                      {business.paymentMethod === 'payfast' ? 'PayFast' : 'Bank Account'}
                     </td>
                     <td style={{ padding: '16px', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
