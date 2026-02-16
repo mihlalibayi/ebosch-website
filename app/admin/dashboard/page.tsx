@@ -13,9 +13,8 @@ import CategoriesManagement from '@/components/admin/CategoriesManagement';
 import BusinessesManagement from '@/components/admin/BusinessesManagement';
 import ProductsManagement from '@/components/admin/ProductsManagement';
 import OrdersAndMembers from '@/components/admin/OrdersAndMembers';
-import ServicesSettings from '@/components/admin/ServicesSettings';
 
-type SectionType = 'overview' | 'events' | 'categories' | 'businesses' | 'products' | 'orders' | 'services';
+type SectionType = 'overview' | 'events' | 'categories' | 'businesses' | 'products' | 'orders';
 
 interface MenuItem {
   id: SectionType;
@@ -30,7 +29,6 @@ const menuItems: MenuItem[] = [
   { id: 'businesses', label: 'Businesses', icon: <Building2 size={20} /> },
   { id: 'products', label: 'Products', icon: <Package size={20} /> },
   { id: 'orders', label: 'Orders & Members', icon: <ClipboardList size={20} /> },
-  { id: 'services', label: 'Services', icon: <Settings size={20} /> },
 ];
 
 export default function AdminDashboard() {
@@ -68,8 +66,6 @@ export default function AdminDashboard() {
         return <ProductsManagement />;
       case 'orders':
         return <OrdersAndMembers />;
-      case 'services':
-        return <ServicesSettings />;
       default:
         return <AdminOverview />;
     }
