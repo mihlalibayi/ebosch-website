@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { db, storage } from '@/lib/firebase-config';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Plus, X, Edit2, Trash2, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, X, Edit2, Trash2, Image as ImageIcon } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -12,7 +12,9 @@ interface Product {
   description: string;
   price: number;
   type: 'ticket' | 'item';
-  category: string;
+  rootCategory: string;
+  subcategory: string;
+  subSubcategory?: string;
   imageUrl?: string;
   stock: number;
   outOfStock: boolean;
@@ -31,7 +33,9 @@ interface Product {
 
 export default function ProductsManagement() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [rootCategories, setRootCategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [subSubcategories, setSubSubcategories] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -42,7 +46,9 @@ export default function ProductsManagement() {
     description: '',
     price: 0,
     type: 'item' as 'ticket' | 'item',
-    category: '',
+    rootCategory: '',
+    subcategory: '',
+    subSubcategory: '',
     stock: 10,
     outOfStock: false,
     deliveryType: 'pickup' as 'pickup' | 'delivery' | 'digital' | 'instant',
@@ -65,19 +71,35 @@ export default function ProductsManagement() {
   const loadCategories = async () => {
     try {
       const snap = await getDocs(collection(db, 'categories'));
-      const cats: string[] = [];
+      const roots: any[] = [];
       snap.docs.forEach(doc => {
-        const data = doc.data() as any;
-        if (data.subcategories) {
-          data.subcategories.forEach((sub: any) => {
-            cats.push(`${doc.id} > ${sub.name}`);
+        const data = doc.data();
+        if (data.name !== 'SERVICES') {
+          roots.push({
+            id: doc.id,
+            name: data.name,
+            subcategories: data.subcategories || []
           });
         }
       });
-      setCategories(cats);
+      setRootCategories(roots);
     } catch (error) {
       console.error('Error loading categories:', error);
     }
+  };
+
+  const handleRootCategoryChange = (rootId: string) => {
+    setForm({ ...form, rootCategory: rootId, subcategory: '', subSubcategory: '' });
+    const root = rootCategories.find(r => r.id === rootId);
+    setSubcategories(root?.subcategories || []);
+    setSubSubcategories([]);
+  };
+
+  const handleSubcategoryChange = (subId: string) => {
+    setForm({ ...form, subcategory: subId, subSubcategory: '' });
+    const root = rootCategories.find(r => r.id === form.rootCategory);
+    const sub = root?.subcategories.find((s: any) => s.id === subId);
+    setSubSubcategories(sub?.subSubcategories || []);
   };
 
   const loadProducts = async () => {
@@ -144,7 +166,9 @@ export default function ProductsManagement() {
       description: '',
       price: 0,
       type: 'item',
-      category: '',
+      rootCategory: '',
+      subcategory: '',
+      subSubcategory: '',
       stock: 10,
       outOfStock: false,
       deliveryType: 'pickup',
@@ -162,6 +186,8 @@ export default function ProductsManagement() {
     setImagePreview('');
     setShowForm(false);
     setEditingId(null);
+    setSubcategories([]);
+    setSubSubcategories([]);
   };
 
   const handleDelete = async (id: string) => {
@@ -182,7 +208,9 @@ export default function ProductsManagement() {
       description: product.description,
       price: product.price,
       type: product.type,
-      category: product.category,
+      rootCategory: product.rootCategory,
+      subcategory: product.subcategory,
+      subSubcategory: product.subSubcategory || '',
       stock: product.stock,
       outOfStock: product.outOfStock,
       deliveryType: product.deliveryType,
@@ -196,10 +224,16 @@ export default function ProductsManagement() {
       payWhatYouWant: product.payWhatYouWant,
       minimumAmount: product.minimumAmount || 0
     });
+    const root = rootCategories.find(r => r.id === product.rootCategory);
+    setSubcategories(root?.subcategories || []);
+    const sub = root?.subcategories.find((s: any) => s.id === product.subcategory);
+    setSubSubcategories(sub?.subSubcategories || []);
     setImagePreview(product.imageUrl || '');
     setEditingId(product.id);
     setShowForm(true);
   };
+
+  const isLocalOrCommunity = form.rootCategory === 'local_businesses' || form.rootCategory === 'community_businesses';
 
   return (
     <div style={{ padding: '24px' }}>
@@ -345,11 +379,11 @@ export default function ProductsManagement() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Category *
+                    Root Category *
                   </label>
                   <select
-                    value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    value={form.rootCategory}
+                    onChange={(e) => handleRootCategoryChange(e.target.value)}
                     required
                     style={{
                       width: '100%',
@@ -360,13 +394,65 @@ export default function ProductsManagement() {
                       boxSizing: 'border-box'
                     }}
                   >
-                    <option value="">Select Category</option>
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
+                    <option value="">Select Root Category</option>
+                    {rootCategories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
                 </div>
               </div>
+
+              {form.rootCategory && (
+                <div style={{ marginTop: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                    Subcategory *
+                  </label>
+                  <select
+                    value={form.subcategory}
+                    onChange={(e) => handleSubcategoryChange(e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <option value="">Select Subcategory</option>
+                    {subcategories.map((sub) => (
+                      <option key={sub.id} value={sub.id}>{sub.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {isLocalOrCommunity && form.subcategory && (
+                <div style={{ marginTop: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                    Business Name *
+                  </label>
+                  <select
+                    value={form.subSubcategory}
+                    onChange={(e) => setForm({ ...form, subSubcategory: e.target.value })}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <option value="">Select Business</option>
+                    {subSubcategories.map((subSub) => (
+                      <option key={subSub.id} value={subSub.id}>{subSub.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
             {/* Pricing */}
@@ -660,12 +746,12 @@ export default function ProductsManagement() {
                   {imagePreview ? (
                     <div>
                       <img src={imagePreview} alt="Preview" style={{ maxHeight: '100px', marginBottom: '8px' }} />
-                      <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to change image</p>
+                      <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to change</p>
                     </div>
                   ) : (
                     <div>
                       <ImageIcon size={32} style={{ margin: '0 auto 8px', color: '#9ca3af' }} />
-                      <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to upload image</p>
+                      <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to upload</p>
                     </div>
                   )}
                 </label>
@@ -719,114 +805,119 @@ export default function ProductsManagement() {
                 <tr style={{ backgroundColor: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
                   <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Name</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Type</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Category</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Price</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Stock</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Delivery</th>
                   <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {products.map((product, idx) => (
-                  <tr
-                    key={product.id}
-                    style={{
-                      borderBottom: '1px solid #e5e7eb',
-                      backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f9fafb',
-                      transition: 'background-color 0.2s'
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb')}
-                  >
-                    <td style={{ padding: '16px', fontSize: '14px', color: '#111827', fontWeight: '500' }}>
-                      {product.name}
-                    </td>
-                    <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '4px 12px',
-                        borderRadius: '6px',
-                        backgroundColor: product.type === 'ticket' ? '#dbeafe' : '#fef3c7',
-                        color: product.type === 'ticket' ? '#0369a1' : '#92400e',
-                        fontSize: '13px',
-                        fontWeight: '600'
-                      }}>
-                        {product.type === 'ticket' ? 'Ticket' : 'Item'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                      {product.isFreeEvent ? 'FREE' : `R${product.price.toFixed(2)}`}
-                    </td>
-                    <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '4px 12px',
-                        borderRadius: '6px',
-                        backgroundColor: product.outOfStock ? '#fee2e2' : '#dcfce7',
-                        color: product.outOfStock ? '#991b1b' : '#166534',
-                        fontSize: '13px'
-                      }}>
-                        {product.outOfStock ? 'Out of Stock' : `${product.stock}`}
-                      </span>
-                    </td>
-                    <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                      {product.deliveryType}
-                    </td>
-                    <td style={{ padding: '16px', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                        <button
-                          onClick={() => handleEdit(product)}
-                          style={{
-                            padding: '8px 12px',
-                            backgroundColor: '#f0fdf4',
-                            color: '#2d5016',
-                            border: '1px solid #d1fae5',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            cursor: 'pointer',
-                            fontWeight: 'normal',
-                            transition: 'all 0.2s',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#dcfce7';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f0fdf4';
-                          }}
-                        >
-                          <Edit2 size={14} /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          style={{
-                            padding: '8px 12px',
-                            backgroundColor: '#fef2f2',
-                            color: '#dc2626',
-                            border: '1px solid #fecaca',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            cursor: 'pointer',
-                            fontWeight: 'normal',
-                            transition: 'all 0.2s',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#fee2e2';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#fef2f2';
-                          }}
-                        >
-                          <Trash2 size={14} /> Del
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {products.map((product, idx) => {
+                  const rootCat = rootCategories.find(r => r.id === product.rootCategory);
+                  const subCat = rootCat?.subcategories.find((s: any) => s.id === product.subcategory);
+                  const subSubCat = subCat?.subSubcategories?.find((ss: any) => ss.id === product.subSubcategory);
+                  
+                  let categoryDisplay = `${rootCat?.name} > ${subCat?.name}`;
+                  if (subSubCat) {
+                    categoryDisplay += ` > ${subSubCat.name}`;
+                  }
+
+                  return (
+                    <tr
+                      key={product.id}
+                      style={{
+                        borderBottom: '1px solid #e5e7eb',
+                        backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f9fafb',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb')}
+                    >
+                      <td style={{ padding: '16px', fontSize: '14px', color: '#111827', fontWeight: '500' }}>
+                        {product.name}
+                      </td>
+                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '4px 12px',
+                          borderRadius: '6px',
+                          backgroundColor: product.type === 'ticket' ? '#dbeafe' : '#fef3c7',
+                          color: product.type === 'ticket' ? '#0369a1' : '#92400e',
+                          fontSize: '13px',
+                          fontWeight: '600'
+                        }}>
+                          {product.type === 'ticket' ? 'Ticket' : 'Item'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '16px', fontSize: '12px', color: '#374151' }}>
+                        {categoryDisplay}
+                      </td>
+                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
+                        {product.isFreeEvent ? 'FREE' : `R${product.price.toFixed(2)}`}
+                      </td>
+                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '4px 12px',
+                          borderRadius: '6px',
+                          backgroundColor: product.outOfStock ? '#fee2e2' : '#dcfce7',
+                          color: product.outOfStock ? '#991b1b' : '#166534',
+                          fontSize: '13px'
+                        }}>
+                          {product.outOfStock ? 'Out' : product.stock}
+                        </span>
+                      </td>
+                      <td style={{ padding: '16px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <button
+                            onClick={() => handleEdit(product)}
+                            style={{
+                              padding: '8px 12px',
+                              backgroundColor: '#f0fdf4',
+                              color: '#2d5016',
+                              border: '1px solid #d1fae5',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              cursor: 'pointer',
+                              fontWeight: 'normal',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#dcfce7';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#f0fdf4';
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            style={{
+                              padding: '8px 12px',
+                              backgroundColor: '#fef2f2',
+                              color: '#dc2626',
+                              border: '1px solid #fecaca',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              cursor: 'pointer',
+                              fontWeight: 'normal',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#fee2e2';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#fef2f2';
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
