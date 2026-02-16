@@ -1,18 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase-config';
+import { db, storage } from '@/lib/firebase-config';
 import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc } from 'firebase/firestore';
-import { Plus, X, ChevronDown, ChevronUp, Edit2, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { Plus, X, ChevronDown, ChevronUp, Edit2, Trash2, ArrowUp, ArrowDown, Upload, Image as ImageIcon } from 'lucide-react';
 
 interface SubSubCategory {
   id: string;
   name: string;
+  imageUrl?: string;
 }
 
 interface SubCategory {
   id: string;
   name: string;
+  imageUrl?: string;
   subSubcategories?: SubSubCategory[];
 }
 
@@ -20,10 +23,8 @@ interface Category {
   id: string;
   name: string;
   type: 'root';
+  imageUrl?: string;
   subcategories?: SubCategory[];
-  webpageLink?: string;
-  webpageTitle?: string;
-  webpageDescription?: string;
   createdAt?: any;
 }
 
@@ -32,12 +33,17 @@ type SortOrder = 'asc' | 'desc';
 
 export default function CategoriesManagement() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [rootCategories, setRootCategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
   const [expandedRoot, setExpandedRoot] = useState<string | null>(null);
   const [expandedSub, setExpandedSub] = useState<string | null>(null);
   
   const [showAddRootModal, setShowAddRootModal] = useState(false);
   const [showAddSubModal, setShowAddSubModal] = useState(false);
   const [showAddSubSubModal, setShowAddSubSubModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imageModalType, setImageModalType] = useState<'root' | 'sub' | 'subsub'>('root');
+  const [imageModalData, setImageModalData] = useState<{ rootId?: string; subId?: string; subSubId?: string }>({});
   
   const [newRootName, setNewRootName] = useState('');
   const [selectedRootId, setSelectedRootId] = useState<string | null>(null);
@@ -47,6 +53,9 @@ export default function CategoriesManagement() {
   
   const [sortBy, setSortBy] = useState<SortBy>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   useEffect(() => {
     loadCategories();
@@ -111,6 +120,70 @@ export default function CategoriesManagement() {
     
     const sorted = sortCategories(categories);
     setCategories(sorted);
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImagePreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (!imageFile) return;
+
+    try {
+      let imageUrl = '';
+      const storageRef = ref(storage, `category-images/${Date.now()}_${imageFile.name}`);
+      await uploadBytes(storageRef, imageFile);
+      imageUrl = await getDownloadURL(storageRef);
+
+      if (imageModalType === 'root' && imageModalData.rootId) {
+        await updateDoc(doc(db, 'categories', imageModalData.rootId), { imageUrl });
+      } else if (imageModalType === 'sub' && imageModalData.rootId && imageModalData.subId) {
+        const rootCat = categories.find(c => c.id === imageModalData.rootId);
+        if (rootCat?.subcategories) {
+          const updatedSubs = rootCat.subcategories.map(sub => 
+            sub.id === imageModalData.subId ? { ...sub, imageUrl } : sub
+          );
+          await updateDoc(doc(db, 'categories', imageModalData.rootId), { subcategories: updatedSubs });
+        }
+      } else if (imageModalType === 'subsub' && imageModalData.rootId && imageModalData.subId && imageModalData.subSubId) {
+        const rootCat = categories.find(c => c.id === imageModalData.rootId);
+        if (rootCat?.subcategories) {
+          const updatedSubs = rootCat.subcategories.map(sub => {
+            if (sub.id === imageModalData.subId && sub.subSubcategories) {
+              return {
+                ...sub,
+                subSubcategories: sub.subSubcategories.map(ss => 
+                  ss.id === imageModalData.subSubId ? { ...ss, imageUrl } : ss
+                )
+              };
+            }
+            return sub;
+          });
+          await updateDoc(doc(db, 'categories', imageModalData.rootId), { subcategories: updatedSubs });
+        }
+      }
+
+      resetImageModal();
+      loadCategories();
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading image');
+    }
+  };
+
+  const resetImageModal = () => {
+    setShowImageModal(false);
+    setImageFile(null);
+    setImagePreview('');
+    setImageModalData({});
   };
 
   const handleAddRoot = async () => {
@@ -384,6 +457,9 @@ export default function CategoriesManagement() {
                   ) : (
                     <ChevronDown size={18} color="#2d5016" />
                   )}
+                  {root.imageUrl && (
+                    <img src={root.imageUrl} alt={root.name} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
+                  )}
                   <span style={{ fontSize: '16px', fontWeight: '600', color: '#111827' }}>
                     {root.name}
                   </span>
@@ -392,6 +468,33 @@ export default function CategoriesManagement() {
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setImageModalType('root');
+                      setImageModalData({ rootId: root.id });
+                      setShowImageModal(true);
+                    }}
+                    style={{
+                      padding: '6px 12px',
+                      backgroundColor: '#fef3c7',
+                      color: '#92400e',
+                      border: '1px solid #fde68a',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      fontWeight: 'normal'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#fcd34d';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#fef3c7';
+                    }}
+                  >
+                    <ImageIcon size={12} style={{ display: 'inline', marginRight: '4px' }} /> Image
+                  </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -473,6 +576,9 @@ export default function CategoriesManagement() {
                           ) : (
                             <div style={{ width: '16px' }} />
                           )}
+                          {sub.imageUrl && (
+                            <img src={sub.imageUrl} alt={sub.name} style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
+                          )}
                           <span style={{ fontSize: '14px', color: '#374151' }}>
                             {sub.name}
                           </span>
@@ -481,6 +587,33 @@ export default function CategoriesManagement() {
                           </span>
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setImageModalType('sub');
+                              setImageModalData({ rootId: root.id, subId: sub.id });
+                              setShowImageModal(true);
+                            }}
+                            style={{
+                              padding: '4px 10px',
+                              backgroundColor: '#fef3c7',
+                              color: '#92400e',
+                              border: 'none',
+                              borderRadius: '4px',
+                              fontSize: '11px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              fontWeight: 'normal'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#fcd34d';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#fef3c7';
+                            }}
+                          >
+                            Img
+                          </button>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -551,29 +684,54 @@ export default function CategoriesManagement() {
                                 borderBottom: '1px solid #e5e7eb'
                               }}
                             >
-                              <span>{subSub.name}</span>
-                              <button
-                                onClick={() => handleDeleteSubSub(root.id, sub.id, subSub.id)}
-                                style={{
-                                  padding: '4px 8px',
-                                  backgroundColor: 'transparent',
-                                  color: '#dc2626',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  fontSize: '11px',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.2s',
-                                  fontWeight: 'normal'
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor = '#fef2f2';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = 'transparent';
-                                }}
-                              >
-                                Del
-                              </button>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {subSub.imageUrl && (
+                                  <img src={subSub.imageUrl} alt={subSub.name} style={{ width: '28px', height: '28px', borderRadius: '4px', objectFit: 'cover' }} />
+                                )}
+                                <span>{subSub.name}</span>
+                              </div>
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                <button
+                                  onClick={() => {
+                                    setImageModalType('subsub');
+                                    setImageModalData({ rootId: root.id, subId: sub.id, subSubId: subSub.id });
+                                    setShowImageModal(true);
+                                  }}
+                                  style={{
+                                    padding: '3px 8px',
+                                    backgroundColor: '#fef3c7',
+                                    color: '#92400e',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'normal'
+                                  }}
+                                >
+                                  Img
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteSubSub(root.id, sub.id, subSub.id)}
+                                  style={{
+                                    padding: '3px 8px',
+                                    backgroundColor: 'transparent',
+                                    color: '#dc2626',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'normal'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#fef2f2';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                  }}
+                                >
+                                  Del
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -587,6 +745,7 @@ export default function CategoriesManagement() {
         )}
       </div>
 
+      {/* Add Root Category Modal */}
       {showAddRootModal && (
         <Modal onClose={() => setShowAddRootModal(false)}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
@@ -645,6 +804,7 @@ export default function CategoriesManagement() {
         </Modal>
       )}
 
+      {/* Add Subcategory Modal */}
       {showAddSubModal && (
         <Modal onClose={() => { setShowAddSubModal(false); setSelectedRootId(null); }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
@@ -703,6 +863,7 @@ export default function CategoriesManagement() {
         </Modal>
       )}
 
+      {/* Add Sub-Subcategory Modal */}
       {showAddSubSubModal && (
         <Modal onClose={() => { setShowAddSubSubModal(false); setSelectedRootId(null); setSelectedSubId(null); }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
@@ -756,6 +917,85 @@ export default function CategoriesManagement() {
               }}
             >
               Add
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Image Upload Modal */}
+      {showImageModal && (
+        <Modal onClose={resetImageModal}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
+            Upload Image
+          </h3>
+
+          <div style={{
+            border: '2px dashed #e5e7eb',
+            borderRadius: '8px',
+            padding: '24px',
+            textAlign: 'center',
+            cursor: 'pointer',
+            marginBottom: '16px',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              style={{ display: 'none' }}
+              id="imageInput"
+            />
+            <label htmlFor="imageInput" style={{ cursor: 'pointer' }}>
+              {imagePreview ? (
+                <div>
+                  <img src={imagePreview} alt="Preview" style={{ maxHeight: '100px', marginBottom: '8px' }} />
+                  <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to change image</p>
+                </div>
+              ) : (
+                <div>
+                  <ImageIcon size={32} style={{ margin: '0 auto 8px', color: '#9ca3af' }} />
+                  <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to upload image</p>
+                </div>
+              )}
+            </label>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={resetImageModal}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                backgroundColor: '#f3f4f6',
+                color: '#374151',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'normal'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleImageUpload}
+              disabled={!imageFile}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                backgroundColor: imageFile ? '#2d5016' : '#9ca3af',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: imageFile ? 'pointer' : 'not-allowed',
+                fontSize: '14px',
+                fontWeight: 'normal'
+              }}
+            >
+              Upload
             </button>
           </div>
         </Modal>
