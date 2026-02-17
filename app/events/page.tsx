@@ -110,6 +110,7 @@ export default function EventsPage() {
       home: 'Home',
       about: 'About',
       events: 'Events',
+      store: "e'Bosch Store",
       contact: 'Contact',
       calendarTitle: 'Event Calendar',
       noEventsMessage: 'Click on a date with events to see details',
@@ -122,6 +123,7 @@ export default function EventsPage() {
       home: 'Tuis',
       about: 'Oor Ons',
       events: 'Geleenthede',
+      store: "e'Bosch Winkel",
       contact: 'Kontak',
       calendarTitle: 'Gebeure Kalender',
       noEventsMessage: 'Klik op \'n datum met geleenthede vir besonderhede',
@@ -134,6 +136,7 @@ export default function EventsPage() {
       home: 'Ikhaya',
       about: 'Malunga',
       events: 'Iziganeko',
+      store: "e'Bosch Inkolo",
       contact: 'Unxibelelwano',
       calendarTitle: 'Ikhalerindar Yemigubungulo',
       noEventsMessage: 'Cofa umhla one events ukuze ubone iinkcukacha',
@@ -213,6 +216,7 @@ export default function EventsPage() {
           <Link href="/" className="text-gray-600 hover:text-gray-900">{t.home}</Link>
           <Link href="/about" className="text-gray-600 hover:text-gray-900">{t.about}</Link>
           <Link href="/events" style={{ color: '#2d5016' }} className="font-bold">{t.events}</Link>
+          <Link href="/store" className="text-gray-600 hover:text-gray-900">{t.store}</Link>
           <Link href="/contact" className="text-gray-600 hover:text-gray-900">{t.contact}</Link>
           
           <select

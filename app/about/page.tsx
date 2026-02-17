@@ -73,6 +73,11 @@ export default function About() {
                 {language === 'af' && 'Geleenthede'}
                 {language === 'xh' && 'Iziganeko'}
               </Link>
+              <Link href="/store" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
+                {language === 'en' && "e'Bosch Store"}
+                {language === 'af' && "e'Bosch Winkel"}
+                {language === 'xh' && "e'Bosch Inkolo"}
+              </Link>
               <Link href="/contact" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
                 {language === 'en' && 'Contact'}
                 {language === 'af' && 'Kontak'}
