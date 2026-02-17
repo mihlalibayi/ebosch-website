@@ -12,9 +12,10 @@ import AdminEvents from '@/components/admin/AdminEvents';
 import CategoriesManagement from '@/components/admin/CategoriesManagement';
 import BusinessesManagement from '@/components/admin/BusinessesManagement';
 import ProductsManagement from '@/components/admin/ProductsManagement';
-import OrdersAndMembers from '@/components/admin/OrdersAndMembers';
+import OrdersManagement from '@/components/admin/OrdersManagement';
+import MembershipsManagement from '@/components/admin/MembershipsManagement';
 
-type SectionType = 'overview' | 'events' | 'categories' | 'businesses' | 'products' | 'orders';
+type SectionType = 'overview' | 'events' | 'categories' | 'businesses' | 'products' | 'orders' | 'memberships';
 
 interface MenuItem {
   id: SectionType;
@@ -28,7 +29,8 @@ const menuItems: MenuItem[] = [
   { id: 'categories', label: 'Categories', icon: <Tag size={20} /> },
   { id: 'businesses', label: 'Businesses', icon: <Building2 size={20} /> },
   { id: 'products', label: 'Products', icon: <Package size={20} /> },
-  { id: 'orders', label: 'Orders & Members', icon: <ClipboardList size={20} /> },
+  { id: 'orders', label: 'Orders', icon: <ClipboardList size={20} /> },
+  { id: 'memberships', label: 'Memberships', icon: <ClipboardList size={20} /> },
 ];
 
 export default function AdminDashboard() {
@@ -65,7 +67,9 @@ export default function AdminDashboard() {
       case 'products':
         return <ProductsManagement />;
       case 'orders':
-        return <OrdersAndMembers />;
+        return <OrdersManagement />;
+      case 'memberships':
+        return <MembershipsManagement />;
       default:
         return <AdminOverview />;
     }

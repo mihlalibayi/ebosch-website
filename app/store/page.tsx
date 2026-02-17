@@ -44,24 +44,7 @@ interface Product {
   deliveryType: 'pickup' | 'delivery' | 'digital' | 'instant';
   deliveryFee?: number;
   date?: string;
-  time?: string;
-  venue?: string;
   isFreeEvent: boolean;
-  payWhatYouWant: boolean;
-  minimumAmount?: number;
-}
-
-interface Business {
-  id: string;
-  name: string;
-  description: string;
-  email?: string;
-  phone?: string;
-  address: string;
-  website: string;
-  logoUrl?: string;
-  rootCategory: string;
-  status: 'active' | 'inactive';
 }
 
 export default function Store() {
@@ -70,12 +53,12 @@ export default function Store() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [showNotification, setShowNotification] = useState<string | null>(null);
 
   useEffect(() => {
     loadAllData();
@@ -101,16 +84,6 @@ export default function Store() {
       })) as Product[];
       setProducts(productsData);
 
-      // Load businesses
-      const businessesSnap = await getDocs(collection(db, 'businesses'));
-      const businessesData = businessesSnap.docs
-        .map(d => ({
-          id: d.id,
-          ...d.data()
-        }))
-        .filter(b => (b as Business).status === 'active') as Business[];
-      setBusinesses(businessesData);
-
       setLoading(false);
     } catch (error) {
       console.error('Error loading store data:', error);
@@ -129,12 +102,76 @@ export default function Store() {
   };
 
   const selectedCategoryData = categories.find(c => c.id === selectedCategory);
-  const selectedSubcategoryData = selectedCategoryData?.subcategories?.find(s => s.id === selectedSubcategory);
 
-  const displaySubcategories = selectedCategoryData?.subcategories || [];
+  const displayProducts = selectedSubcategory
+    ? products.filter(p => p.subcategory === selectedSubcategory && !p.outOfStock)
+    : [];
+
+  const handleAddToCart = (product: Product) => {
+    try {
+      const sessionId = localStorage.getItem('sessionId') || generateSessionId();
+      localStorage.setItem('sessionId', sessionId);
+
+      const cartData = localStorage.getItem(`cart_${sessionId}`) || '[]';
+      const cart = JSON.parse(cartData);
+
+      const existingItem = cart.find((item: any) => item.productId === product.id);
+
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        cart.push({
+          productId: product.id,
+          productName: product.name,
+          price: product.price,
+          quantity: 1,
+          type: 'product',
+          rootCategory: product.rootCategory,
+          businessId: null,
+          imageUrl: product.imageUrl
+        });
+      }
+
+      localStorage.setItem(`cart_${sessionId}`, JSON.stringify(cart));
+
+      // Show notification
+      setShowNotification(product.name);
+      setTimeout(() => setShowNotification(null), 2000);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  };
+
+  const generateSessionId = () => {
+    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Notification */}
+      {showNotification && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: '#10b981',
+          color: 'white',
+          padding: '16px 24px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 1000,
+          animation: 'slideIn 0.3s ease'
+        }}>
+          <style>{`
+            @keyframes slideIn {
+              from { transform: translateX(400px); opacity: 0; }
+              to { transform: translateX(0); opacity: 1; }
+            }
+          `}</style>
+          ✓ {showNotification} added to cart!
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -176,6 +213,24 @@ export default function Store() {
                 <option value="af">Afrikaans</option>
                 <option value="xh">Xhosa</option>
               </select>
+
+              <Link href="/cart" style={{
+                padding: '8px 16px',
+                backgroundColor: '#2d5016',
+                color: 'white',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#1a3009';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#2d5016';
+              }}>
+                🛒 {language === 'en' ? 'Cart' : language === 'af' ? 'Mandjie' : 'Inkokeli'}
+              </Link>
             </nav>
           </div>
         </div>
@@ -322,7 +377,7 @@ export default function Store() {
                 maxWidth: '1000px',
                 margin: '0 auto'
               }}>
-                {displaySubcategories.map(sub => (
+                {selectedCategoryData?.subcategories?.map(sub => (
                   <button
                     key={sub.id}
                     onClick={() => setSelectedSubcategory(sub.id)}
@@ -417,7 +472,7 @@ export default function Store() {
           )}
         </div>
 
-          {/* Products Grid */}
+        {/* Products Grid */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <div style={{
@@ -441,13 +496,13 @@ export default function Store() {
               }
             `}</style>
           </div>
-        ) : selectedSubcategory && products.filter(p => p.subcategory === selectedSubcategory && !p.outOfStock).length > 0 ? (
+        ) : selectedSubcategory && displayProducts.length > 0 ? (
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
             gap: '24px'
           }}>
-            {products.filter(p => p.subcategory === selectedSubcategory && !p.outOfStock).map(product => (
+            {displayProducts.map(product => (
               <div
                 key={product.id}
                 style={{
@@ -556,6 +611,7 @@ export default function Store() {
                         `R${product.price.toFixed(2)}`}
                     </span>
                     <button
+                      onClick={() => handleAddToCart(product)}
                       style={{
                         padding: '8px 12px',
                         backgroundColor: '#2d5016',

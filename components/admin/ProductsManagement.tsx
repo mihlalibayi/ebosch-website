@@ -28,6 +28,8 @@ interface Product {
   isFreeEvent: boolean;
   payWhatYouWant: boolean;
   minimumAmount?: number;
+  isMembership?: boolean;
+  membershipType?: 'individual' | 'business';
   createdAt?: any;
 }
 
@@ -40,6 +42,7 @@ export default function ProductsManagement() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'products' | 'memberships'>('products');
 
   const [form, setForm] = useState({
     name: '',
@@ -60,7 +63,9 @@ export default function ProductsManagement() {
     couponEligible: false,
     isFreeEvent: false,
     payWhatYouWant: false,
-    minimumAmount: 0
+    minimumAmount: 0,
+    isMembership: false,
+    membershipType: '' as 'individual' | 'business' | ''
   });
 
   useEffect(() => {
@@ -143,6 +148,7 @@ export default function ProductsManagement() {
         ...form,
         imageUrl,
         price: form.isFreeEvent ? 0 : form.price,
+        isMembership: activeTab === 'memberships',
         createdAt: new Date()
       };
 
@@ -180,7 +186,9 @@ export default function ProductsManagement() {
       couponEligible: false,
       isFreeEvent: false,
       payWhatYouWant: false,
-      minimumAmount: 0
+      minimumAmount: 0,
+      isMembership: false,
+      membershipType: ''
     });
     setImageFile(null);
     setImagePreview('');
@@ -219,41 +227,119 @@ export default function ProductsManagement() {
       time: product.time || '',
       venue: product.venue || '',
       urlLink: product.urlLink || '',
-      couponEligible: product.couponEligible,
-      isFreeEvent: product.isFreeEvent,
-      payWhatYouWant: product.payWhatYouWant,
-      minimumAmount: product.minimumAmount || 0
+      couponEligible: product.couponEligible || false,
+      isFreeEvent: product.isFreeEvent || false,
+      payWhatYouWant: product.payWhatYouWant || false,
+      minimumAmount: product.minimumAmount || 0,
+      isMembership: product.isMembership || false,
+      membershipType: product.membershipType || ''
     });
-    const root = rootCategories.find(r => r.id === product.rootCategory);
-    setSubcategories(root?.subcategories || []);
-    const sub = root?.subcategories.find((s: any) => s.id === product.subcategory);
-    setSubSubcategories(sub?.subSubcategories || []);
-    setImagePreview(product.imageUrl || '');
+
+    if (product.imageUrl) {
+      setImagePreview(product.imageUrl);
+    }
+
     setEditingId(product.id);
     setShowForm(true);
+
+    if (product.rootCategory) {
+      const root = rootCategories.find(r => r.id === product.rootCategory);
+      setSubcategories(root?.subcategories || []);
+      if (product.subcategory) {
+        const sub = root?.subcategories.find((s: any) => s.id === product.subcategory);
+        setSubSubcategories(sub?.subSubcategories || []);
+      }
+    }
+
+    if (product.isMembership) {
+      setActiveTab('memberships');
+    } else {
+      setActiveTab('products');
+    }
   };
 
-  const isLocalOrCommunity = form.rootCategory === 'local_businesses' || form.rootCategory === 'community_businesses';
+  const filteredProducts = products.filter(p => {
+    if (activeTab === 'memberships') {
+      return p.isMembership === true;
+    } else {
+      return p.isMembership !== true;
+    }
+  });
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '24px', backgroundColor: '#f9fafb', minHeight: '100vh' }}>
+      {/* Header */}
       <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#111827', margin: '0 0 8px 0' }}>
-          Products Management
-        </h2>
+        <h1 style={{ fontSize: '32px', fontWeight: '700', color: '#111827', margin: '0 0 8px 0' }}>
+          Products & Memberships
+        </h1>
         <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>
-          Create and manage products, tickets, and events
+          Manage store products and annual memberships
         </p>
       </div>
 
-      {!showForm && (
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        marginBottom: '24px',
+        borderBottom: '2px solid #e5e7eb',
+        paddingBottom: '0'
+      }}>
+        <button
+          onClick={() => {
+            setActiveTab('products');
+            resetForm();
+          }}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: activeTab === 'products' ? '#2d5016' : 'transparent',
+            color: activeTab === 'products' ? 'white' : '#6b7280',
+            border: 'none',
+            borderBottom: activeTab === 'products' ? '3px solid #2d5016' : 'none',
+            cursor: 'pointer',
+            fontWeight: 'normal',
+            fontSize: '15px',
+            transition: 'all 0.2s',
+            marginBottom: '-2px'
+          }}
+        >
+          📦 Regular Products
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab('memberships');
+            resetForm();
+          }}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: activeTab === 'memberships' ? '#2d5016' : 'transparent',
+            color: activeTab === 'memberships' ? 'white' : '#6b7280',
+            border: 'none',
+            borderBottom: activeTab === 'memberships' ? '3px solid #2d5016' : 'none',
+            cursor: 'pointer',
+            fontWeight: 'normal',
+            fontSize: '15px',
+            transition: 'all 0.2s',
+            marginBottom: '-2px'
+          }}
+        >
+          🎁 Annual Memberships
+        </button>
+      </div>
+
+      {/* Add Button */}
+      <div style={{ marginBottom: '24px' }}>
         <button
           onClick={() => {
             resetForm();
             setShowForm(true);
           }}
           style={{
-            padding: '10px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '12px 24px',
             backgroundColor: '#2d5016',
             color: 'white',
             border: 'none',
@@ -261,10 +347,6 @@ export default function ProductsManagement() {
             fontSize: '14px',
             fontWeight: 'normal',
             cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '24px',
             transition: 'all 0.2s'
           }}
           onMouseEnter={(e) => {
@@ -277,87 +359,222 @@ export default function ProductsManagement() {
           }}
         >
           <Plus size={18} />
-          Add Product
+          Add {activeTab === 'memberships' ? 'Membership' : 'Product'}
         </button>
-      )}
+      </div>
 
+      {/* Form Modal */}
       {showForm && (
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '24px',
-          marginBottom: '32px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          overflowY: 'auto',
+          padding: '20px'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: '0' }}>
-              {editingId ? 'Edit Product' : 'Add Product'}
-            </h3>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '32px',
+            maxWidth: '700px',
+            width: '100%',
+            boxShadow: '0 20px 25px rgba(0,0,0,0.15)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            position: 'relative'
+          }}>
+            {/* Close Button */}
             <button
-              onClick={() => resetForm()}
+              onClick={resetForm}
               style={{
-                background: 'none',
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                backgroundColor: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
                 color: '#6b7280',
-                padding: '4px'
+                padding: '8px'
               }}
               onMouseEnter={(e) => (e.currentTarget.style.color = '#111827')}
               onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
             >
               <X size={24} />
             </button>
-          </div>
 
-          <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Basic Info */}
-            <div style={{ paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
-              <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>
-                Basic Information
-              </h4>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#111827',
+              marginBottom: '24px',
+              marginTop: '0'
+            }}>
+              {editingId ? 'Edit' : 'Add'} {activeTab === 'memberships' ? 'Membership' : 'Product'}
+            </h2>
 
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                  Product Name *
+            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Name */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
+                  {activeTab === 'memberships' ? 'Membership Name' : 'Product Name'} *
                 </label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
+                  placeholder={activeTab === 'memberships' ? 'e.g., Individual Annual Membership' : 'e.g., Product Name'}
                   style={{
                     width: '100%',
-                    padding: '12px 14px',
+                    padding: '10px 12px',
                     border: '1px solid #e5e7eb',
                     borderRadius: '8px',
                     fontSize: '14px',
                     boxSizing: 'border-box'
                   }}
+                  required
                 />
               </div>
 
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                  Description
+              {/* Description */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
+                  Description *
                 </label>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  placeholder={activeTab === 'memberships' ? 'Describe the membership...' : 'Describe the product...'}
                   style={{
                     width: '100%',
-                    padding: '12px 14px',
+                    padding: '10px 12px',
                     border: '1px solid #e5e7eb',
                     borderRadius: '8px',
                     fontSize: '14px',
-                    minHeight: '80px',
-                    boxSizing: 'border-box'
+                    minHeight: '100px',
+                    fontFamily: 'Arial, sans-serif',
+                    boxSizing: 'border-box',
+                    resize: 'vertical'
                   }}
+                  required
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              {/* Price */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
+                  Price (R) *
+                </label>
+                <input
+                  type="number"
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) })}
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                  required={!activeTab || activeTab === 'memberships'}
+                />
+              </div>
+
+              {/* Membership Type - Only for Memberships */}
+              {activeTab === 'memberships' && (
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
+                    Membership Type *
+                  </label>
+                  <select
+                    value={form.membershipType}
+                    onChange={(e) => setForm({ ...form, membershipType: e.target.value as 'individual' | 'business' })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box'
+                    }}
+                    required
+                  >
+                    <option value="">Select membership type</option>
+                    <option value="individual">Individual</option>
+                    <option value="business">Business</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Category - Only for Regular Products */}
+              {activeTab !== 'memberships' && (
+                <>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
+                      Root Category *
+                    </label>
+                    <select
+                      value={form.rootCategory}
+                      onChange={(e) => handleRootCategoryChange(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box'
+                      }}
+                      required
+                    >
+                      <option value="">Select category</option>
+                      {rootCategories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {subcategories.length > 0 && (
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
+                        Subcategory *
+                      </label>
+                      <select
+                        value={form.subcategory}
+                        onChange={(e) => handleSubcategoryChange(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          boxSizing: 'border-box'
+                        }}
+                        required
+                      >
+                        <option value="">Select subcategory</option>
+                        {subcategories.map(sub => (
+                          <option key={sub.id} value={sub.id}>{sub.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Type - Only for Regular Products */}
+              {activeTab !== 'memberships' && (
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
                     Type *
                   </label>
                   <select
@@ -365,564 +582,315 @@ export default function ProductsManagement() {
                     onChange={(e) => setForm({ ...form, type: e.target.value as 'ticket' | 'item' })}
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
+                      padding: '10px 12px',
                       border: '1px solid #e5e7eb',
                       borderRadius: '8px',
                       fontSize: '14px',
                       boxSizing: 'border-box'
                     }}
-                  >
-                    <option value="item">Item (Physical Product)</option>
-                    <option value="ticket">Ticket (Event/Training)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Root Category *
-                  </label>
-                  <select
-                    value={form.rootCategory}
-                    onChange={(e) => handleRootCategoryChange(e.target.value)}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
                   >
-                    <option value="">Select Root Category</option>
-                    {rootCategories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {form.rootCategory && (
-                <div style={{ marginTop: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Subcategory *
-                  </label>
-                  <select
-                    value={form.subcategory}
-                    onChange={(e) => handleSubcategoryChange(e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="">Select Subcategory</option>
-                    {subcategories.map((sub) => (
-                      <option key={sub.id} value={sub.id}>{sub.name}</option>
-                    ))}
+                    <option value="item">Item</option>
+                    <option value="ticket">Ticket</option>
                   </select>
                 </div>
               )}
 
-              {isLocalOrCommunity && form.subcategory && (
-                <div style={{ marginTop: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Business Name *
-                  </label>
-                  <select
-                    value={form.subSubcategory}
-                    onChange={(e) => setForm({ ...form, subSubcategory: e.target.value })}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="">Select Business</option>
-                    {subSubcategories.map((subSub) => (
-                      <option key={subSub.id} value={subSub.id}>{subSub.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-
-            {/* Pricing */}
-            <div style={{ paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
-              <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>
-                Pricing
-              </h4>
-
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '12px' }}>
-                  <input
-                    type="checkbox"
-                    checked={form.isFreeEvent}
-                    onChange={(e) => setForm({ ...form, isFreeEvent: e.target.checked, price: 0 })}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Free Event</span>
+              {/* Image Upload */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '12px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
+                  Image
                 </label>
-              </div>
-
-              {!form.isFreeEvent && (
-                <>
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                      Price (R)
-                    </label>
-                    <input
-                      type="number"
-                      value={form.price}
-                      onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) })}
-                      step="0.01"
-                      style={{
-                        width: '100%',
-                        padding: '12px 14px',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={form.payWhatYouWant}
-                        onChange={(e) => setForm({ ...form, payWhatYouWant: e.target.checked })}
-                        style={{ cursor: 'pointer' }}
-                      />
-                      <span style={{ fontSize: '14px', color: '#374151' }}>Pay What You Want</span>
-                    </label>
-                  </div>
-
-                  {form.payWhatYouWant && (
-                    <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                        Minimum Amount (R)
-                      </label>
-                      <input
-                        type="number"
-                        value={form.minimumAmount}
-                        onChange={(e) => setForm({ ...form, minimumAmount: parseFloat(e.target.value) })}
-                        step="0.01"
-                        style={{
-                          width: '100%',
-                          padding: '12px 14px',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <div style={{
+                  border: '2px dashed #e5e7eb',
+                  borderRadius: '8px',
+                  padding: '24px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
+                >
                   <input
-                    type="checkbox"
-                    checked={form.couponEligible}
-                    onChange={(e) => setForm({ ...form, couponEligible: e.target.checked })}
-                    style={{ cursor: 'pointer' }}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    style={{ display: 'none' }}
+                    id="imageInput"
                   />
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Coupon Eligible</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Stock & Delivery */}
-            <div style={{ paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
-              <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>
-                Stock & Delivery
-              </h4>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Stock Quantity
-                  </label>
-                  <input
-                    type="number"
-                    value={form.stock}
-                    onChange={(e) => setForm({ ...form, stock: parseInt(e.target.value) })}
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', paddingTop: '30px' }}>
-                    <input
-                      type="checkbox"
-                      checked={form.outOfStock}
-                      onChange={(e) => setForm({ ...form, outOfStock: e.target.checked })}
-                      style={{ cursor: 'pointer' }}
-                    />
-                    <span style={{ fontSize: '14px', color: '#374151' }}>Out of Stock</span>
+                  <label htmlFor="imageInput" style={{ cursor: 'pointer' }}>
+                    {imagePreview ? (
+                      <div>
+                        <img src={imagePreview} alt="Preview" style={{ maxHeight: '100px', marginBottom: '8px', borderRadius: '6px' }} />
+                        <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to change</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <ImageIcon size={32} style={{ margin: '0 auto 8px', color: '#9ca3af' }} />
+                        <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to upload image</p>
+                      </div>
+                    )}
                   </label>
                 </div>
               </div>
 
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                  Delivery Type
-                </label>
-                <select
-                  value={form.deliveryType}
-                  onChange={(e) => setForm({ ...form, deliveryType: e.target.value as any })}
+              {/* Form Buttons */}
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
+                <button
+                  type="button"
+                  onClick={resetForm}
                   style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e5e7eb',
+                    padding: '10px 24px',
+                    backgroundColor: '#f3f4f6',
+                    color: '#374151',
+                    border: 'none',
                     borderRadius: '8px',
                     fontSize: '14px',
-                    boxSizing: 'border-box'
+                    fontWeight: 'normal',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e5e7eb';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
                   }}
                 >
-                  <option value="pickup">Pickup (Customer fetches)</option>
-                  <option value="delivery">Delivery (Paid delivery fee)</option>
-                  <option value="digital">Digital (Download/Email)</option>
-                  <option value="instant">Instant (Immediate access)</option>
-                </select>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: '10px 24px',
+                    backgroundColor: '#2d5016',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: 'normal',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1a3009';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2d5016';
+                  }}
+                >
+                  {editingId ? 'Update' : 'Add'} {activeTab === 'memberships' ? 'Membership' : 'Product'}
+                </button>
               </div>
-
-              {form.deliveryType === 'delivery' && (
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Delivery Fee (R)
-                  </label>
-                  <input
-                    type="number"
-                    value={form.deliveryFee}
-                    onChange={(e) => setForm({ ...form, deliveryFee: parseFloat(e.target.value) })}
-                    step="0.01"
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Ticket Fields */}
-            {form.type === 'ticket' && (
-              <div style={{ paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
-                <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>
-                  Event Details
-                </h4>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      value={form.date}
-                      onChange={(e) => setForm({ ...form, date: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '12px 14px',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                      Time
-                    </label>
-                    <input
-                      type="time"
-                      value={form.time}
-                      onChange={(e) => setForm({ ...form, time: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '12px 14px',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    Venue (In-Person)
-                  </label>
-                  <input
-                    type="text"
-                    value={form.venue}
-                    onChange={(e) => setForm({ ...form, venue: e.target.value })}
-                    placeholder="Location address"
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                    URL Link (Online)
-                  </label>
-                  <input
-                    type="url"
-                    value={form.urlLink}
-                    onChange={(e) => setForm({ ...form, urlLink: e.target.value })}
-                    placeholder="https://..."
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Image Upload */}
-            <div style={{ paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
-              <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 16px 0' }}>
-                Product Image
-              </h4>
-
-              <div style={{
-                border: '2px dashed #e5e7eb',
-                borderRadius: '8px',
-                padding: '24px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
-              >
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageSelect}
-                  style={{ display: 'none' }}
-                  id="imageInput"
-                />
-                <label htmlFor="imageInput" style={{ cursor: 'pointer' }}>
-                  {imagePreview ? (
-                    <div>
-                      <img src={imagePreview} alt="Preview" style={{ maxHeight: '100px', marginBottom: '8px' }} />
-                      <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to change</p>
-                    </div>
-                  ) : (
-                    <div>
-                      <ImageIcon size={32} style={{ margin: '0 auto 8px', color: '#9ca3af' }} />
-                      <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Click to upload</p>
-                    </div>
-                  )}
-                </label>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              style={{
-                width: '100%',
-                padding: '12px 20px',
-                backgroundColor: '#2d5016',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: 'normal',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#1a3009';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#2d5016';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              {editingId ? 'Update Product' : 'Add Product'}
-            </button>
-          </form>
+            </form>
+          </div>
         </div>
       )}
 
-      {/* Products List */}
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        overflow: 'hidden'
-      }}>
-        {products.length === 0 ? (
-          <div style={{ padding: '40px 24px', textAlign: 'center', color: '#6b7280' }}>
-            No products yet. Click "Add Product" to get started.
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Name</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Type</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Category</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Price</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Stock</th>
-                  <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#2d5016', fontSize: '14px' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product, idx) => {
-                  const rootCat = rootCategories.find(r => r.id === product.rootCategory);
-                  const subCat = rootCat?.subcategories.find((s: any) => s.id === product.subcategory);
-                  const subSubCat = subCat?.subSubcategories?.find((ss: any) => ss.id === product.subSubcategory);
-                  
-                  let categoryDisplay = `${rootCat?.name} > ${subCat?.name}`;
-                  if (subSubCat) {
-                    categoryDisplay += ` > ${subSubCat.name}`;
-                  }
+      {/* Products List - Card View */}
+      {filteredProducts.length === 0 ? (
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '60px 24px',
+          textAlign: 'center',
+          color: '#6b7280',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
+          <p style={{ fontSize: '16px', margin: '0' }}>
+            No {activeTab === 'memberships' ? 'memberships' : 'products'} yet. Click "Add {activeTab === 'memberships' ? 'Membership' : 'Product'}" to get started.
+          </p>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: '20px'
+        }}>
+          {filteredProducts.map(product => (
+            <div
+              key={product.id}
+              style={{
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                transition: 'all 0.2s',
+                cursor: 'pointer',
+                border: '1px solid #e5e7eb'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)';
+                e.currentTarget.style.transform = 'translateY(-4px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              {/* Image */}
+              <div style={{
+                width: '100%',
+                height: '180px',
+                backgroundColor: '#f3f4f6',
+                borderRadius: '8px',
+                marginBottom: '16px',
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {product.imageUrl ? (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                  />
+                ) : (
+                  <div style={{ fontSize: '40px' }}>
+                    {activeTab === 'memberships' ? '🎁' : '📦'}
+                  </div>
+                )}
+              </div>
 
-                  return (
-                    <tr
-                      key={product.id}
-                      style={{
-                        borderBottom: '1px solid #e5e7eb',
-                        backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f9fafb',
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb')}
-                    >
-                      <td style={{ padding: '16px', fontSize: '14px', color: '#111827', fontWeight: '500' }}>
-                        {product.name}
-                      </td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '4px 12px',
-                          borderRadius: '6px',
-                          backgroundColor: product.type === 'ticket' ? '#dbeafe' : '#fef3c7',
-                          color: product.type === 'ticket' ? '#0369a1' : '#92400e',
-                          fontSize: '13px',
-                          fontWeight: '600'
-                        }}>
-                          {product.type === 'ticket' ? 'Ticket' : 'Item'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px', fontSize: '12px', color: '#374151' }}>
-                        {categoryDisplay}
-                      </td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                        {product.isFreeEvent ? 'FREE' : `R${product.price.toFixed(2)}`}
-                      </td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '4px 12px',
-                          borderRadius: '6px',
-                          backgroundColor: product.outOfStock ? '#fee2e2' : '#dcfce7',
-                          color: product.outOfStock ? '#991b1b' : '#166534',
-                          fontSize: '13px'
-                        }}>
-                          {product.outOfStock ? 'Out' : product.stock}
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                          <button
-                            onClick={() => handleEdit(product)}
-                            style={{
-                              padding: '8px 12px',
-                              backgroundColor: '#f0fdf4',
-                              color: '#2d5016',
-                              border: '1px solid #d1fae5',
-                              borderRadius: '6px',
-                              fontSize: '13px',
-                              cursor: 'pointer',
-                              fontWeight: 'normal',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#dcfce7';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f0fdf4';
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(product.id)}
-                            style={{
-                              padding: '8px 12px',
-                              backgroundColor: '#fef2f2',
-                              color: '#dc2626',
-                              border: '1px solid #fecaca',
-                              borderRadius: '6px',
-                              fontSize: '13px',
-                              cursor: 'pointer',
-                              fontWeight: 'normal',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#fee2e2';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#fef2f2';
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              {/* Content */}
+              <h3 style={{
+                fontSize: '16px',
+                fontWeight: '700',
+                color: '#111827',
+                margin: '0 0 8px 0',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {product.name}
+              </h3>
+
+              <p style={{
+                fontSize: '13px',
+                color: '#6b7280',
+                margin: '0 0 12px 0',
+                lineHeight: '1.4',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical'
+              }}>
+                {product.description}
+              </p>
+
+              {/* Price & Type */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '16px',
+                paddingBottom: '16px',
+                borderBottom: '1px solid #e5e7eb'
+              }}>
+                <span style={{
+                  fontSize: '18px',
+                  fontWeight: '700',
+                  color: '#2d5016'
+                }}>
+                  R{product.price.toFixed(2)}
+                </span>
+                {activeTab === 'memberships' ? (
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '4px 12px',
+                    backgroundColor: product.membershipType === 'individual' ? '#dbeafe' : '#fef3c7',
+                    color: product.membershipType === 'individual' ? '#0369a1' : '#92400e',
+                    fontSize: '12px',
+                    fontWeight: 'normal',
+                    borderRadius: '4px'
+                  }}>
+                    {product.membershipType === 'individual' ? 'Individual' : 'Business'}
+                  </span>
+                ) : (
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '4px 12px',
+                    backgroundColor: product.type === 'ticket' ? '#dbeafe' : '#fef3c7',
+                    color: product.type === 'ticket' ? '#0369a1' : '#92400e',
+                    fontSize: '12px',
+                    fontWeight: 'normal',
+                    borderRadius: '4px'
+                  }}>
+                    {product.type === 'ticket' ? 'Ticket' : 'Item'}
+                  </span>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => handleEdit(product)}
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    backgroundColor: '#f0fdf4',
+                    color: '#2d5016',
+                    border: '1px solid #d1fae5',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: 'normal',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#dcfce7';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f0fdf4';
+                  }}
+                >
+                  <Edit2 size={14} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(product.id)}
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    backgroundColor: '#fef2f2',
+                    color: '#dc2626',
+                    border: '1px solid #fecaca',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: 'normal',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#fee2e2';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#fef2f2';
+                  }}
+                >
+                  <Trash2 size={14} />
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
