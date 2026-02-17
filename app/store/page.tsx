@@ -151,7 +151,7 @@ export default function Store() {
 
   const getLanguageName = (key: string): string => {
     const names: { [key: string]: { [lang: string]: string } } = {
-      'ebosch': { en: "e'BOSCH", af: "e'BOSCH", xh: "e'BOSCH" },
+      'ebosch': { en: "e'Bosch", af: "e'Bosch", xh: "e'Bosch" },
       'local_businesses': { en: 'Local Businesses', af: 'Plaaslike Besighede', xh: 'Inkolo Zasekhaya' },
       'community_businesses': { en: 'Community Businesses', af: 'Gemeenskapbesighede', xh: 'Inkolo Yoluntu' },
       'services': { en: 'Services', af: 'Dienste', xh: 'Iinkonzo' }
@@ -185,22 +185,51 @@ export default function Store() {
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between">
+            <div style={{ fontSize: '20px', fontWeight: 'normal', color: '#111827' }}>
+            </div>
             <nav className="flex gap-6 items-center">
-              <Link href="/" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
+              <Link href="/" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
                 {language === 'en' && 'Home'}
                 {language === 'af' && 'Tuis'}
                 {language === 'xh' && 'Ikhaya'}
               </Link>
-              <Link href="/store" className="text-green-600 font-medium">
-                {language === 'en' && "e'Bosch Store"}
-                {language === 'af' && "e'Bosch Winkel"}
-                {language === 'xh' && "e'Bosch Inkolo"}
+              <Link href="/about" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+                {language === 'en' && 'About'}
+                {language === 'af' && 'Oor'}
+                {language === 'xh' && 'Malunga'}
+              </Link>
+              <Link href="/events" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+                {language === 'en' && 'Events'}
+                {language === 'af' && 'Geleenthede'}
+                {language === 'xh' && 'Iziganeko'}
+              </Link>
+              <Link href="/store" style={{ color: '#2d5016', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+                {language === 'en' && 'Store'}
+                {language === 'af' && 'Winkel'}
+                {language === 'xh' && 'Inkolo'}
+              </Link>
+              <Link href="/membership" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+                {language === 'en' && 'Membership'}
+                {language === 'af' && 'Lidmaatskap'}
+                {language === 'xh' && 'Ubulungu'}
+              </Link>
+              <Link href="/contact" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+                {language === 'en' && 'Contact'}
+                {language === 'af' && 'Kontak'}
+                {language === 'xh' && 'Xhomekela'}
               </Link>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as Language)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+                style={{
+                  padding: '8px 12px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  fontWeight: 'normal'
+                }}
               >
                 <option value="en">English</option>
                 <option value="af">Afrikaans</option>
@@ -212,7 +241,8 @@ export default function Store() {
                 color: 'white',
                 borderRadius: '6px',
                 textDecoration: 'none',
-                fontWeight: 'normal'
+                fontWeight: 'normal',
+                fontSize: '14px'
               }}>
                 🛒 {language === 'en' ? 'Cart' : language === 'af' ? 'Mandjie' : 'Inkokeli'}
               </Link>
@@ -224,11 +254,6 @@ export default function Store() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <p style={{ color: '#111827', fontSize: '16px', margin: '0' }}>
-            {language === 'en' && 'Discover products, services, and local businesses'}
-            {language === 'af' && 'Ontdek produkte, dienste en plaaslike besighede'}
-            {language === 'xh' && 'Kunqoba imveliso, iinkonzo, kunye nenkolo zasekhaya'}
-          </p>
         </div>
 
         {/* Category Navigation */}
@@ -281,8 +306,8 @@ export default function Store() {
                   )}
                 </div>
                 <p style={{
-                  fontSize: '16px',
-                  fontWeight: 'normal',
+                  fontSize: '17px',
+                  fontWeight: 'bold',
                   color: '#111827',
                   margin: '0'
                 }}>

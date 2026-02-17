@@ -53,41 +53,54 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Top Navigation */}
-          <div className="flex items-center justify-end mb-6">
+          <div className="flex items-center justify-between">
+            <div style={{ fontSize: '20px', fontWeight: 'normal', color: '#111827' }}>
+            </div>
             <nav className="flex gap-6 items-center">
-              <Link href="/" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
+              <Link href="/" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
                 {language === 'en' && 'Home'}
                 {language === 'af' && 'Tuis'}
                 {language === 'xh' && 'Ikhaya'}
               </Link>
-              <Link href="/about" className="text-green-600 font-medium">
+              <Link href="/about" style={{ color: '#2d5016', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
                 {language === 'en' && 'About'}
-                {language === 'af' && 'Oor Ons'}
-                {language === 'xh' && 'Malunga Nathi'}
+                {language === 'af' && 'Oor'}
+                {language === 'xh' && 'Malunga'}
               </Link>
-              <Link href="/events" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
+              <Link href="/events" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
                 {language === 'en' && 'Events'}
                 {language === 'af' && 'Geleenthede'}
                 {language === 'xh' && 'Iziganeko'}
               </Link>
-              <Link href="/store" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
-                {language === 'en' && "e'Bosch Store"}
-                {language === 'af' && "e'Bosch Winkel"}
-                {language === 'xh' && "e'Bosch Inkolo"}
+              <Link href="/store" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+                {language === 'en' && 'Store'}
+                {language === 'af' && 'Winkel'}
+                {language === 'xh' && 'Inkolo'}
               </Link>
-              <Link href="/contact" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
+              <Link href="/membership" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+                {language === 'en' && 'Membership'}
+                {language === 'af' && 'Lidmaatskap'}
+                {language === 'xh' && 'Ubulungu'}
+              </Link>
+              <Link href="/contact" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
                 {language === 'en' && 'Contact'}
                 {language === 'af' && 'Kontak'}
                 {language === 'xh' && 'Xhomekela'}
               </Link>
-
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as Language)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600"
+                style={{
+                  padding: '8px 12px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                  fontWeight: 'normal'
+                }}
               >
                 <option value="en">English</option>
                 <option value="af">Afrikaans</option>
