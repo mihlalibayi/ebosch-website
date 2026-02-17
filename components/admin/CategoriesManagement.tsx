@@ -131,6 +131,19 @@ export default function CategoriesManagement() {
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+      
+      // Validate file type
+      const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+      if (!validImageTypes.includes(file.type)) {
+        alert('Invalid file type. Please upload: JPG, PNG, GIF, WebP, or SVG');
+        return;
+      }
+      
       setImageFile(file);
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -144,10 +157,16 @@ export default function CategoriesManagement() {
     if (!imageFile) return;
 
     try {
+      console.log('Starting upload for:', imageFile.name);
       let imageUrl = '';
       const storageRef = ref(storage, `category-images/${Date.now()}_${imageFile.name}`);
+      
+      console.log('Uploading to Firebase Storage...');
       await uploadBytes(storageRef, imageFile);
+      
+      console.log('Getting download URL...');
       imageUrl = await getDownloadURL(storageRef);
+      console.log('Image URL:', imageUrl);
 
       if (imageModalType === 'root' && imageModalData.rootId) {
         await updateDoc(doc(db, 'categories', imageModalData.rootId), { imageUrl });
@@ -177,6 +196,7 @@ export default function CategoriesManagement() {
         }
       }
 
+      alert('Image uploaded successfully!');
       resetImageModal();
       loadCategories();
     } catch (error) {
@@ -1035,7 +1055,7 @@ export default function CategoriesManagement() {
           >
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
               onChange={handleImageSelect}
               style={{ display: 'none' }}
               id="imageInput"

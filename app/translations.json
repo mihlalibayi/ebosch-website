@@ -1,6 +1,10 @@
 {
   "en": {
     "welcome": "Welcome to e'Bosch",
+    "storeName": "e'Bosch Store",
+    "exploreNow": "Explore Now",
+    "next": "Next",
+    "previous": "Previous",
     "tagline": "Community | Heritage | Leadership",
     "categories": {
       "events": "Events",
@@ -186,6 +190,10 @@
   },
   "af": {
     "welcome": "Welkom by e'Bosch",
+    "storeName": "e'Bosch Winkel",
+    "exploreNow": "Verken Nou",
+    "next": "Volgende",
+    "previous": "Vorige",
     "tagline": "Gemeenskap | Erfenis | Leierskap",
     "categories": {
       "events": "Geleenthede",
@@ -371,6 +379,10 @@
   },
   "xh": {
     "welcome": "Wamkelekile ku-e'Bosch",
+    "storeName": "e'Bosch Inkolo",
+    "exploreNow": "Khangela Ngoku",
+    "next": "Okulandelayo",
+    "previous": "Okwangaphambili",
     "tagline": "Uluntu | Inkcubeko | Ubunkokheli",
     "categories": {
       "events": "Iziganeko",

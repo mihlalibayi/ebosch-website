@@ -206,54 +206,173 @@ export default function EventsPage() {
   const monthName = selectedDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Navigation */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div style={{ fontSize: '20px', fontWeight: 'normal', color: '#111827' }}>
-            </div>
-            <nav className="flex gap-6 items-center">
-              <Link href="/" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center'
+          }}>
+            {/* Navigation links - minimalist underline style */}
+            <nav style={{
+              display: 'flex',
+              gap: '40px',
+              alignItems: 'center'
+            }}>
+              <Link href="/" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'Home'}
                 {language === 'af' && 'Tuis'}
                 {language === 'xh' && 'Ikhaya'}
               </Link>
-              <Link href="/about" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/about" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'About'}
                 {language === 'af' && 'Oor'}
                 {language === 'xh' && 'Malunga'}
               </Link>
-              <Link href="/events" style={{ color: '#2d5016', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/events" style={{
+                textDecoration: 'none',
+                color: '#2d5016',
+                fontSize: '14px',
+                fontWeight: '600',
+                paddingBottom: '4px',
+                borderBottom: '2px solid #2d5016',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.opacity = '0.7';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.opacity = '1';
+              }}>
                 {language === 'en' && 'Events'}
                 {language === 'af' && 'Geleenthede'}
                 {language === 'xh' && 'Iziganeko'}
               </Link>
-              <Link href="/store" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/store" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'Store'}
                 {language === 'af' && 'Winkel'}
                 {language === 'xh' && 'Inkolo'}
               </Link>
-              <Link href="/membership" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/membership" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'Membership'}
                 {language === 'af' && 'Lidmaatskap'}
                 {language === 'xh' && 'Ubulungu'}
               </Link>
-              <Link href="/contact" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/contact" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'Contact'}
                 {language === 'af' && 'Kontak'}
                 {language === 'xh' && 'Xhomekela'}
               </Link>
+
+              {/* Language selector */}
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as Language)}
                 style={{
-                  padding: '8px 12px',
-                  border: '1px solid #e5e7eb',
+                  padding: '8px 14px',
+                  border: '1px solid #d1d5db',
                   borderRadius: '6px',
-                  fontSize: '14px',
+                  fontSize: '13px',
                   backgroundColor: 'white',
-                  fontWeight: 'normal'
+                  fontWeight: '500',
+                  color: '#111827',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  (e.target as HTMLElement).style.borderColor = '#2d5016';
+                  (e.target as HTMLElement).style.boxShadow = '0 0 0 2px rgba(45, 80, 22, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.target as HTMLElement).style.borderColor = '#d1d5db';
+                  (e.target as HTMLElement).style.boxShadow = 'none';
                 }}
               >
                 <option value="en">English</option>
@@ -334,13 +453,13 @@ export default function EventsPage() {
         </div>
 
         {/* Calendar */}
-        <div className="mt-40 pt-20 border-t-2 border-gray-300">
+        <div style={{ marginTop: '80px', paddingTop: '20px' }}>
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: '#2d5016' }}>{t.calendarTitle}</h2>
-          <div className="bg-white rounded-xl shadow-lg p-8 mx-auto" style={{ maxWidth: '800px' }}>
+          <div className="bg-white rounded-xl shadow-lg p-8 mx-auto" style={{ maxWidth: '1000px' }}>
             {/* Month Nav */}
             <div className="flex justify-between items-center mb-8">
               <button onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1))} className="p-2 hover:bg-gray-100 rounded">←</button>
-              <h3 className="text-2xl font-bold" style={{ color: '#2d5016' }}>{monthName}</h3>
+              <h3 className="text-2xl font-bold" style={{ color: '#4b5563' }}>{monthName}</h3>
               <button onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1))} className="p-2 hover:bg-gray-100 rounded">→</button>
             </div>
 
@@ -360,10 +479,10 @@ export default function EventsPage() {
                   <button key={`${wi}-${di}`} onClick={() => day && handleDayClick(day)} 
                     className="aspect-square rounded-lg font-semibold transition flex flex-col items-center justify-center relative hover:shadow-md"
                     style={{
-                      backgroundColor: isToday ? '#9ca3af' : '#f9fafb',
-                      color: isToday ? '#1f2937' : '#4b5563',
+                      backgroundColor: isToday ? '#9ca8a0' : '#f9fafb',
+                      color: isToday ? 'white' : '#4b5563',
                       cursor: day ? 'pointer' : 'default',
-                      border: dayEvents.length > 0 ? '2px solid #2d5016' : '1px solid #e5e7eb',
+                      border: '1px solid #e5e7eb',
                       transition: 'all 0.2s',
                       overflow: 'visible',
                       paddingBottom: dayEvents.length > 0 ? '18px' : '0'
@@ -395,7 +514,6 @@ export default function EventsPage() {
                 );
               }))}
             </div>
-            <p className="text-center text-gray-500 text-sm mt-6">{t.noEventsMessage}</p>
           </div>
         </div>
       </main>

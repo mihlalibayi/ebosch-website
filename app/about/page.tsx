@@ -54,52 +54,171 @@ export default function About() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div style={{ fontSize: '20px', fontWeight: 'normal', color: '#111827' }}>
-            </div>
-            <nav className="flex gap-6 items-center">
-              <Link href="/" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center'
+          }}>
+            {/* Navigation links - minimalist underline style */}
+            <nav style={{
+              display: 'flex',
+              gap: '40px',
+              alignItems: 'center'
+            }}>
+              <Link href="/" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'Home'}
                 {language === 'af' && 'Tuis'}
                 {language === 'xh' && 'Ikhaya'}
               </Link>
-              <Link href="/about" style={{ color: '#2d5016', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/about" style={{
+                textDecoration: 'none',
+                color: '#2d5016',
+                fontSize: '14px',
+                fontWeight: '600',
+                paddingBottom: '4px',
+                borderBottom: '2px solid #2d5016',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.opacity = '0.7';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.opacity = '1';
+              }}>
                 {language === 'en' && 'About'}
                 {language === 'af' && 'Oor'}
                 {language === 'xh' && 'Malunga'}
               </Link>
-              <Link href="/events" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/events" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'Events'}
                 {language === 'af' && 'Geleenthede'}
                 {language === 'xh' && 'Iziganeko'}
               </Link>
-              <Link href="/store" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/store" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'Store'}
                 {language === 'af' && 'Winkel'}
                 {language === 'xh' && 'Inkolo'}
               </Link>
-              <Link href="/membership" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/membership" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'Membership'}
                 {language === 'af' && 'Lidmaatskap'}
                 {language === 'xh' && 'Ubulungu'}
               </Link>
-              <Link href="/contact" style={{ color: '#111827', textDecoration: 'none', fontSize: '15px', fontWeight: 'normal' }}>
+
+              <Link href="/contact" style={{
+                textDecoration: 'none',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
                 {language === 'en' && 'Contact'}
                 {language === 'af' && 'Kontak'}
                 {language === 'xh' && 'Xhomekela'}
               </Link>
+
+              {/* Language selector */}
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as Language)}
                 style={{
-                  padding: '8px 12px',
-                  border: '1px solid #e5e7eb',
+                  padding: '8px 14px',
+                  border: '1px solid #d1d5db',
                   borderRadius: '6px',
-                  fontSize: '14px',
+                  fontSize: '13px',
                   backgroundColor: 'white',
-                  fontWeight: 'normal'
+                  fontWeight: '500',
+                  color: '#111827',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  (e.target as HTMLElement).style.borderColor = '#2d5016';
+                  (e.target as HTMLElement).style.boxShadow = '0 0 0 2px rgba(45, 80, 22, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.target as HTMLElement).style.borderColor = '#d1d5db';
+                  (e.target as HTMLElement).style.boxShadow = 'none';
                 }}
               >
                 <option value="en">English</option>
