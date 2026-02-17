@@ -157,6 +157,32 @@ export default function MembershipsManagement() {
     return colors[status] || '#6b7280';
   };
 
+  const isPaymentOverdue = (member: Membership) => {
+    if (member.status === 'paused' || member.status === 'cancelled') return false;
+    if (!member.createdAt) return false;
+
+    const subscriptionDate = new Date(member.createdAt);
+    const paymentDueDay = subscriptionDate.getDate();
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    const dueDate = new Date(currentYear, currentMonth, paymentDueDay);
+    
+    // If due date hasn't passed this month yet, not overdue
+    if (dueDate > today) return false;
+    
+    // If there's a last payment date and it's after the due date, not overdue
+    if (member.lastPaymentDate) {
+      const lastPayment = new Date(member.lastPaymentDate);
+      if (lastPayment.getMonth() === currentMonth && lastPayment.getFullYear() === currentYear) {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
   const getMemberDetails = (member: Membership) => {
     const details = [];
 
@@ -182,7 +208,8 @@ export default function MembershipsManagement() {
       }
       details.push({ label: 'Email', value: member.email });
       if (member.phone) details.push({ label: 'Phone', value: member.phone });
-      details.push({ label: 'Annual Fee', value: `R${member.annualFee || member.price}` });
+      const feeLabel = activeTab === 'monthly' ? 'Monthly Fee' : 'Annual Fee';
+      details.push({ label: feeLabel, value: `R${member.annualFee || member.price}` });
     }
 
     return details;
@@ -367,7 +394,47 @@ export default function MembershipsManagement() {
                   </select>
                 </div>
 
-                {/* Action Button */}
+                {/* Monthly Fee */}
+                {activeTab === 'monthly' && (
+                  <div>
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Monthly Fee</p>
+                    <p style={{ fontSize: '14px', fontWeight: 'normal', color: '#111827', margin: '0' }}>
+                      R{member.price || member.annualFee}
+                    </p>
+                  </div>
+                )}
+
+                {/* Payment Status Badge */}
+                {activeTab === 'monthly' && (
+                  <div>
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Payment Status</p>
+                    {isPaymentOverdue(member) ? (
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '4px 12px',
+                        backgroundColor: '#fecaca',
+                        color: '#991b1b',
+                        fontSize: '12px',
+                        fontWeight: 'normal',
+                        borderRadius: '4px'
+                      }}>
+                        Overdue
+                      </span>
+                    ) : (
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '4px 12px',
+                        backgroundColor: '#dcfce7',
+                        color: '#166534',
+                        fontSize: '12px',
+                        fontWeight: 'normal',
+                        borderRadius: '4px'
+                      }}>
+                        Paid
+                      </span>
+                    )}
+                  </div>
+                )}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -427,26 +494,35 @@ export default function MembershipsManagement() {
                     )}
                     {activeTab === 'monthly' && (
                       <>
-                        {member.lastPaymentDate && (
-                          <>
-                            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: 'normal' }}>
-                              Last Payment
-                            </p>
-                            <p style={{ fontSize: '14px', color: '#111827', margin: '0 0 12px 0', fontWeight: 'normal' }}>
-                              {new Date(member.lastPaymentDate).toLocaleDateString()}
-                            </p>
-                          </>
-                        )}
-                        {member.nextPaymentDate && (
-                          <>
-                            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: 'normal' }}>
-                              Next Payment Due
-                            </p>
-                            <p style={{ fontSize: '14px', color: '#111827', margin: '0', fontWeight: 'normal' }}>
-                              {new Date(member.nextPaymentDate).toLocaleDateString()}
-                            </p>
-                          </>
-                        )}
+                        {/* Subscription Date */}
+                  <div>
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: 'normal' }}>
+                      Subscription Date
+                    </p>
+                    <p style={{ fontSize: '14px', color: '#111827', margin: '0', fontWeight: 'normal' }}>
+                      {member.createdAt ? new Date(member.createdAt).toLocaleDateString() : '-'}
+                    </p>
+                  </div>
+
+                  {/* Expected Payment Date */}
+                  <div>
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: 'normal' }}>
+                      Monthly Payment Date
+                    </p>
+                    <p style={{ fontSize: '14px', color: '#111827', margin: '0', fontWeight: 'normal' }}>
+                      {member.createdAt ? new Date(member.createdAt).getDate() : '-'} of each month
+                    </p>
+                  </div>
+
+                  {/* Last Payment Date */}
+                  <div>
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: 'normal' }}>
+                      Last Payment
+                    </p>
+                    <p style={{ fontSize: '14px', color: '#111827', margin: '0', fontWeight: 'normal' }}>
+                      {member.lastPaymentDate ? new Date(member.lastPaymentDate).toLocaleDateString() : 'Pending first payment'}
+                    </p>
+                  </div>
                       </>
                     )}
                   </div>
