@@ -2,73 +2,84 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase-config';
-import { collection, getDocs, updateDoc, doc, addDoc } from 'firebase/firestore';
-import { Mail, Calendar, DollarSign } from 'lucide-react';
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 
-interface AnnualMembership {
+interface Membership {
   id: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  membershipType: 'individual' | 'business';
-  price: number;
-  status: 'active' | 'expired' | 'pending_payment';
-  purchaseDate: string;
-  expiryDate: string;
-  renewalDate?: string;
-  createdAt?: any;
-}
-
-interface MonthlyMembership {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  membershipType: 'individual' | 'business';
+  productName: string;
+  customerName?: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  phone?: string;
+  address?: string;
   businessName?: string;
-  businessPrize?: boolean;
+  websiteUrl?: string;
+  businessRegistration?: string;
+  businessType?: string;
+  title?: string;
+  investorType?: string;
+  annualFee?: number;
   price: number;
-  status: 'active' | 'paused' | 'cancelled';
-  subscriptionDate: string;
+  status: 'active' | 'expired' | 'pending_payment' | 'paused' | 'cancelled';
+  membershipType: 'individual' | 'business' | 'social_impact';
+  expiryDate?: string;
+  renewalDate?: string;
+  createdAt: any;
   lastPaymentDate?: string;
   nextPaymentDate?: string;
-  createdAt?: any;
+  isMonthly?: boolean;
 }
 
 export default function MembershipsManagement() {
   const [activeTab, setActiveTab] = useState<'annual' | 'monthly'>('annual');
-  const [annualMembers, setAnnualMembers] = useState<AnnualMembership[]>([]);
-  const [monthlyMembers, setMonthlyMembers] = useState<MonthlyMembership[]>([]);
+  const [members, setMembers] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [expandedMember, setExpandedMember] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Membership | null>(null);
 
   useEffect(() => {
     loadMemberships();
-  }, []);
+  }, [activeTab]);
 
   const loadMemberships = async () => {
     try {
       setLoading(true);
+      let allMembers: Membership[] = [];
 
-      // Load annual memberships
-      const annualSnap = await getDocs(collection(db, 'annual_memberships'));
-      const annualData = annualSnap.docs.map(d => ({
-        id: d.id,
-        ...d.data(),
-        createdAt: d.data().createdAt?.toDate?.() || new Date()
-      })) as AnnualMembership[];
-      setAnnualMembers(annualData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      if (activeTab === 'annual') {
+        // Load from annual_memberships collection
+        const annualSnap = await getDocs(collection(db, 'annual_memberships'));
+        const annualData = annualSnap.docs.map(d => ({
+          id: d.id,
+          ...d.data(),
+          isMonthly: false,
+          createdAt: d.data().createdAt?.toDate?.() || new Date()
+        })) as Membership[];
 
-      // Load monthly memberships
-      const monthlySnap = await getDocs(collection(db, 'monthly_memberships'));
-      const monthlyData = monthlySnap.docs.map(d => ({
-        id: d.id,
-        ...d.data(),
-        createdAt: d.data().createdAt?.toDate?.() || new Date()
-      })) as MonthlyMembership[];
-      setMonthlyMembers(monthlyData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+        // Load from social_impact_members collection
+        const socialSnap = await getDocs(collection(db, 'social_impact_members'));
+        const socialData = socialSnap.docs.map(d => ({
+          id: d.id,
+          ...d.data(),
+          isMonthly: false,
+          createdAt: d.data().createdAt?.toDate?.() || new Date()
+        })) as Membership[];
 
+        allMembers = [...annualData, ...socialData];
+      } else {
+        // Load from monthly_memberships collection (future)
+        const monthlySnap = await getDocs(collection(db, 'monthly_memberships'));
+        allMembers = monthlySnap.docs.map(d => ({
+          id: d.id,
+          ...d.data(),
+          isMonthly: true,
+          createdAt: d.data().createdAt?.toDate?.() || new Date()
+        })) as Membership[];
+      }
+
+      setMembers(allMembers.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
       setLoading(false);
     } catch (error) {
       console.error('Error loading memberships:', error);
@@ -76,22 +87,33 @@ export default function MembershipsManagement() {
     }
   };
 
-  const updateAnnualStatus = async (memberId: string, newStatus: 'active' | 'expired' | 'pending_payment') => {
+  const updateStatus = async (memberId: string, newStatus: string) => {
     try {
-      await updateDoc(doc(db, 'annual_memberships', memberId), { status: newStatus });
+      const member = members.find(m => m.id === memberId);
+      if (!member) return;
+
+      const collection_name = activeTab === 'annual' 
+        ? (member.membershipType === 'social_impact' ? 'social_impact_members' : 'annual_memberships')
+        : 'monthly_memberships';
+
+      await updateDoc(doc(db, collection_name, memberId), { status: newStatus });
       loadMemberships();
     } catch (error) {
-      console.error('Error updating membership:', error);
-      alert('Error updating membership');
+      console.error('Error updating status:', error);
+      alert('Error updating status');
     }
   };
 
-  const renewAnnualMembership = async (memberId: string) => {
+  const renewMembership = async (memberId: string) => {
     try {
+      const member = members.find(m => m.id === memberId);
+      if (!member) return;
+
       const expiryDate = new Date();
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
-      await updateDoc(doc(db, 'annual_memberships', memberId), {
+      const collection_name = member.membershipType === 'social_impact' ? 'social_impact_members' : 'annual_memberships';
+      await updateDoc(doc(db, collection_name, memberId), {
         status: 'active',
         expiryDate: expiryDate.toISOString(),
         renewalDate: new Date().toISOString()
@@ -99,18 +121,8 @@ export default function MembershipsManagement() {
       loadMemberships();
       alert('Membership renewed successfully');
     } catch (error) {
-      console.error('Error renewing membership:', error);
+      console.error('Error renewing:', error);
       alert('Error renewing membership');
-    }
-  };
-
-  const updateMonthlyStatus = async (memberId: string, newStatus: 'active' | 'paused' | 'cancelled') => {
-    try {
-      await updateDoc(doc(db, 'monthly_memberships', memberId), { status: newStatus });
-      loadMemberships();
-    } catch (error) {
-      console.error('Error updating membership:', error);
-      alert('Error updating membership');
     }
   };
 
@@ -145,11 +157,42 @@ export default function MembershipsManagement() {
     return colors[status] || '#6b7280';
   };
 
+  const getMemberDetails = (member: Membership) => {
+    const details = [];
+
+    if (member.membershipType === 'individual') {
+      details.push({ label: 'Name', value: `${member.firstName} ${member.lastName}` });
+      details.push({ label: 'Email', value: member.email });
+      if (member.phone) details.push({ label: 'Phone', value: member.phone });
+      if (member.address) details.push({ label: 'Address', value: member.address });
+    } else if (member.membershipType === 'business') {
+      details.push({ label: 'Business Name', value: member.businessName });
+      details.push({ label: 'Email', value: member.email });
+      if (member.phone) details.push({ label: 'Phone', value: member.phone });
+      if (member.websiteUrl) details.push({ label: 'Website', value: member.websiteUrl });
+      if (member.businessRegistration) details.push({ label: 'Business Registration', value: member.businessRegistration });
+      if (member.businessType) details.push({ label: 'Business Type', value: member.businessType });
+    } else if (member.membershipType === 'social_impact') {
+      if (member.investorType === 'individual') {
+        if (member.title) details.push({ label: 'Title', value: member.title });
+        details.push({ label: 'Name', value: `${member.firstName} ${member.lastName}` });
+      } else {
+        details.push({ label: 'Business Name', value: member.businessName });
+        if (member.websiteUrl) details.push({ label: 'Website', value: member.websiteUrl });
+      }
+      details.push({ label: 'Email', value: member.email });
+      if (member.phone) details.push({ label: 'Phone', value: member.phone });
+      details.push({ label: 'Annual Fee', value: `R${member.annualFee || member.price}` });
+    }
+
+    return details;
+  };
+
   return (
     <div style={{ padding: '24px', backgroundColor: '#f9fafb', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: '700', color: '#111827', margin: '0 0 8px 0' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: 'normal', color: '#111827', margin: '0 0 8px 0' }}>
           Memberships Management
         </h1>
         <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>
@@ -176,7 +219,6 @@ export default function MembershipsManagement() {
             cursor: 'pointer',
             fontWeight: 'normal',
             fontSize: '15px',
-            transition: 'all 0.2s',
             marginBottom: '-2px'
           }}
         >
@@ -193,7 +235,6 @@ export default function MembershipsManagement() {
             cursor: 'pointer',
             fontWeight: 'normal',
             fontSize: '15px',
-            transition: 'all 0.2s',
             marginBottom: '-2px'
           }}
         >
@@ -221,243 +262,199 @@ export default function MembershipsManagement() {
             }
           `}</style>
         </div>
-      ) : activeTab === 'annual' ? (
-        /* Annual Memberships */
-        annualMembers.length === 0 ? (
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '60px 24px',
-            textAlign: 'center',
-            color: '#6b7280',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-          }}>
-            <p style={{ fontSize: '16px', margin: '0' }}>No annual memberships yet</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gap: '16px' }}>
-            {annualMembers.map(member => (
-              <div key={member.id} style={{
-                backgroundColor: 'white',
-                borderRadius: '12px',
+      ) : members.length === 0 ? (
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '60px 24px',
+          textAlign: 'center',
+          color: '#6b7280',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
+          <p style={{ fontSize: '16px', margin: '0' }}>
+            No {activeTab === 'annual' ? 'annual' : 'monthly'} memberships yet
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gap: '16px' }}>
+          {members.map(member => (
+            <div key={member.id} style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              overflow: 'hidden',
+              border: '1px solid #e5e7eb'
+            }}>
+              {/* Header Row */}
+              <div style={{
                 padding: '20px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                transition: 'all 0.2s'
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr 1fr auto',
+                gap: '16px',
+                alignItems: 'center',
+                borderBottom: expandedMember === member.id ? '1px solid #e5e7eb' : 'none',
+                backgroundColor: expandedMember === member.id ? '#f9fafb' : 'white',
+                cursor: 'pointer'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: '16px', alignItems: 'center' }}>
-                  {/* Member Info */}
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Member</p>
-                    <p style={{ fontSize: '14px', fontWeight: 'normal', color: '#111827', margin: '0' }}>
-                      {member.customerName}
-                    </p>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0 0 0' }}>
-                      {member.customerEmail}
-                    </p>
-                  </div>
+              onClick={() => setExpandedMember(expandedMember === member.id ? null : member.id)}>
+                {/* Member Name */}
+                <div>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Member</p>
+                  <p style={{ fontSize: '14px', fontWeight: 'normal', color: '#111827', margin: '0' }}>
+                    {member.firstName && member.lastName 
+                      ? `${member.firstName} ${member.lastName}` 
+                      : member.businessName || 'N/A'}
+                  </p>
+                </div>
 
-                  {/* Membership Type */}
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Type</p>
-                    <span style={{
-                      display: 'inline-block',
-                      padding: '4px 12px',
-                      backgroundColor: member.membershipType === 'individual' ? '#dbeafe' : '#fef3c7',
-                      color: member.membershipType === 'individual' ? '#0369a1' : '#92400e',
-                      fontSize: '12px',
-                      fontWeight: 'normal',
-                      borderRadius: '4px'
-                    }}>
-                      {member.membershipType === 'individual' ? 'Individual' : 'Business'}
-                    </span>
-                  </div>
+                {/* Membership Type */}
+                <div>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Type</p>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '4px 12px',
+                    backgroundColor: member.membershipType === 'individual' ? '#dbeafe' : member.membershipType === 'business' ? '#fef3c7' : '#f3e8ff',
+                    color: member.membershipType === 'individual' ? '#0369a1' : member.membershipType === 'business' ? '#92400e' : '#6b21a8',
+                    fontSize: '12px',
+                    fontWeight: 'normal',
+                    borderRadius: '4px'
+                  }}>
+                    {member.membershipType === 'individual' ? 'Individual' : member.membershipType === 'business' ? 'Business' : 'Social Impact'}
+                  </span>
+                </div>
 
-                  {/* Expiry Date */}
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Expiry Date</p>
-                    <p style={{ fontSize: '14px', fontWeight: 'normal', color: '#111827', margin: '0' }}>
-                      {new Date(member.expiryDate).toLocaleDateString()}
-                    </p>
-                  </div>
+                {/* Email */}
+                <div>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Email</p>
+                  <p style={{ fontSize: '12px', fontWeight: 'normal', color: '#111827', margin: '0', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {member.email}
+                  </p>
+                </div>
 
-                  {/* Status */}
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Status</p>
-                    <select
-                      value={member.status}
-                      onChange={(e) => updateAnnualStatus(member.id, e.target.value as any)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: getStatusColor(member.status),
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 'normal',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <option value="active">Active</option>
-                      <option value="expired">Expired</option>
-                      <option value="pending_payment">Pending Payment</option>
-                    </select>
-                  </div>
-
-                  {/* Renew Button */}
-                  <button
-                    onClick={() => renewAnnualMembership(member.id)}
+                {/* Status */}
+                <div>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Status</p>
+                  <select
+                    value={member.status}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      updateStatus(member.id, e.target.value);
+                    }}
                     style={{
-                      padding: '8px 16px',
-                      backgroundColor: '#10b981',
+                      padding: '6px 12px',
+                      backgroundColor: getStatusColor(member.status),
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',
                       fontSize: '12px',
                       fontWeight: 'normal',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      whiteSpace: 'nowrap'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#059669';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#10b981';
+                      cursor: 'pointer'
                     }}
                   >
-                    🔄 Renew
-                  </button>
+                    {activeTab === 'annual' ? (
+                      <>
+                        <option value="active">Active</option>
+                        <option value="expired">Expired</option>
+                        <option value="pending_payment">Pending Payment</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="active">Active</option>
+                        <option value="paused">Paused</option>
+                        <option value="cancelled">Cancelled</option>
+                      </>
+                    )}
+                  </select>
                 </div>
+
+                {/* Action Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (activeTab === 'annual') {
+                      renewMembership(member.id);
+                    } else {
+                      setSelectedMember(member);
+                      setShowPaymentModal(true);
+                    }
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: activeTab === 'annual' ? '#10b981' : '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 'normal',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {activeTab === 'annual' ? '🔄 Renew' : '💰 Payment'}
+                </button>
               </div>
-            ))}
-          </div>
-        )
-      ) : (
-        /* Monthly Memberships */
-        monthlyMembers.length === 0 ? (
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '60px 24px',
-            textAlign: 'center',
-            color: '#6b7280',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-          }}>
-            <p style={{ fontSize: '16px', margin: '0' }}>No monthly memberships yet</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gap: '16px' }}>
-            {monthlyMembers.map(member => (
-              <div key={member.id} style={{
-                backgroundColor: 'white',
-                borderRadius: '12px',
-                padding: '20px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: '16px', alignItems: 'center' }}>
-                  {/* Member Info */}
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Member</p>
-                    <p style={{ fontSize: '14px', fontWeight: 'normal', color: '#111827', margin: '0' }}>
-                      {member.customerName}
-                    </p>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0 0 0' }}>
-                      {member.customerEmail}
-                    </p>
+
+              {/* Expanded Details */}
+              {expandedMember === member.id && (
+                <div style={{ padding: '20px', backgroundColor: '#f9fafb', borderTop: '1px solid #e5e7eb' }}>
+                  <h4 style={{ fontSize: '14px', fontWeight: 'normal', color: '#111827', margin: '0 0 16px 0' }}>
+                    Member Details
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                    {getMemberDetails(member).map((detail, idx) => (
+                      <div key={idx}>
+                        <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: 'normal' }}>
+                          {detail.label}
+                        </p>
+                        <p style={{ fontSize: '14px', color: '#111827', margin: '0', fontWeight: 'normal' }}>
+                          {detail.value}
+                        </p>
+                      </div>
+                    ))}
                   </div>
 
-                  {/* Last Payment */}
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Last Payment</p>
-                    <p style={{ fontSize: '14px', fontWeight: 'normal', color: '#111827', margin: '0' }}>
-                      {member.lastPaymentDate ? new Date(member.lastPaymentDate).toLocaleDateString() : 'No payment yet'}
-                    </p>
-                  </div>
-
-                  {/* Next Payment Date */}
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Next Payment</p>
-                    <p style={{ fontSize: '14px', fontWeight: 'normal', color: '#111827', margin: '0' }}>
-                      {member.nextPaymentDate ? new Date(member.nextPaymentDate).toLocaleDateString() : '-'}
-                    </p>
-                  </div>
-
-                  {/* Status */}
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Status</p>
-                    <select
-                      value={member.status}
-                      onChange={(e) => updateMonthlyStatus(member.id, e.target.value as any)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: getStatusColor(member.status),
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 'normal',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <option value="active">Active</option>
-                      <option value="paused">Paused</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      onClick={() => {
-                        setSelectedMember(member);
-                        setShowPaymentModal(true);
-                      }}
-                      style={{
-                        padding: '8px 12px',
-                        backgroundColor: '#3b82f6',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 'normal',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        whiteSpace: 'nowrap'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#1e40af';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#3b82f6';
-                      }}
-                    >
-                      💰 Payment
-                    </button>
+                  {/* Dates */}
+                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
+                    {activeTab === 'annual' && member.expiryDate && (
+                      <>
+                        <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: 'normal' }}>
+                          Expiry Date
+                        </p>
+                        <p style={{ fontSize: '14px', color: '#111827', margin: '0 0 12px 0', fontWeight: 'normal' }}>
+                          {new Date(member.expiryDate).toLocaleDateString()}
+                        </p>
+                      </>
+                    )}
+                    {activeTab === 'monthly' && (
+                      <>
+                        {member.lastPaymentDate && (
+                          <>
+                            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: 'normal' }}>
+                              Last Payment
+                            </p>
+                            <p style={{ fontSize: '14px', color: '#111827', margin: '0 0 12px 0', fontWeight: 'normal' }}>
+                              {new Date(member.lastPaymentDate).toLocaleDateString()}
+                            </p>
+                          </>
+                        )}
+                        {member.nextPaymentDate && (
+                          <>
+                            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: 'normal' }}>
+                              Next Payment Due
+                            </p>
+                            <p style={{ fontSize: '14px', color: '#111827', margin: '0', fontWeight: 'normal' }}>
+                              {new Date(member.nextPaymentDate).toLocaleDateString()}
+                            </p>
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )
+              )}
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Payment Modal */}
@@ -482,19 +479,16 @@ export default function MembershipsManagement() {
             width: '90%',
             boxShadow: '0 20px 25px rgba(0,0,0,0.15)'
           }}>
-            <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', marginBottom: '24px', marginTop: '0' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 'normal', color: '#111827', marginBottom: '24px', marginTop: '0' }}>
               Mark Payment Received
             </h3>
 
             <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #d1fae5' }}>
               <p style={{ fontSize: '14px', color: '#111827', margin: '0 0 8px 0', fontWeight: 'normal' }}>
-                <strong>Member:</strong> {selectedMember.customerName}
-              </p>
-              <p style={{ fontSize: '14px', color: '#111827', margin: '0 0 8px 0', fontWeight: 'normal' }}>
-                <strong>Type:</strong> {selectedMember.membershipType === 'individual' ? 'Individual - R100' : `Business - R${selectedMember.price}`}
+                <strong>Member:</strong> {selectedMember.firstName && selectedMember.lastName ? `${selectedMember.firstName} ${selectedMember.lastName}` : selectedMember.businessName}
               </p>
               <p style={{ fontSize: '14px', color: '#111827', margin: '0', fontWeight: 'normal' }}>
-                <strong>Payment Date:</strong> Today ({new Date().toLocaleDateString()})
+                <strong>Payment Date:</strong> {new Date().toLocaleDateString()}
               </p>
             </div>
 
@@ -511,14 +505,7 @@ export default function MembershipsManagement() {
                   border: 'none',
                   borderRadius: '6px',
                   fontWeight: 'normal',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#e5e7eb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  cursor: 'pointer'
                 }}
               >
                 Cancel
@@ -532,14 +519,7 @@ export default function MembershipsManagement() {
                   border: 'none',
                   borderRadius: '6px',
                   fontWeight: 'normal',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#059669';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#10b981';
+                  cursor: 'pointer'
                 }}
               >
                 ✓ Confirm Payment

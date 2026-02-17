@@ -332,19 +332,11 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      <div style={{
-        backgroundColor: '#f3fce8',
-        border: '1px solid #d1fae5',
-        borderRadius: '8px',
-        padding: '16px',
-        textAlign: 'center',
-        color: '#065f46',
-        fontSize: '14px'
-      }}>
-        <p style={{ margin: '0 0 12px 0' }}>
-          💡 As you create businesses, categories, and products in the admin panel, they will appear here in real-time!
-        </p>
-        {metrics.categories === 0 && (
+      {metrics.categories === 0 && (
+        <div style={{
+          textAlign: 'center',
+          marginTop: '32px'
+        }}>
           <button
             onClick={initializeCategories}
             style={{
@@ -367,8 +359,8 @@ export default function AdminOverview() {
           >
             Initialize Root Categories
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

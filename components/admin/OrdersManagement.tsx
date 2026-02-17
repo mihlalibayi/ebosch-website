@@ -98,7 +98,6 @@ export default function OrdersManagement() {
       awaiting_payment: '#f87171',
       paid: '#10b981',
       processing: '#3b82f6',
-      shipped: '#8b5cf6',
       delivered: '#06b6d4'
     };
     return colors[status] || '#6b7280';
@@ -110,7 +109,6 @@ export default function OrdersManagement() {
       awaiting_payment: 'Awaiting Payment',
       paid: 'Paid',
       processing: 'Processing',
-      shipped: 'Shipped',
       delivered: 'Delivered'
     };
     return labels[status] || status;
@@ -160,7 +158,7 @@ export default function OrdersManagement() {
           All Orders ({orders.length})
         </button>
 
-        {['pending', 'awaiting_payment', 'paid', 'processing', 'shipped', 'delivered'].map(status => {
+        {['pending', 'awaiting_payment', 'paid', 'processing', 'delivered'].map(status => {
           const count = orders.filter(o => o.status === status).length;
           return (
             <button
@@ -290,7 +288,6 @@ export default function OrdersManagement() {
                     <option value="awaiting_payment">Awaiting Payment</option>
                     <option value="paid">Paid</option>
                     <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
                     <option value="delivered">Delivered</option>
                   </select>
                 </div>

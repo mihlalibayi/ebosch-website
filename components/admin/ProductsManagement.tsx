@@ -442,10 +442,10 @@ export default function ProductsManagement() {
                 />
               </div>
 
-              {/* Description */}
+              {/* Description - Optional for Social Impact */}
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
-                  Description *
+                  Description {activeTab === 'memberships' && form.membershipType === 'social_impact' ? '' : '*'}
                 </label>
                 <textarea
                   value={form.description}
@@ -462,7 +462,7 @@ export default function ProductsManagement() {
                     boxSizing: 'border-box',
                     resize: 'vertical'
                   }}
-                  required
+                  required={!(activeTab === 'memberships' && form.membershipType === 'social_impact')}
                 />
               </div>
 
@@ -498,7 +498,7 @@ export default function ProductsManagement() {
                   </label>
                   <select
                     value={form.membershipType}
-                    onChange={(e) => setForm({ ...form, membershipType: e.target.value as 'individual' | 'business' })}
+                    onChange={(e) => setForm({ ...form, membershipType: e.target.value as 'individual' | 'business' | 'social_impact' })}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -510,9 +510,19 @@ export default function ProductsManagement() {
                     required
                   >
                     <option value="">Select membership type</option>
-                    <option value="individual">Individual</option>
-                    <option value="business">Business</option>
+                    <option value="individual">Individual Annual</option>
+                    <option value="business">Business Annual</option>
+                    <option value="social_impact">Social Impact Investor Annual</option>
                   </select>
+                </div>
+              )}
+
+              {/* Social Impact Investor Type Selection */}
+              {activeTab === 'memberships' && form.membershipType === 'social_impact' && (
+                <div style={{ padding: '16px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+                  <p style={{ margin: '0', fontSize: '14px', color: '#065f46', fontWeight: 'normal' }}>
+                    Customer will provide investor type and details in store checkout form
+                  </p>
                 </div>
               )}
 
