@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase-config';
-import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 
 interface Membership {
   id: string;
@@ -143,6 +143,24 @@ export default function MembershipsManagement() {
     } catch (error) {
       console.error('Error marking payment:', error);
       alert('Error marking payment');
+    }
+  };
+
+  const deleteMember = async (memberId: string) => {
+    if (!confirm('Are you sure you want to delete this member? This cannot be undone.')) return;
+    try {
+      const member = members.find(m => m.id === memberId);
+      if (!member) return;
+
+      const collection_name = activeTab === 'annual'
+        ? (member.membershipType === 'social_impact' ? 'social_impact_members' : 'annual_memberships')
+        : 'monthly_memberships';
+
+      await deleteDoc(doc(db, collection_name, memberId));
+      loadMemberships();
+    } catch (error) {
+      console.error('Error deleting member:', error);
+      alert('Error deleting member');
     }
   };
 
@@ -435,30 +453,51 @@ export default function MembershipsManagement() {
                     )}
                   </div>
                 )}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (activeTab === 'annual') {
-                      renewMembership(member.id);
-                    } else {
-                      setSelectedMember(member);
-                      setShowPaymentModal(true);
-                    }
-                  }}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: activeTab === 'annual' ? '#10b981' : '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: 'normal',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {activeTab === 'annual' ? '🔄 Renew' : '💰 Payment'}
-                </button>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (activeTab === 'annual') {
+                        renewMembership(member.id);
+                      } else {
+                        setSelectedMember(member);
+                        setShowPaymentModal(true);
+                      }
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: activeTab === 'annual' ? '#10b981' : '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: 'normal',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {activeTab === 'annual' ? '🔄 Renew' : '💰 Payment'}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteMember(member.id);
+                    }}
+                    title="Delete member"
+                    style={{
+                      padding: '8px 10px',
+                      backgroundColor: '#fee2e2',
+                      color: '#dc2626',
+                      border: '1px solid #fca5a5',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
 
               {/* Expanded Details */}
