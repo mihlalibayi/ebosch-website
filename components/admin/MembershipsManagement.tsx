@@ -58,7 +58,8 @@ export default function MembershipsManagement() {
 
   // Filters
   const [filterType, setFilterType] = useState<string>('all');
-  const [filterReferrer, setFilterReferrer] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'az' | 'za'>('az');
 
   // Add / Edit member modal
   const [showAddModal, setShowAddModal] = useState(false);
@@ -266,18 +267,36 @@ export default function MembershipsManagement() {
     return details;
   };
 
-  // Apply filters
-  const filteredMembers = members.filter(m => {
-    if (filterType !== 'all' && m.membershipType !== filterType) return false;
-    if (filterReferrer !== 'all') {
-      if (filterReferrer === 'Other') {
-        if (m.referredBy !== 'Other') return false;
-      } else {
-        if (m.referredBy !== filterReferrer) return false;
+  // Apply filters, search, sort
+  const getMemberName = (m: Membership) => {
+    if (m.firstName && m.lastName) return `${m.firstName} ${m.lastName}`;
+    if (m.firstName) return m.firstName;
+    if (m.businessName) return m.businessName;
+    if (m.customerName) return m.customerName;
+    return m.email || '';
+  };
+
+  const filteredMembers = members
+    .filter(m => {
+      if (filterType !== 'all' && m.membershipType !== filterType) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const name = getMemberName(m).toLowerCase();
+        const email = (m.email || '').toLowerCase();
+        const biz = (m.businessName || '').toLowerCase();
+        if (!name.includes(q) && !email.includes(q) && !biz.includes(q)) return false;
       }
-    }
-    return true;
-  });
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'date-desc') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      if (sortBy === 'date-asc') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      const nameA = getMemberName(a).toLowerCase();
+      const nameB = getMemberName(b).toLowerCase();
+      if (sortBy === 'az') return nameA.localeCompare(nameB);
+      if (sortBy === 'za') return nameB.localeCompare(nameA);
+      return 0;
+    });
 
   const inputStyle = { padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' as const, width: '100%', boxSizing: 'border-box' as const };
   const labelStyle = { display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px', fontWeight: 'normal' as const };
@@ -301,45 +320,60 @@ export default function MembershipsManagement() {
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', borderBottom: '2px solid #e5e7eb' }}>
         {(['annual', 'monthly'] as const).map(tab => (
-          <button key={tab} onClick={() => { setActiveTab(tab); setFilterType('all'); setFilterReferrer('all'); }}
+          <button key={tab} onClick={() => { setActiveTab(tab); setFilterType('all'); setSearchQuery(''); setSortBy('az'); }}
             style={{ padding: '12px 24px', backgroundColor: activeTab === tab ? '#2d5016' : 'transparent', color: activeTab === tab ? 'white' : '#6b7280', border: 'none', borderBottom: activeTab === tab ? '3px solid #2d5016' : 'none', cursor: 'pointer', fontWeight: 'normal', fontSize: '15px', marginBottom: '-2px' }}>
             {tab === 'annual' ? '📅 Annual Memberships' : '🔄 Monthly Memberships'}
           </button>
         ))}
       </div>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+      {/* Search + Filters */}
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        {/* Search */}
+        <div style={{ flex: 1, minWidth: '220px' }}>
+          <label style={{ ...labelStyle, marginBottom: '6px' }}>Search</label>
+          <input
+            type="text"
+            placeholder="Search by name, email or business..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', width: '100%', boxSizing: 'border-box' as const }}
+          />
+        </div>
+
+        {/* Filter by Type */}
         <div>
           <label style={{ ...labelStyle, marginBottom: '6px' }}>Filter by Type</label>
           <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
-            style={{ padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: 'white', cursor: 'pointer', minWidth: '180px' }}>
+            style={{ padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: 'white', cursor: 'pointer', minWidth: '160px' }}>
             <option value="all">All Types</option>
             <option value="individual">Individual</option>
             <option value="business">Business</option>
             <option value="social_impact">Social Impact</option>
           </select>
         </div>
+
+        {/* Sort */}
         <div>
-          <label style={{ ...labelStyle, marginBottom: '6px' }}>Filter by Referrer</label>
-          <select value={filterReferrer} onChange={(e) => setFilterReferrer(e.target.value)}
-            style={{ padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: 'white', cursor: 'pointer', minWidth: '200px' }}>
-            <option value="all">All Referrers</option>
-            <option value="Sias Mostert">Sias Mostert</option>
-            <option value="Amanda Horne">Amanda Horne</option>
-            <option value="William Horne">William Horne</option>
-            <option value="Other">Other</option>
+          <label style={{ ...labelStyle, marginBottom: '6px' }}>Sort by</label>
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}
+            style={{ padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: 'white', cursor: 'pointer', minWidth: '170px' }}>
+            <option value="az">Name · A to Z</option>
+            <option value="za">Name · Z to A</option>
+            <option value="date-desc">Date · Newest First</option>
+            <option value="date-asc">Date · Oldest First</option>
           </select>
         </div>
-        {(filterType !== 'all' || filterReferrer !== 'all') && (
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-            <button onClick={() => { setFilterType('all'); setFilterReferrer('all'); }}
-              style={{ padding: '8px 14px', backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', cursor: 'pointer' }}>
-              Clear Filters
+
+        {/* Count + Clear */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', marginLeft: 'auto' }}>
+          {(searchQuery.trim() || filterType !== 'all' || sortBy !== 'az') && (
+            <button
+              onClick={() => { setSearchQuery(''); setFilterType('all'); setSortBy('az'); }}
+              style={{ padding: '8px 14px', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontWeight: 'normal' }}>
+              Clear all
             </button>
-          </div>
-        )}
-        <div style={{ display: 'flex', alignItems: 'flex-end', marginLeft: 'auto' }}>
+          )}
           <span style={{ fontSize: '14px', color: '#6b7280' }}>{filteredMembers.length} member{filteredMembers.length !== 1 ? 's' : ''}</span>
         </div>
       </div>

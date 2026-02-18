@@ -339,46 +339,24 @@ export default function AdminOverview() {
         gap: '16px',
         marginBottom: '32px'
       }}>
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '24px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-        }}>
-          <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
-            Store Views
-          </h2>
-          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-            <div>
-              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Today</p>
-              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-                {metrics.storeViews.today}
-              </p>
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Week</p>
-              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-                {metrics.storeViews.week}
-              </p>
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Month</p>
-              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-                {metrics.storeViews.month}
-              </p>
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Quarter</p>
-              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-                {metrics.storeViews.quarter}
-              </p>
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>This Year</p>
-              <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
-                {metrics.storeViews.year}
-              </p>
-            </div>
+        <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <span style={{ fontSize: '20px' }}>👁️</span>
+            <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: 0 }}>Store Views</h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+            {[
+              { label: 'Today', value: metrics.storeViews.today },
+              { label: 'This Week', value: metrics.storeViews.week },
+              { label: 'This Month', value: metrics.storeViews.month },
+              { label: 'This Quarter', value: metrics.storeViews.quarter },
+              { label: 'This Year', value: metrics.storeViews.year },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ backgroundColor: '#f0fdf4', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+                <p style={{ fontSize: '11px', color: '#4b7c2a', margin: '0 0 6px 0', fontWeight: 'normal', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</p>
+                <p style={{ fontSize: '22px', fontWeight: '700', color: '#2d5016', margin: 0 }}>{value}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -407,37 +385,44 @@ export default function AdminOverview() {
       </div>
 
       {/* Referral Summary */}
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        marginBottom: '32px'
-      }}>
-        <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '20px', marginTop: 0 }}>
-          Referrals by Team Member
-        </h2>
-        <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+      <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <span style={{ fontSize: '20px' }}>🤝</span>
+          <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: 0 }}>Referrals by Team Member</h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
           {[
-            { name: 'Sias Mostert', count: metrics.referralSummary.sias },
-            { name: 'Amanda Horne', count: metrics.referralSummary.amanda },
-            { name: 'William Horne', count: metrics.referralSummary.william },
-          ].map(({ name, count }) => (
-            <div key={name}>
-              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>{name}</p>
-              <p style={{ fontSize: '28px', fontWeight: '700', color: '#2d5016', margin: '0' }}>{count}</p>
+            { name: 'Sias Mostert', count: metrics.referralSummary.sias, initials: 'SM' },
+            { name: 'Amanda Horne', count: metrics.referralSummary.amanda, initials: 'AH' },
+            { name: 'William Horne', count: metrics.referralSummary.william, initials: 'WH' },
+          ].map(({ name, count, initials }) => (
+            <div key={name} style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#2d5016', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '600', flexShrink: 0 }}>
+                {initials}
+              </div>
+              <div>
+                <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 2px 0', fontWeight: 'normal' }}>{name}</p>
+                <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: 0, lineHeight: 1 }}>{count}</p>
+                <p style={{ fontSize: '11px', color: '#9ca3af', margin: '2px 0 0 0', fontWeight: 'normal' }}>referral{count !== 1 ? 's' : ''}</p>
+              </div>
             </div>
           ))}
-          <div>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Other / Unknown</p>
-            <p style={{ fontSize: '28px', fontWeight: '700', color: '#2d5016', margin: '0 0 6px 0' }}>{metrics.referralSummary.other}</p>
-            {metrics.otherReferralNames.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                {metrics.otherReferralNames.map((name, i) => (
-                  <span key={i} style={{ fontSize: '12px', color: '#6b7280', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px 8px' }}>{name}</span>
-                ))}
-              </div>
-            )}
+          <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#6b7280', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '600', flexShrink: 0 }}>
+              ?
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 2px 0', fontWeight: 'normal' }}>Other / Unknown</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#6b7280', margin: 0, lineHeight: 1 }}>{metrics.referralSummary.other}</p>
+              <p style={{ fontSize: '11px', color: '#9ca3af', margin: '2px 0 0 0', fontWeight: 'normal' }}>referral{metrics.referralSummary.other !== 1 ? 's' : ''}</p>
+              {metrics.otherReferralNames.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
+                  {metrics.otherReferralNames.map((name, i) => (
+                    <span key={i} style={{ fontSize: '11px', color: '#374151', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px 8px' }}>{name}</span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
