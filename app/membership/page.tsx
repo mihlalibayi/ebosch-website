@@ -354,13 +354,14 @@ export default function MembershipPage() {
               e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
               e.currentTarget.style.transform = 'translateY(0)';
             }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
+              <div style={{ fontSize: '48px', marginBottom: '16px', textAlign: 'center' }}>👤</div>
 
               <h3 style={{
                 fontSize: '21px',
                 fontWeight: 'normal',
                 color: '#000000',
-                margin: '0 0 8px 0'
+                margin: '0 0 8px 0',
+                textAlign: 'center'
               }}>
                 {t.membership.individualMonthly}
               </h3>
@@ -455,13 +456,14 @@ export default function MembershipPage() {
                 e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
+                <div style={{ fontSize: '48px', marginBottom: '16px', textAlign: 'center' }}>🏢</div>
 
                 <h3 style={{
                   fontSize: '19px',
                   fontWeight: 'normal',
                   color: '#000000',
-                  margin: '0 0 8px 0'
+                  margin: '0 0 8px 0',
+                  textAlign: 'center'
                 }}>
                   {t.membership.businessMonthly}
                 </h3>
@@ -470,7 +472,8 @@ export default function MembershipPage() {
                   fontSize: '13px',
                   color: '#000000',
                   margin: '0 0 12px 0',
-                  fontWeight: 'normal'
+                  fontWeight: 'normal',
+                  textAlign: 'center'
                 }}>
                   {language === 'en' && 'With monthly prize'}
                   {language === 'af' && 'Met maandelikse prys'}
@@ -561,13 +564,14 @@ export default function MembershipPage() {
                 e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
+                <div style={{ fontSize: '48px', marginBottom: '16px', textAlign: 'center' }}>🏢</div>
 
                 <h3 style={{
                   fontSize: '19px',
                   fontWeight: 'normal',
                   color: '#000000',
-                  margin: '0 0 8px 0'
+                  margin: '0 0 8px 0',
+                  textAlign: 'center'
                 }}>
                   {t.membership.businessMonthly}
                 </h3>
@@ -576,7 +580,8 @@ export default function MembershipPage() {
                   fontSize: '13px',
                   color: '#000000',
                   margin: '0 0 12px 0',
-                  fontWeight: 'normal'
+                  fontWeight: 'normal',
+                  textAlign: 'center'
                 }}>
                   {language === 'en' && 'No monthly prize'}
                   {language === 'af' && 'Geen maandelikse prys'}
@@ -668,13 +673,14 @@ export default function MembershipPage() {
               e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
               e.currentTarget.style.transform = 'translateY(0)';
             }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>💰</div>
+              <div style={{ fontSize: '48px', marginBottom: '16px', textAlign: 'center' }}>💰</div>
 
               <h3 style={{
                 fontSize: '21px',
                 fontWeight: 'normal',
                 color: '#000000',
-                margin: '0 0 8px 0'
+                margin: '0 0 8px 0',
+                textAlign: 'center'
               }}>
                 {t.membership.socialImpactMonthly}
               </h3>
