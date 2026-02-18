@@ -92,6 +92,13 @@ export default function EventsPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalEvent, setModalEvent] = useState<CalendarEvent | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const getTitle = (folder: EventFolder) => {
     if (language === 'en') return folder.titleEn;
@@ -214,7 +221,15 @@ export default function EventsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white sticky top-0 z-50">
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        backgroundColor: 'white',
+        boxShadow: 'none'
+      }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div style={{
             display: 'flex',
@@ -390,7 +405,7 @@ export default function EventsPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-16">
+      <main className="max-w-7xl mx-auto px-4 py-16" style={{ paddingTop: '100px' }}>
         {/* Gallery */}
         <div className="flex justify-center mb-32" style={{ marginTop: '60px' }}>
           <div className="flex gap-32">

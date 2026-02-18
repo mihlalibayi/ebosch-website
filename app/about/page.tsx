@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import translations from '@/app/translations.json';
 
@@ -43,7 +43,13 @@ const directors = [
 
 export default function About() {
   const [language, setLanguage] = useState<Language>('en');
-  const t = translations[language];
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Xhosa about content
   const aboutContent = {
@@ -76,7 +82,16 @@ export default function About() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white sticky top-0 z-50">
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        backgroundColor: 'white',
+        boxShadow: 'none',
+        transition: 'box-shadow 0.3s ease'
+      }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div style={{
             display: 'flex',
@@ -252,7 +267,7 @@ export default function About() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" style={{ paddingTop: '100px' }}>
         {/* About Content Section */}
         <section style={{ marginBottom: '80px' }}>
           <div style={{

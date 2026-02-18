@@ -59,6 +59,13 @@ export default function Store() {
   const [showNotification, setShowNotification] = useState<string | null>(null);
   const [showMembershipModal, setShowMembershipModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Membership form state
   const [membershipForm, setMembershipForm] = useState({
@@ -188,7 +195,7 @@ export default function Store() {
       )}
 
       {/* Header */}
-      <header className="bg-white sticky top-0 z-50">
+      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, backgroundColor: 'white', boxShadow: 'none' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div style={{
             display: 'flex',
@@ -365,7 +372,7 @@ export default function Store() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" style={{ paddingTop: '100px' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
         </div>
 

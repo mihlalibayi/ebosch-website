@@ -20,6 +20,13 @@ interface MembershipOption {
 export default function MembershipPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [showModal, setShowModal] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const [selectedType, setSelectedType] = useState<MembershipOption | null>(null);
   const [showNotification, setShowNotification] = useState<string | null>(null);
 
@@ -145,7 +152,7 @@ export default function MembershipPage() {
       )}
 
       {/* Header */}
-      <header className="bg-white sticky top-0 z-50">
+      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, backgroundColor: 'white', boxShadow: 'none' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div style={{
             display: 'flex',
@@ -322,7 +329,7 @@ export default function MembershipPage() {
       </header>
 
       {/* Memberships Grid */}
-      <section style={{ padding: '64px 24px' }}>
+      <section style={{ padding: '64px 24px', paddingTop: '100px' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{
             display: 'grid',
