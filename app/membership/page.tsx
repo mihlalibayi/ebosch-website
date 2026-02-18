@@ -389,7 +389,7 @@ export default function MembershipPage() {
                 }}>
                   {t.membership.benefits}
                 </p>
-                {['communityVisibility', 'communitySupport', 'prizeParticipation'].map((benefit, idx) => (
+                {['communitySupport', 'prizeParticipation'].map((benefit, idx) => (
                   <p key={idx} style={{
                     fontSize: '15px',
                     color: '#000000',
