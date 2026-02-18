@@ -100,12 +100,16 @@ export default function Home() {
     return category.name;
   };
 
-  const handlePrevious = () => {
-    setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
+  const handleNext = () => {
+    if (currentSlide < totalSlides - 1) {
+      setCurrentSlide(currentSlide + 1);
+    }
   };
 
-  const handleNext = () => {
-    setCurrentSlide((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
+  const handlePrevious = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
   };
 
   return (
@@ -127,7 +131,7 @@ export default function Home() {
               <Link href="/" style={{
                 textDecoration: 'none',
                 color: '#2d5016',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '600',
                 paddingBottom: '4px',
                 borderBottom: '2px solid #2d5016',
@@ -146,8 +150,8 @@ export default function Home() {
 
               <Link href="/about" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -158,7 +162,7 @@ export default function Home() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'About'}
@@ -168,8 +172,8 @@ export default function Home() {
 
               <Link href="/events" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -180,7 +184,7 @@ export default function Home() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Events'}
@@ -190,8 +194,8 @@ export default function Home() {
 
               <Link href="/store" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -202,18 +206,18 @@ export default function Home() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
-                {language === 'en' && 'Store'}
-                {language === 'af' && 'Winkel'}
-                {language === 'xh' && 'Inkolo'}
+                {language === 'en' && "e'Bosch Store"}
+                {language === 'af' && "e'Bosch Winkel"}
+                {language === 'xh' && "e'Bosch Inkolo"}
               </Link>
 
               <Link href="/membership" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -224,7 +228,7 @@ export default function Home() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Membership'}
@@ -234,8 +238,8 @@ export default function Home() {
 
               <Link href="/contact" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -246,7 +250,7 @@ export default function Home() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Contact'}
@@ -262,7 +266,7 @@ export default function Home() {
                   padding: '8px 14px',
                   border: '1px solid #d1d5db',
                   borderRadius: '6px',
-                  fontSize: '13px',
+                  fontSize: '15px',
                   backgroundColor: 'white',
                   fontWeight: '500',
                   color: '#111827',
@@ -314,31 +318,31 @@ export default function Home() {
             marginBottom: '40px'
           }}>
             {visibleCategories.map((category) => (
-              <Link key={category.id} href={category.href}>
-                <div
-                  style={{
-                    position: 'relative',
-                    height: '350px',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-                    cursor: 'pointer',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                    backgroundColor: '#f5f5f5'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.2)';
-                    e.currentTarget.style.transform = 'translateY(-8px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  {/* Image Container */}
+              <Link key={category.id} href={category.href} style={{ textDecoration: 'none' }}>
+                <div style={{
+                  position: 'relative',
+                  height: '350px',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(-8px)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
+                }}>
+                  {/* Image */}
                   <div style={{
                     position: 'absolute',
-                    inset: '0',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
                     overflow: 'hidden'
                   }}>
                     <img
@@ -348,44 +352,48 @@ export default function Home() {
                         width: '100%',
                         height: '100%',
                         objectFit: 'cover',
-                        transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                       }}
                       onMouseEnter={(e) => {
-                        (e.target as HTMLImageElement).style.transform = 'scale(1.08)';
+                        (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.08)';
                       }}
                       onMouseLeave={(e) => {
-                        (e.target as HTMLImageElement).style.transform = 'scale(1)';
+                        (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)';
                       }}
                     />
                   </div>
 
-                  {/* Overlay Gradient */}
+                  {/* Gradient Overlay */}
                   <div style={{
                     position: 'absolute',
-                    inset: '0',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
                     background: 'linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)',
-                    transition: 'all 0.4s ease'
+                    pointerEvents: 'none'
                   }} />
 
-                  {/* Content */}
+                  {/* Text Content */}
                   <div style={{
                     position: 'absolute',
-                    inset: '0',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: '24px',
+                    color: 'white',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-end',
-                    padding: '32px',
-                    color: 'white',
-                    zIndex: 10
+                    height: '100%'
                   }}>
-                    <h2 style={{
+                    <h3 style={{
                       fontSize: '24px',
                       fontWeight: '700',
-                      marginBottom: '12px',
-                      lineHeight: '1.3'
+                      marginBottom: '12px'
                     }}>
                       {getCategoryName(category)}
-                    </h2>
+                    </h3>
                     <p style={{
                       fontSize: '14px',
                       fontWeight: '500',
@@ -399,14 +407,14 @@ export default function Home() {
             ))}
           </div>
 
-          {totalSlides > 1 && (
+          {/* Navigation Controls */}
+          {!isMobile && (
             <>
               <div style={{
                 display: 'flex',
-                justifyContent: 'center',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                gap: '40px',
-                marginTop: '40px'
+                marginTop: '32px'
               }}>
                 {/* Previous Button - Show only if not on first slide */}
                 {currentSlide > 0 && (

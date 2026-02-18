@@ -26,6 +26,12 @@ body {
   --color-green-dark: #2d5016;
   --color-green-pine: #3d6b1f;
   --color-green-pear: #5a9e3d;
+  
+  /* Navigation styling */
+  --nav-text-color: #4b5563;
+  --nav-text-size: 16px;
+  --nav-active-color: #2d5016;
+  --lang-selector-size: 15px;
 }
 
 a {

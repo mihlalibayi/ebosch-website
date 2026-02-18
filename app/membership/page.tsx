@@ -72,7 +72,8 @@ export default function MembershipPage() {
       icon: '🏢',
       benefits: [
         'listedWebsite',
-        'promotedSupporter'
+        'promotedSupporter',
+        'prizeParticipation'
       ]
     },
     {
@@ -159,8 +160,8 @@ export default function MembershipPage() {
             }}>
               <Link href="/" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -171,7 +172,7 @@ export default function MembershipPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Home'}
@@ -181,8 +182,8 @@ export default function MembershipPage() {
 
               <Link href="/about" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -193,7 +194,7 @@ export default function MembershipPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'About'}
@@ -203,8 +204,8 @@ export default function MembershipPage() {
 
               <Link href="/events" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -215,7 +216,7 @@ export default function MembershipPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Events'}
@@ -225,8 +226,8 @@ export default function MembershipPage() {
 
               <Link href="/store" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -237,7 +238,7 @@ export default function MembershipPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && "e'Bosch Store"}
@@ -248,7 +249,7 @@ export default function MembershipPage() {
               <Link href="/membership" style={{
                 textDecoration: 'none',
                 color: '#2d5016',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '600',
                 paddingBottom: '4px',
                 borderBottom: '2px solid #2d5016',
@@ -267,8 +268,8 @@ export default function MembershipPage() {
 
               <Link href="/contact" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -279,7 +280,7 @@ export default function MembershipPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Contact'}
@@ -295,7 +296,7 @@ export default function MembershipPage() {
                   padding: '8px 14px',
                   border: '1px solid #d1d5db',
                   borderRadius: '6px',
-                  fontSize: '13px',
+                  fontSize: '15px',
                   backgroundColor: 'white',
                   fontWeight: '500',
                   color: '#111827',
@@ -598,7 +599,7 @@ export default function MembershipPage() {
                   }}>
                     {t.membership.benefits}
                   </p>
-                  {['listedWebsite', 'promotedSupporter'].map((benefit, idx) => (
+                  {['listedWebsite', 'promotedSupporter', 'prizeParticipation'].map((benefit, idx) => (
                     <p key={idx} style={{
                       fontSize: '15px',
                       color: '#000000',

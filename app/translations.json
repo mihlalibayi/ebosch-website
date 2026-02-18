@@ -6,6 +6,20 @@
     "next": "Next",
     "previous": "Previous",
     "tagline": "Community | Heritage | Leadership",
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
     "categories": {
       "events": "Events",
       "marketplace": "Marketplace",
@@ -195,6 +209,20 @@
     "next": "Volgende",
     "previous": "Vorige",
     "tagline": "Gemeenskap | Erfenis | Leierskap",
+    "months": {
+      "january": "Januarie",
+      "february": "Februarie",
+      "march": "Maart",
+      "april": "April",
+      "may": "Mei",
+      "june": "Junie",
+      "july": "Julie",
+      "august": "Augustus",
+      "september": "September",
+      "october": "Oktober",
+      "november": "November",
+      "december": "Desember"
+    },
     "categories": {
       "events": "Geleenthede",
       "marketplace": "Handelsplek",
@@ -384,6 +412,20 @@
     "next": "Okulandelayo",
     "previous": "Okwangaphambili",
     "tagline": "Uluntu | Inkcubeko | Ubunkokheli",
+    "months": {
+      "january": "EyoMqungu",
+      "february": "EyoMdumba",
+      "march": "EyoKwindla",
+      "april": "UTshazimpuzi",
+      "may": "UCanzibe",
+      "june": "EyeSilimela",
+      "july": "EyeKhala",
+      "august": "EyeThupha",
+      "september": "EyoMsintsi",
+      "october": "EyeDwarha",
+      "november": "EyeNkanga",
+      "december": "EyoMnga"
+    },
     "categories": {
       "events": "Iziganeko",
       "marketplace": "Intsangano",

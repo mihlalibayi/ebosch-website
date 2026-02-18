@@ -192,33 +192,10 @@ export default function Store() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-end',
             alignItems: 'center'
           }}>
-            {/* Cart on the left */}
-            <Link href="/cart" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '12px 20px',
-              backgroundColor: '#2d5016',
-              color: 'white',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: '600',
-              fontSize: '16px',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              (e.target as HTMLElement).style.opacity = '0.8';
-            }}
-            onMouseLeave={(e) => {
-              (e.target as HTMLElement).style.opacity = '1';
-            }}>
-              🛒 {language === 'en' ? 'Cart' : language === 'af' ? 'Mandjie' : 'Inkokeli'}
-            </Link>
-
-            {/* Navigation on the right */}
+            {/* Navigation links - minimalist underline style */}
             <nav style={{
               display: 'flex',
               gap: '40px',
@@ -226,8 +203,8 @@ export default function Store() {
             }}>
               <Link href="/" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -238,7 +215,7 @@ export default function Store() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Home'}
@@ -248,8 +225,8 @@ export default function Store() {
 
               <Link href="/about" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -260,7 +237,7 @@ export default function Store() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'About'}
@@ -270,8 +247,8 @@ export default function Store() {
 
               <Link href="/events" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -282,7 +259,7 @@ export default function Store() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Events'}
@@ -293,7 +270,7 @@ export default function Store() {
               <Link href="/store" style={{
                 textDecoration: 'none',
                 color: '#2d5016',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '600',
                 paddingBottom: '4px',
                 borderBottom: '2px solid #2d5016',
@@ -312,8 +289,8 @@ export default function Store() {
 
               <Link href="/membership" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -324,7 +301,7 @@ export default function Store() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Membership'}
@@ -334,8 +311,8 @@ export default function Store() {
 
               <Link href="/contact" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -346,7 +323,7 @@ export default function Store() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Contact'}
@@ -362,7 +339,7 @@ export default function Store() {
                   padding: '8px 14px',
                   border: '1px solid #d1d5db',
                   borderRadius: '6px',
-                  fontSize: '13px',
+                  fontSize: '15px',
                   backgroundColor: 'white',
                   fontWeight: '500',
                   color: '#111827',
@@ -462,7 +439,7 @@ export default function Store() {
                 color: '#374151',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: 'normal',
                 cursor: 'pointer',
                 marginBottom: '24px'
@@ -520,7 +497,7 @@ export default function Store() {
                     )}
                   </div>
                   <p style={{
-                    fontSize: '14px',
+                    fontSize: '16px',
                     fontWeight: 'normal',
                     color: '#111827',
                     margin: '0'
@@ -541,7 +518,7 @@ export default function Store() {
                 color: '#374151',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: 'normal',
                 cursor: 'pointer',
                 marginBottom: '32px'
@@ -599,7 +576,7 @@ export default function Store() {
                         {product.name}
                       </h3>
                       <p style={{
-                        fontSize: '13px',
+                        fontSize: '15px',
                         color: '#6b7280',
                         marginBottom: '12px',
                         lineHeight: '1.4'
@@ -693,7 +670,7 @@ export default function Store() {
                     value={membershipForm.firstName}
                     onChange={(e) => setMembershipForm({ ...membershipForm, firstName: e.target.value })}
                     required
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                   <input
                     type="text"
@@ -701,7 +678,7 @@ export default function Store() {
                     value={membershipForm.lastName}
                     onChange={(e) => setMembershipForm({ ...membershipForm, lastName: e.target.value })}
                     required
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                   <input
                     type="email"
@@ -709,21 +686,21 @@ export default function Store() {
                     value={membershipForm.email}
                     onChange={(e) => setMembershipForm({ ...membershipForm, email: e.target.value })}
                     required
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                   <input
                     type="tel"
                     placeholder="Phone Number"
                     value={membershipForm.phone}
                     onChange={(e) => setMembershipForm({ ...membershipForm, phone: e.target.value })}
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                   <input
                     type="text"
                     placeholder="Address"
                     value={membershipForm.address}
                     onChange={(e) => setMembershipForm({ ...membershipForm, address: e.target.value })}
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                 </>
               )}
@@ -737,7 +714,7 @@ export default function Store() {
                     value={membershipForm.businessName}
                     onChange={(e) => setMembershipForm({ ...membershipForm, businessName: e.target.value })}
                     required
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                   <input
                     type="email"
@@ -745,21 +722,21 @@ export default function Store() {
                     value={membershipForm.email}
                     onChange={(e) => setMembershipForm({ ...membershipForm, email: e.target.value })}
                     required
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                   <input
                     type="tel"
                     placeholder="Phone Number"
                     value={membershipForm.phone}
                     onChange={(e) => setMembershipForm({ ...membershipForm, phone: e.target.value })}
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                   <input
                     type="url"
                     placeholder="Website URL"
                     value={membershipForm.websiteUrl}
                     onChange={(e) => setMembershipForm({ ...membershipForm, websiteUrl: e.target.value })}
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                 </>
               )}
@@ -768,7 +745,7 @@ export default function Store() {
               {selectedProduct.membershipType === 'social_impact' && (
                 <>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', fontSize: '14px', color: '#000000' }}>Investor Type *</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', fontSize: '16px', color: '#000000' }}>Investor Type *</label>
                     <div style={{ display: 'flex', gap: '16px' }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'normal' }}>
                         <input
@@ -798,7 +775,7 @@ export default function Store() {
                       <select
                         value={membershipForm.title}
                         onChange={(e) => setMembershipForm({ ...membershipForm, title: e.target.value as any })}
-                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                       >
                         <option>Mr</option>
                         <option>Ms</option>
@@ -810,7 +787,7 @@ export default function Store() {
                         value={membershipForm.firstName}
                         onChange={(e) => setMembershipForm({ ...membershipForm, firstName: e.target.value })}
                         required
-                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                       />
                       <input
                         type="text"
@@ -818,7 +795,7 @@ export default function Store() {
                         value={membershipForm.lastName}
                         onChange={(e) => setMembershipForm({ ...membershipForm, lastName: e.target.value })}
                         required
-                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                       />
                     </>
                   )}
@@ -831,14 +808,14 @@ export default function Store() {
                         value={membershipForm.businessName}
                         onChange={(e) => setMembershipForm({ ...membershipForm, businessName: e.target.value })}
                         required
-                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                       />
                       <input
                         type="url"
                         placeholder="Website URL"
                         value={membershipForm.websiteUrl}
                         onChange={(e) => setMembershipForm({ ...membershipForm, websiteUrl: e.target.value })}
-                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                        style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                       />
                     </>
                   )}
@@ -849,17 +826,17 @@ export default function Store() {
                     value={membershipForm.email}
                     onChange={(e) => setMembershipForm({ ...membershipForm, email: e.target.value })}
                     required
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                   <input
                     type="tel"
                     placeholder="Phone Number"
                     value={membershipForm.phone}
                     onChange={(e) => setMembershipForm({ ...membershipForm, phone: e.target.value })}
-                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                    style={{ padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                   />
                   <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', fontSize: '14px', color: '#000000' }}>Annual Fee (ZAR) *</label>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', fontSize: '16px', color: '#000000' }}>Annual Fee (ZAR) *</label>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <input
                         type="number"
@@ -871,9 +848,9 @@ export default function Store() {
                           setMembershipForm({ ...membershipForm, annualFee: val });
                         }}
                         required
-                        style={{ flex: 1, padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', fontWeight: 'normal' }}
+                        style={{ flex: 1, padding: '10px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '16px', fontWeight: 'normal' }}
                       />
-                      <span style={{ fontSize: '14px', color: '#000000', fontWeight: 'normal' }}>per year</span>
+                      <span style={{ fontSize: '16px', color: '#000000', fontWeight: 'normal' }}>per year</span>
                     </div>
                     <p style={{ fontSize: '12px', color: '#000000', margin: '8px 0 0 0', fontWeight: 'normal' }}>
                       Range: R5,000 - R65,000

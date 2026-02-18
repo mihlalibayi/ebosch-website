@@ -135,7 +135,7 @@ export default function EventsPage() {
       about: 'Malunga',
       events: 'Iziganeko',
       contact: 'Unxibelelwano',
-      calendarTitle: 'Ikhalerindar Yemigubungulo',
+      calendarTitle: 'Ikhalenda yoMsitho',
       noEventsMessage: 'Cofa umhla one events ukuze ubone iinkcukacha',
       time: 'Ixesha',
       venue: 'Indawo',
@@ -203,7 +203,13 @@ export default function EventsPage() {
     }
   };
 
-  const monthName = selectedDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const monthNames = {
+    en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    af: ['Januarie', 'Februarie', 'Maart', 'April', 'Mei', 'Junie', 'Julie', 'Augustus', 'September', 'Oktober', 'November', 'Desember'],
+    xh: ['EyoMqungu', 'EyoMdumba', 'EyoKwindla', 'UTshazimpuzi', 'UCanzibe', 'EyeSilimela', 'EyeKhala', 'EyeThupha', 'EyoMsintsi', 'EyeDwarha', 'EyeNkanga', 'EyoMnga']
+  };
+
+  const monthName = `${monthNames[language][selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
 
   return (
     <div className="min-h-screen bg-white">
@@ -223,8 +229,8 @@ export default function EventsPage() {
             }}>
               <Link href="/" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -235,7 +241,7 @@ export default function EventsPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Home'}
@@ -245,8 +251,8 @@ export default function EventsPage() {
 
               <Link href="/about" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -257,7 +263,7 @@ export default function EventsPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'About'}
@@ -268,7 +274,7 @@ export default function EventsPage() {
               <Link href="/events" style={{
                 textDecoration: 'none',
                 color: '#2d5016',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '600',
                 paddingBottom: '4px',
                 borderBottom: '2px solid #2d5016',
@@ -287,8 +293,8 @@ export default function EventsPage() {
 
               <Link href="/store" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -299,18 +305,18 @@ export default function EventsPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
-                {language === 'en' && 'Store'}
-                {language === 'af' && 'Winkel'}
-                {language === 'xh' && 'Inkolo'}
+                {language === 'en' && "e'Bosch Store"}
+                {language === 'af' && "e'Bosch Winkel"}
+                {language === 'xh' && "e'Bosch Inkolo"}
               </Link>
 
               <Link href="/membership" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -321,7 +327,7 @@ export default function EventsPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Membership'}
@@ -331,8 +337,8 @@ export default function EventsPage() {
 
               <Link href="/contact" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -343,7 +349,7 @@ export default function EventsPage() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Contact'}
@@ -359,7 +365,7 @@ export default function EventsPage() {
                   padding: '8px 14px',
                   border: '1px solid #d1d5db',
                   borderRadius: '6px',
-                  fontSize: '13px',
+                  fontSize: '15px',
                   backgroundColor: 'white',
                   fontWeight: '500',
                   color: '#111827',

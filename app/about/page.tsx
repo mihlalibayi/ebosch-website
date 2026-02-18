@@ -45,6 +45,28 @@ export default function About() {
   const [language, setLanguage] = useState<Language>('en');
   const t = translations[language];
 
+  // Xhosa about content
+  const aboutContent = {
+    en: [
+      "e'Bosch is a future heritage project",
+      "Working together so that Stellenbosch has a heritage where it is welcoming, safe, and everybody is thriving.",
+      "We achieve the future heritage by getting to know each other, appreciate each other and respect each other.",
+      "Finally, we weave a trust fabric in which all the problems in society can be solved at a minimum cost."
+    ],
+    af: [
+      "e'Bosch is 'n toekomstige erfenisprojek",
+      "Saamwerk sodat Stellenbosch 'n erfenis het waar dit welkom is, veilig is, en almal floreer.",
+      "Ons bereik die toekomstige erfenis deur mekaar te leer ken, mekaar waardering te gee en mekaar te respekteer.",
+      "Laastens weef ons 'n vertrouensfabryk waarin alle probleme in die samelewing teen minimale koste opgelos kan word."
+    ],
+    xh: [
+      "i-e'Bosch yiprojekthi yefutyela yenkcubeko",
+      "Kusebenza ngokudibanisa ukuze iStellenbosh ibe nenkcubeko apho ikhululekile, ilungile, kwaye wonke umntu ukulungele.",
+      "Siyayiphumeza ifutyela yenkcubeko ngokwazi enye enye, ukuhlonipha enye enye nokukhulelwa kwenye enye.",
+      "Okokugqibela, siluka ilaphu lokuthembana apho zonke iingxaki eluntwini zinokusonjululwa ngexabiso eliphantsi."
+    ]
+  };
+
   const getDirectorRole = (director: typeof directors[0]) => {
     if (language === 'af') return director.roleAf;
     if (language === 'xh') return director.roleXh;
@@ -52,7 +74,7 @@ export default function About() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -69,8 +91,8 @@ export default function About() {
             }}>
               <Link href="/" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -81,7 +103,7 @@ export default function About() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Home'}
@@ -92,7 +114,7 @@ export default function About() {
               <Link href="/about" style={{
                 textDecoration: 'none',
                 color: '#2d5016',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '600',
                 paddingBottom: '4px',
                 borderBottom: '2px solid #2d5016',
@@ -111,8 +133,8 @@ export default function About() {
 
               <Link href="/events" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -123,7 +145,7 @@ export default function About() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Events'}
@@ -133,8 +155,8 @@ export default function About() {
 
               <Link href="/store" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -145,18 +167,18 @@ export default function About() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
-                {language === 'en' && 'Store'}
-                {language === 'af' && 'Winkel'}
-                {language === 'xh' && 'Inkolo'}
+                {language === 'en' && "e'Bosch Store"}
+                {language === 'af' && "e'Bosch Winkel"}
+                {language === 'xh' && "e'Bosch Inkolo"}
               </Link>
 
               <Link href="/membership" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -167,7 +189,7 @@ export default function About() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Membership'}
@@ -177,8 +199,8 @@ export default function About() {
 
               <Link href="/contact" style={{
                 textDecoration: 'none',
-                color: '#888888',
-                fontSize: '14px',
+                color: '#4b5563',
+                fontSize: '16px',
                 fontWeight: '500',
                 paddingBottom: '4px',
                 borderBottom: '2px solid transparent',
@@ -189,7 +211,7 @@ export default function About() {
                 (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#888888';
+                (e.target as HTMLElement).style.color = '#4b5563';
                 (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
               }}>
                 {language === 'en' && 'Contact'}
@@ -205,7 +227,7 @@ export default function About() {
                   padding: '8px 14px',
                   border: '1px solid #d1d5db',
                   borderRadius: '6px',
-                  fontSize: '13px',
+                  fontSize: '15px',
                   backgroundColor: 'white',
                   fontWeight: '500',
                   color: '#111827',
@@ -241,21 +263,19 @@ export default function About() {
             maxWidth: '900px',
             margin: '0 auto'
           }}>
-            {t.about.sections.map((section, idx) => (
-              <div key={idx} style={{ textAlign: 'center' }}>
-                {section.content.map((paragraph, pIdx) => (
-                  <p key={pIdx} style={{
-                    color: '#374151',
-                    marginBottom: '20px',
-                    lineHeight: '1.8',
-                    fontSize: '17px',
-                    fontWeight: pIdx === 0 ? '600' : '400'
-                  }}>
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            ))}
+            <div style={{ textAlign: 'center' }}>
+              {aboutContent[language].map((paragraph, pIdx) => (
+                <p key={pIdx} style={{
+                  color: '#374151',
+                  marginBottom: '20px',
+                  lineHeight: '1.8',
+                  fontSize: '17px',
+                  fontWeight: pIdx === 0 ? '600' : '400'
+                }}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </div>
         </section>
 
