@@ -18,6 +18,10 @@ export default function AdminOverview() {
     storeViews: { today: 0, week: 0, month: 0, quarter: 0, year: 0 },
     orders: { total: 0, thisMonth: 0 },
     memberships: { total: 0, thisMonth: 0 },
+    monthlyMembers: 0,
+    referralSummary: { sias: 0, amanda: 0, william: 0, other: 0 },
+    otherReferralNames: [] as string[],
+    membershipByType: { individual: 0, business: 0, socialImpact: 0 },
     revenue: { total: 0, thisMonth: 0 }
   });
   
@@ -106,6 +110,8 @@ export default function AdminOverview() {
       }
 
       let memberships = { total: 0, thisMonth: 0 };
+      let monthlyMembers = 0;
+      let referralSummary = { sias: 0, amanda: 0, william: 0, other: 0 };
       try {
         const membersSnap = await getDocs(collection(db, 'annual_memberships'));
         const memberData = membersSnap.docs.map(d => ({
@@ -125,6 +131,44 @@ export default function AdminOverview() {
         memberships = { total: 0, thisMonth: 0 };
       }
 
+      let membershipByType = { individual: 0, business: 0, socialImpact: 0 };
+      let otherReferralNames: string[] = [];
+      try {
+        const monthlySnap = await getDocs(collection(db, 'monthly_memberships'));
+        monthlyMembers = monthlySnap.size;
+
+        // Build referral summary and member type counts across all collections
+        const allDocs: any[] = [];
+        monthlySnap.docs.forEach(d => allDocs.push(d.data()));
+
+        const annualSnap2 = await getDocs(collection(db, 'annual_memberships'));
+        annualSnap2.docs.forEach(d => allDocs.push(d.data()));
+
+        const socialSnap2 = await getDocs(collection(db, 'social_impact_members'));
+        socialSnap2.docs.forEach(d => allDocs.push({ ...d.data(), membershipType: 'social_impact' }));
+
+        const allReferrals = allDocs.map(d => d.referredBy || '');
+        otherReferralNames = allDocs
+          .filter(d => d.referredBy === 'Other' && d.referredByOther)
+          .map(d => d.referredByOther as string)
+          .filter((v, i, a) => a.indexOf(v) === i); // unique names
+
+        referralSummary = {
+          sias: allReferrals.filter(r => r === 'Sias Mostert').length,
+          amanda: allReferrals.filter(r => r === 'Amanda Horne').length,
+          william: allReferrals.filter(r => r === 'William Horne').length,
+          other: allReferrals.filter(r => r === 'Other').length,
+        };
+
+        membershipByType = {
+          individual: allDocs.filter(d => d.membershipType === 'individual').length,
+          business: allDocs.filter(d => d.membershipType === 'business').length,
+          socialImpact: allDocs.filter(d => d.membershipType === 'social_impact').length,
+        };
+      } catch (e) {
+        monthlyMembers = 0;
+      }
+
       setMetrics({
         events,
         categories,
@@ -133,6 +177,10 @@ export default function AdminOverview() {
         storeViews: storeViewsMetrics,
         orders,
         memberships,
+        monthlyMembers,
+        referralSummary,
+        otherReferralNames,
+        membershipByType,
         revenue
       });
 
@@ -259,6 +307,32 @@ export default function AdminOverview() {
         <StatCard label="Products" value={metrics.products} icon="📦" color="#2d5016" />
       </div>
 
+      {/* Membership Breakdown */}
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '24px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        marginBottom: '32px'
+      }}>
+        <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '20px', marginTop: 0 }}>
+          Members by Type <span style={{ fontSize: '13px', color: '#6b7280', fontWeight: 'normal' }}>(annual + monthly combined)</span>
+        </h2>
+        <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+          {[
+            { label: 'Individual', count: metrics.membershipByType.individual, color: '#0369a1', bg: '#dbeafe' },
+            { label: 'Business', count: metrics.membershipByType.business, color: '#92400e', bg: '#fef3c7' },
+            { label: 'Social Impact Investor', count: metrics.membershipByType.socialImpact, color: '#6b21a8', bg: '#f3e8ff' },
+            { label: 'Total', count: metrics.membershipByType.individual + metrics.membershipByType.business + metrics.membershipByType.socialImpact, color: '#2d5016', bg: '#dcfce7' },
+          ].map(({ label, count, color, bg }) => (
+            <div key={label} style={{ backgroundColor: bg, borderRadius: '8px', padding: '16px 24px', minWidth: '120px' }}>
+              <p style={{ fontSize: '12px', color: color, margin: '0 0 4px 0', fontWeight: 'normal' }}>{label}</p>
+              <p style={{ fontSize: '28px', fontWeight: '700', color: color, margin: '0' }}>{count}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
@@ -328,6 +402,42 @@ export default function AdminOverview() {
             <p style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0' }}>
               R {metrics.revenue.thisMonth.toLocaleString()}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Referral Summary */}
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '24px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        marginBottom: '32px'
+      }}>
+        <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '20px', marginTop: 0 }}>
+          Referrals by Team Member
+        </h2>
+        <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+          {[
+            { name: 'Sias Mostert', count: metrics.referralSummary.sias },
+            { name: 'Amanda Horne', count: metrics.referralSummary.amanda },
+            { name: 'William Horne', count: metrics.referralSummary.william },
+          ].map(({ name, count }) => (
+            <div key={name}>
+              <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>{name}</p>
+              <p style={{ fontSize: '28px', fontWeight: '700', color: '#2d5016', margin: '0' }}>{count}</p>
+            </div>
+          ))}
+          <div>
+            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Other / Unknown</p>
+            <p style={{ fontSize: '28px', fontWeight: '700', color: '#2d5016', margin: '0 0 6px 0' }}>{metrics.referralSummary.other}</p>
+            {metrics.otherReferralNames.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                {metrics.otherReferralNames.map((name, i) => (
+                  <span key={i} style={{ fontSize: '12px', color: '#6b7280', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '2px 8px' }}>{name}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

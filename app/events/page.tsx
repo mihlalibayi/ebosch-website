@@ -616,9 +616,9 @@ export default function EventsPage() {
 
             {/* Buttons */}
             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {modalEvent.ticketLink && (
+              {modalEvent.ticketLink && new Date(modalEvent.date) >= new Date(new Date().toDateString()) && (
                 <a href={modalEvent.ticketLink} target="_blank" rel="noopener noreferrer" 
-                  style={{ display: 'block', width: '100%', padding: '10px', backgroundColor: '#2d5016', color: 'white', textAlign: 'center', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}>
+                  style={{ display: 'block', width: '100%', padding: '10px', backgroundColor: '#2d5016', color: 'white', textAlign: 'center', borderRadius: '6px', textDecoration: 'none', fontWeight: 'normal' }}>
                   {t.buyTickets}
                 </a>
               )}
@@ -657,7 +657,7 @@ END:VCALENDAR`;
                   link.click();
                   URL.revokeObjectURL(url);
                 }}
-                style={{ width: '100%', padding: '10px', backgroundColor: '#a1f5d8', color: '#000000', textAlign: 'center', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
+                style={{ width: '100%', padding: '10px', backgroundColor: '#4a5240', color: 'white', textAlign: 'center', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
                 Add to Calendar
               </button>
               <button onClick={() => setModalOpen(false)} 
