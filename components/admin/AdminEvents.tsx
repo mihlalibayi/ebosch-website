@@ -29,6 +29,8 @@ export default function AdminEvents() {
   const [events, setEvents] = useState<Event[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'az' | 'za' | 'date-asc' | 'date-desc'>('date-asc');
 
   const [form, setForm] = useState({
     event: '',
@@ -174,6 +176,24 @@ export default function AdminEvents() {
     newContacts[index] = { ...newContacts[index], [field]: value };
     setForm({ ...form, contacts: newContacts });
   };
+
+  const filteredEvents = events
+    .filter(ev => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        ev.event.toLowerCase().includes(q) ||
+        ev.venue.toLowerCase().includes(q) ||
+        (ev.contacts || []).some(c => c.name.toLowerCase().includes(q))
+      );
+    })
+    .sort((a, b) => {
+      if (sortBy === 'az') return a.event.localeCompare(b.event);
+      if (sortBy === 'za') return b.event.localeCompare(a.event);
+      if (sortBy === 'date-asc') return new Date(a.date).getTime() - new Date(b.date).getTime();
+      if (sortBy === 'date-desc') return new Date(b.date).getTime() - new Date(a.date).getTime();
+      return 0;
+    });
 
   return (
     <div style={{ padding: '24px' }}>
@@ -537,19 +557,34 @@ export default function AdminEvents() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         overflow: 'hidden'
       }}>
-        <div style={{
-          backgroundColor: '#f9fafb',
-          borderBottom: '2px solid #e5e7eb',
-          padding: '20px 24px'
-        }}>
-          <h2 style={{
-            fontSize: '22px',
-            fontWeight: '700',
-            color: '#111827',
-            margin: '0'
-          }}>
-            Events ({events.length})
-          </h2>
+        <div style={{ backgroundColor: '#f9fafb', borderBottom: '2px solid #e5e7eb', padding: '20px 24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#111827', margin: '0' }}>
+              Events ({filteredEvents.length}{filteredEvents.length !== events.length ? ` of ${events.length}` : ''})
+            </h2>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text"
+              placeholder="Search by name, venue or contact..."
+              value={searchQuery}
+              onChange={(ev) => setSearchQuery(ev.target.value)}
+              style={{ flex: 1, minWidth: '200px', padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' as const, backgroundColor: 'white' }}
+            />
+            <select value={sortBy} onChange={(ev) => setSortBy(ev.target.value as any)}
+              style={{ padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: 'white', cursor: 'pointer', minWidth: '170px' }}>
+              <option value="az">Name · A to Z</option>
+              <option value="za">Name · Z to A</option>
+              <option value="date-asc">Date · Oldest First</option>
+              <option value="date-desc">Date · Newest First</option>
+            </select>
+            {(searchQuery.trim() || sortBy !== 'date-asc') && (
+              <button onClick={() => { setSearchQuery(''); setSortBy('date-asc'); }}
+                style={{ padding: '8px 14px', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontWeight: 'normal' }}>
+                Clear all
+              </button>
+            )}
+          </div>
         </div>
 
         {events.length === 0 ? (
@@ -577,7 +612,7 @@ export default function AdminEvents() {
                 </tr>
               </thead>
               <tbody>
-                {events.map((e, idx) => {
+                {filteredEvents.map((e, idx) => {
                   const contactNames = e.contacts && Array.isArray(e.contacts)
                     ? e.contacts
                         .filter((c: any) => c && typeof c === 'object' && c.name)

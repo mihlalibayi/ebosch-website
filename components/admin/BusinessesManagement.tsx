@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db, storage } from '@/lib/firebase-config';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { Plus, X, Edit2, Trash2, Upload, FileText, Download } from 'lucide-react';
 
@@ -30,12 +30,15 @@ interface Business {
   paymentMethod: 'payfast' | 'bank';
   status: 'active' | 'inactive';
   rootCategory: string;
+  subcategory?: string;
   files: BusinessFile[];
   createdAt?: any;
 }
 
 export default function BusinessesManagement() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [rootCategories, setRootCategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -58,11 +61,13 @@ export default function BusinessesManagement() {
     bankAccountHolder: '',
     paymentMethod: 'payfast' as 'payfast' | 'bank',
     status: 'active' as 'active' | 'inactive',
-    rootCategory: ''
+    rootCategory: '',
+    subcategory: ''
   });
 
   useEffect(() => {
     loadBusinesses();
+    loadCategories();
   }, []);
 
   const loadBusinesses = async () => {
@@ -77,6 +82,28 @@ export default function BusinessesManagement() {
     } catch (error) {
       console.error('Error loading businesses:', error);
     }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const snap = await getDocs(collection(db, 'categories'));
+      const roots: any[] = [];
+      snap.docs.forEach(d => {
+        const data = d.data();
+        if (data.name === 'LOCAL BUSINESSES' || data.name === 'COMMUNITY BUSINESSES') {
+          roots.push({ id: d.id, name: data.name, subcategories: data.subcategories || [] });
+        }
+      });
+      setRootCategories(roots);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
+  const handleRootCategoryChange = (rootId: string) => {
+    setForm(f => ({ ...f, rootCategory: rootId, subcategory: '' }));
+    const root = rootCategories.find(r => r.id === rootId);
+    setSubcategories(root?.subcategories || []);
   };
 
   const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,10 +189,51 @@ export default function BusinessesManagement() {
         saveData.files = newFiles;
       }
 
+      let businessId = editingId;
+
       if (editingId) {
         await updateDoc(doc(db, 'businesses', editingId), saveData);
       } else {
-        await addDoc(collection(db, 'businesses'), saveData);
+        const newDoc = await addDoc(collection(db, 'businesses'), saveData);
+        businessId = newDoc.id;
+      }
+
+      // Sync business as sub-subcategory inside the categories document
+      if (form.rootCategory && form.subcategory && businessId) {
+        try {
+          const catRef = doc(db, 'categories', form.rootCategory);
+          const catSnap = await getDoc(catRef);
+          if (catSnap.exists()) {
+            const catData = catSnap.data();
+            const updatedSubcategories = (catData.subcategories || []).map((sub: any) => {
+              if (sub.id !== form.subcategory) return sub;
+              const existingSubSubs: any[] = sub.subSubcategories || [];
+
+              if (editingId) {
+                // Update existing entry (name may have changed)
+                const updated = existingSubSubs.map((ss: any) =>
+                  ss.id === editingId ? { ...ss, id: businessId, name: form.name } : ss
+                );
+                // If not found, add it
+                if (!updated.find((ss: any) => ss.id === businessId)) {
+                  updated.push({ id: businessId, name: form.name });
+                }
+                return { ...sub, subSubcategories: updated };
+              } else {
+                // Add new entry, avoid duplicates
+                const alreadyExists = existingSubSubs.find((ss: any) => ss.id === businessId);
+                if (!alreadyExists) {
+                  return { ...sub, subSubcategories: [...existingSubSubs, { id: businessId, name: form.name }] };
+                }
+                return sub;
+              }
+            });
+            await updateDoc(catRef, { subcategories: updatedSubcategories });
+            await loadCategories(); // refresh subcategories list
+          }
+        } catch (catError) {
+          console.error('Error syncing to categories:', catError);
+        }
       }
 
       resetForm();
@@ -192,8 +260,10 @@ export default function BusinessesManagement() {
       bankAccountHolder: '',
       paymentMethod: 'payfast',
       status: 'active',
-      rootCategory: ''
+      rootCategory: '',
+      subcategory: ''
     });
+    setSubcategories([]);
     setLogoFile(null);
     setLogoPreview('');
     setUploadingFiles([]);
@@ -205,7 +275,30 @@ export default function BusinessesManagement() {
   const handleDelete = async (id: string) => {
     if (confirm('Delete this business?')) {
       try {
+        const business = businesses.find(b => b.id === id);
         await deleteDoc(doc(db, 'businesses', id));
+
+        // Remove from categories sub-subcategories
+        if (business?.rootCategory && business?.subcategory) {
+          try {
+            const catRef = doc(db, 'categories', business.rootCategory);
+            const catSnap = await getDoc(catRef);
+            if (catSnap.exists()) {
+              const catData = catSnap.data();
+              const updatedSubcategories = (catData.subcategories || []).map((sub: any) => {
+                if (sub.id !== business.subcategory) return sub;
+                return {
+                  ...sub,
+                  subSubcategories: (sub.subSubcategories || []).filter((ss: any) => ss.id !== id)
+                };
+              });
+              await updateDoc(catRef, { subcategories: updatedSubcategories });
+            }
+          } catch (catError) {
+            console.error('Error removing from categories:', catError);
+          }
+        }
+
         loadBusinesses();
       } catch (error) {
         console.error('Error deleting business:', error);
@@ -248,8 +341,11 @@ export default function BusinessesManagement() {
       bankAccountHolder: business.bankAccountHolder || '',
       paymentMethod: business.paymentMethod,
       status: business.status,
-      rootCategory: business.rootCategory
+      rootCategory: business.rootCategory,
+      subcategory: business.subcategory || ''
     });
+    // restore subcategories list for editing
+    // will be populated after rootCategories loads - handled in useEffect below
     setLogoPreview(business.logoUrl || '');
     setEditingId(business.id);
     setShowForm(true);
@@ -363,7 +459,7 @@ export default function BusinessesManagement() {
                   </label>
                   <select
                     value={form.rootCategory}
-                    onChange={(e) => setForm({ ...form, rootCategory: e.target.value })}
+                    onChange={(e) => handleRootCategoryChange(e.target.value)}
                     required
                     style={{
                       width: '100%',
@@ -375,11 +471,38 @@ export default function BusinessesManagement() {
                     }}
                   >
                     <option value="">Select Category</option>
-                    <option value="local_businesses">Local Businesses</option>
-                    <option value="community_businesses">Community Businesses</option>
+                    {rootCategories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
                   </select>
                 </div>
               </div>
+
+              {subcategories.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                    Subcategory *
+                  </label>
+                  <select
+                    value={form.subcategory}
+                    onChange={(e) => setForm({ ...form, subcategory: e.target.value })}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <option value="">Select Subcategory</option>
+                    {subcategories.map((sub: any) => (
+                      <option key={sub.id} value={sub.id}>{sub.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
@@ -855,7 +978,7 @@ export default function BusinessesManagement() {
                       {business.name}
                     </td>
                     <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                      {business.rootCategory === 'local_businesses' ? 'Local' : 'Community'}
+                      {(() => { const root = business.rootCategory === 'local_businesses' ? 'Local' : 'Community'; const sub = business.subcategory ? ` · ${business.subcategory}` : ''; return root + sub; })()}
                     </td>
                     <td style={{ padding: '16px', fontSize: '13px', color: '#6b7280' }}>
                       {business.email || 'N/A'}

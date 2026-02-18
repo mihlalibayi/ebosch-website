@@ -138,7 +138,6 @@ export default function MembershipPage() {
             style={fullInputStyle}
           >
             <option value="">Select a team member</option>
-            <option value="Sias Mostert">Sias Mostert</option>
             <option value="Amanda Horne">Amanda Horne</option>
             <option value="William Horne">William Horne</option>
             <option value="Other">Other</option>

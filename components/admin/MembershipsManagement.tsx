@@ -35,7 +35,7 @@ interface Membership {
   referredByOther?: string;
 }
 
-const TEAM_MEMBERS = ['Sias Mostert', 'Amanda Horne', 'William Horne', 'Other'];
+const TEAM_MEMBERS = ['Amanda Horne', 'William Horne', 'Other'];
 const HEARD_FROM_OPTIONS = ['Email', "e'Bosch Event", 'Introduction by team member', 'Other'];
 
 const emptyForm = {

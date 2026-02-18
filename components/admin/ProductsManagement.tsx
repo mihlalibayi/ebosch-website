@@ -43,6 +43,8 @@ export default function ProductsManagement() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'products' | 'memberships'>('products');
+  const [businessesList, setBusinessesList] = useState<any[]>([]);
+  const [selectedBusinessBankDetails, setSelectedBusinessBankDetails] = useState<any>(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -71,6 +73,7 @@ export default function ProductsManagement() {
   useEffect(() => {
     loadCategories();
     loadProducts();
+    loadBusinesses();
   }, []);
 
   const loadCategories = async () => {
@@ -93,6 +96,14 @@ export default function ProductsManagement() {
     }
   };
 
+  const loadBusinesses = async () => {
+    try {
+      const snap = await getDocs(collection(db, 'businesses'));
+      const data = snap.docs.map(d => ({ id: d.id, name: d.data().name, bankAccount: d.data().bankAccount, bankName: d.data().bankName, bankAccountHolder: d.data().bankAccountHolder, payfastMerchantId: d.data().payfastMerchantId, paymentMethod: d.data().paymentMethod, subcategory: d.data().subcategory || '', rootCategory: d.data().rootCategory || '' }));
+      setBusinessesList(data);
+    } catch (e) {}
+  };
+
   const handleRootCategoryChange = (rootId: string) => {
     setForm({ ...form, rootCategory: rootId, subcategory: '', subSubcategory: '' });
     const root = rootCategories.find(r => r.id === rootId);
@@ -101,10 +112,29 @@ export default function ProductsManagement() {
   };
 
   const handleSubcategoryChange = (subId: string) => {
-    setForm({ ...form, subcategory: subId, subSubcategory: '' });
+    setForm(f => ({ ...f, subcategory: subId, subSubcategory: '' }));
     const root = rootCategories.find(r => r.id === form.rootCategory);
     const sub = root?.subcategories.find((s: any) => s.id === subId);
     setSubSubcategories(sub?.subSubcategories || []);
+    setSelectedBusinessBankDetails(null);
+  };
+
+  const handleSubSubcategoryChange = (subSubId: string) => {
+    setForm(f => ({ ...f, subSubcategory: subSubId }));
+    // Look for a matching business and load its bank details
+    const matched = businessesList.find(b => b.id === subSubId || b.name === subSubId || b.subcategory === subSubId);
+    if (matched) {
+      setSelectedBusinessBankDetails({
+        businessName: matched.name,
+        paymentMethod: matched.paymentMethod,
+        bankAccount: matched.bankAccount,
+        bankName: matched.bankName,
+        bankAccountHolder: matched.bankAccountHolder,
+        payfastMerchantId: matched.payfastMerchantId,
+      });
+    } else {
+      setSelectedBusinessBankDetails(null);
+    }
   };
 
   const loadProducts = async () => {
@@ -576,6 +606,50 @@ export default function ProductsManagement() {
                           <option key={sub.id} value={sub.id}>{sub.name}</option>
                         ))}
                       </select>
+                    </div>
+                  )}
+
+                  {subSubcategories.length > 0 && (
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
+                        Business (Sub-Subcategory)
+                      </label>
+                      <select
+                        value={form.subSubcategory}
+                        onChange={(e) => handleSubSubcategoryChange(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          boxSizing: 'border-box'
+                        }}
+                      >
+                        <option value="">Select business (optional)</option>
+                        {subSubcategories.map((sub: any) => (
+                          <option key={sub.id} value={sub.id}>{sub.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {selectedBusinessBankDetails && (
+                    <div style={{ backgroundColor: '#f0fdf4', borderRadius: '8px', padding: '16px', border: '1px solid #d1fae5' }}>
+                      <p style={{ fontSize: '13px', fontWeight: '600', color: '#2d5016', margin: '0 0 8px 0' }}>
+                        Payment details auto-loaded from: {selectedBusinessBankDetails.businessName}
+                      </p>
+                      {selectedBusinessBankDetails.paymentMethod === 'bank' ? (
+                        <div style={{ fontSize: '13px', color: '#374151', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <span>Bank: {selectedBusinessBankDetails.bankName}</span>
+                          <span>Account Holder: {selectedBusinessBankDetails.bankAccountHolder}</span>
+                          <span>Account Number: {selectedBusinessBankDetails.bankAccount}</span>
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '13px', color: '#374151' }}>
+                          <span>PayFast Merchant ID: {selectedBusinessBankDetails.payfastMerchantId}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </>
