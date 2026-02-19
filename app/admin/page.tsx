@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, sendPasswordResetEmail } from 'firebase/auth';
+import { 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  onAuthStateChanged, 
+  signOut, 
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword 
+} from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
 import Link from 'next/link';
 import { LogIn, ArrowLeft, X } from 'lucide-react';
@@ -15,6 +22,11 @@ export default function AdminLogin() {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMessage, setForgotMessage] = useState('');
+  
+  // New state for email/password login
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const router = useRouter();
 
   useEffect(() => {
@@ -43,6 +55,29 @@ export default function AdminLogin() {
     } catch (err: any) {
       setError('Failed to sign in. Please try again.');
       console.error(err);
+    }
+  };
+
+  // New handler for email/password sign-in
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent form submission
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return;
+    }
+    try {
+      setError('');
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged will handle redirection
+    } catch (err: any) {
+      console.error(err);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        setError('Invalid email or password.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Try again later.');
+      } else {
+        setError('Failed to sign in. Please try again.');
+      }
     }
   };
 
@@ -237,82 +272,90 @@ export default function AdminLogin() {
               </span>
             </div>
 
-            {/* Email Input */}
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-                marginBottom: '6px'
-              }}>
-                Email Address
-              </label>
-              <input
-                type="email"
-                placeholder="Enter your email"
+            {/* Email/Password Sign In Form */}
+            <form onSubmit={handleEmailSignIn}>
+              {/* Email Input */}
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
+                />
+              </div>
+
+              {/* Password Input */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
+                />
+              </div>
+
+              {/* Sign In Button */}
+              <button
+                type="submit"
                 style={{
                   width: '100%',
-                  padding: '12px 14px',
-                  border: '1px solid #e5e7eb',
+                  padding: '12px 20px',
                   borderRadius: '8px',
                   fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s'
+                  backgroundColor: '#2d5016',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  marginBottom: '12px'
                 }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
-              />
-            </div>
-
-            {/* Password Input */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-                marginBottom: '6px'
-              }}>
-                Password
-              </label>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s'
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#2d5016')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e7eb')}
-              />
-            </div>
-
-            {/* Sign In Button */}
-            <button
-              style={{
-                width: '100%',
-                padding: '12px 20px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                backgroundColor: '#2d5016',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                marginBottom: '12px'
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
-            >
-              Sign In
-            </button>
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a3009')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2d5016')}
+              >
+                Sign In
+              </button>
+            </form>
 
             {/* Forgot Password Link */}
             <div style={{ textAlign: 'center' }}>
