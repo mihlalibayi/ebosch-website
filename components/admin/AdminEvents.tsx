@@ -1,9 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase-config';
+import { db, storage } from '@/lib/firebase-config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
-import { Plus, X, LogOut, Edit2, Trash2, Calendar, Clock, MapPin, User } from 'lucide-react';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth } from '@/lib/firebase-config';
+import { onAuthStateChanged } from 'firebase/auth';
+import { Plus, X, Edit2, Trash2, Calendar, Clock, MapPin, User } from 'lucide-react';
 
 interface Contact {
   name: string;
@@ -23,14 +26,23 @@ interface Event {
   contacts: Contact[];
   detailsConfirmed: boolean;
   clickToBuyLink: string;
+  createdBy: string; // ✅ new field
+  images?: string[];
 }
 
 export default function AdminEvents() {
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'az' | 'za' | 'date-asc' | 'date-desc'>('date-asc');
+  const [showMyEventsOnly, setShowMyEventsOnly] = useState(false); // ✅ filter
+
+  // Image upload state
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
     event: '',
@@ -43,10 +55,21 @@ export default function AdminEvents() {
     contacts: [{ name: '', email: '', phone: '' }],
     detailsConfirmed: true,
     clickToBuyLink: '',
+    images: [] as string[],
   });
 
   useEffect(() => {
-    loadEvents();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        setIsAdmin(currentUser.email === 'members.ebosch@gmail.com');
+        loadEvents();
+      } else {
+        // Should not happen because dashboard already checks auth, but handle gracefully
+        setUser(null);
+      }
+    });
+    return unsubscribe;
   }, []);
 
   const loadEvents = async () => {
@@ -62,7 +85,6 @@ export default function AdminEvents() {
             phone: typeof c === 'object' && c?.phone ? c.phone : '',
           }));
         }
-        
         return {
           id: d.id,
           event: docData.event || '',
@@ -72,9 +94,11 @@ export default function AdminEvents() {
           eventType: docData.eventType || 'in-person',
           eventLink: docData.eventLink || '',
           venue: docData.venue || '',
-          contacts: contacts.length > 0 ? contacts : [],
+          contacts,
           detailsConfirmed: docData.detailsConfirmed ?? true,
           clickToBuyLink: docData.clickToBuyLink || '',
+          createdBy: docData.createdBy || '',
+          images: docData.images || [],
         } as Event;
       });
       setEvents(data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
@@ -83,8 +107,21 @@ export default function AdminEvents() {
     }
   };
 
+  const uploadImages = async (eventId: string, files: File[]): Promise<string[]> => {
+    const urls: string[] = [];
+    for (const file of files) {
+      const imageRef = ref(storage, `events/${eventId}/${Date.now()}_${file.name}`);
+      await uploadBytes(imageRef, file);
+      const url = await getDownloadURL(imageRef);
+      urls.push(url);
+    }
+    return urls;
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+    setUploading(true);
     try {
       const contactsToSave = form.contacts.filter((c: Contact) => c.name.trim().length > 0);
 
@@ -101,18 +138,34 @@ export default function AdminEvents() {
         detailsConfirmed: form.detailsConfirmed,
         clickToBuyLink: form.clickToBuyLink,
         ticketLink: form.clickToBuyLink,
+        images: form.images,
+        // ✅ set createdBy only when creating new event
+        ...(editingId ? {} : { createdBy: user.uid }),
       };
+
+      let eventId = editingId;
 
       if (editingId) {
         await updateDoc(doc(db, 'events', editingId), saveData);
       } else {
-        await addDoc(collection(db, 'events'), saveData);
+        const docRef = await addDoc(collection(db, 'events'), saveData);
+        eventId = docRef.id;
       }
+
+      // Upload new images if any
+      if (imageFiles.length > 0 && eventId) {
+        const newUrls = await uploadImages(eventId, imageFiles);
+        const updatedImages = [...(form.images || []), ...newUrls];
+        await updateDoc(doc(db, 'events', eventId), { images: updatedImages });
+      }
+
       resetForm();
       loadEvents();
     } catch (error) {
       console.error('Error saving event:', error);
       alert('Error saving event');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -128,15 +181,20 @@ export default function AdminEvents() {
       contacts: [{ name: '', email: '', phone: '' }],
       detailsConfirmed: true,
       clickToBuyLink: '',
+      images: [],
     });
+    setImageFiles([]);
     setShowForm(false);
     setEditingId(null);
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Delete this event?')) {
+    if (!confirm('Delete this event?')) return;
+    try {
       await deleteDoc(doc(db, 'events', id));
       loadEvents();
+    } catch (error) {
+      console.error('Error deleting:', error);
     }
   };
 
@@ -149,26 +207,21 @@ export default function AdminEvents() {
       eventType: event.eventType || 'in-person',
       eventLink: event.eventLink || '',
       venue: event.venue || '',
-      contacts: event.contacts && event.contacts.length > 0 ? event.contacts : [{ name: '', email: '', phone: '' }],
+      contacts: event.contacts.length ? event.contacts : [{ name: '', email: '', phone: '' }],
       detailsConfirmed: event.detailsConfirmed !== undefined ? event.detailsConfirmed : true,
       clickToBuyLink: event.clickToBuyLink || '',
+      images: event.images || [],
     });
     setEditingId(event.id);
     setShowForm(true);
   };
 
   const addContact = () => {
-    setForm({
-      ...form,
-      contacts: [...form.contacts, { name: '', email: '', phone: '' }],
-    });
+    setForm({ ...form, contacts: [...form.contacts, { name: '', email: '', phone: '' }] });
   };
 
   const removeContact = (index: number) => {
-    setForm({
-      ...form,
-      contacts: form.contacts.filter((_, i) => i !== index),
-    });
+    setForm({ ...form, contacts: form.contacts.filter((_, i) => i !== index) });
   };
 
   const updateContact = (index: number, field: keyof Contact, value: string) => {
@@ -177,15 +230,23 @@ export default function AdminEvents() {
     setForm({ ...form, contacts: newContacts });
   };
 
+  // Filtering and sorting
   const filteredEvents = events
     .filter(ev => {
-      if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase();
-      return (
-        ev.event.toLowerCase().includes(q) ||
-        ev.venue.toLowerCase().includes(q) ||
-        (ev.contacts || []).some(c => c.name.toLowerCase().includes(q))
-      );
+      // Search filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesSearch = 
+          ev.event.toLowerCase().includes(q) ||
+          ev.venue.toLowerCase().includes(q) ||
+          ev.contacts.some(c => c.name.toLowerCase().includes(q));
+        if (!matchesSearch) return false;
+      }
+      // My events filter
+      if (showMyEventsOnly && user) {
+        return ev.createdBy === user.uid;
+      }
+      return true;
     })
     .sort((a, b) => {
       if (sortBy === 'az') return a.event.localeCompare(b.event);
@@ -194,6 +255,16 @@ export default function AdminEvents() {
       if (sortBy === 'date-desc') return new Date(b.date).getTime() - new Date(a.date).getTime();
       return 0;
     });
+
+  // Permission helpers
+  const canEdit = (event: Event) => {
+    if (isAdmin) return true;
+    return user && event.createdBy === user.uid;
+  };
+
+  const canDelete = (event: Event) => {
+    return isAdmin;
+  };
 
   return (
     <div style={{ padding: '24px' }}>
@@ -209,10 +280,7 @@ export default function AdminEvents() {
       {!showForm && (
         <div style={{ marginBottom: '32px' }}>
           <button
-            onClick={() => {
-              resetForm();
-              setShowForm(true);
-            }}
+            onClick={() => { resetForm(); setShowForm(true); }}
             style={{
               padding: '10px 18px',
               borderRadius: '8px',
@@ -227,17 +295,8 @@ export default function AdminEvents() {
               gap: '8px',
               transition: 'all 0.2s'
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#1a3009';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#2d5016';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
           >
-            <Plus size={18} />
-            Add New Event
+            <Plus size={18} /> Add New Event
           </button>
         </div>
       )}
@@ -254,23 +313,13 @@ export default function AdminEvents() {
             <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', margin: '0' }}>
               {editingId ? 'Edit Event' : 'Add New Event'}
             </h2>
-            <button
-              onClick={() => resetForm()}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#6b7280',
-                padding: '4px'
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#111827')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
-            >
+            <button onClick={resetForm} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}>
               <X size={24} />
             </button>
           </div>
 
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Event Name */}
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Event Name *</label>
               <input
@@ -289,6 +338,7 @@ export default function AdminEvents() {
               />
             </div>
 
+            {/* Date and Type */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Date *</label>
@@ -327,6 +377,7 @@ export default function AdminEvents() {
               </div>
             </div>
 
+            {/* Start and End Time */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Start Time *</label>
@@ -364,6 +415,7 @@ export default function AdminEvents() {
               </div>
             </div>
 
+            {/* Venue or Link */}
             {form.eventType === 'in-person' && (
               <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Venue *</label>
@@ -404,6 +456,7 @@ export default function AdminEvents() {
               </div>
             )}
 
+            {/* Ticket Link */}
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Click to Buy Link</label>
               <input
@@ -422,22 +475,49 @@ export default function AdminEvents() {
               />
             </div>
 
+            {/* Image Upload */}
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
+                Event Images (max 10)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  if (files.length + (form.images?.length || 0) > 10) {
+                    alert('Maximum 10 images allowed');
+                    return;
+                  }
+                  setImageFiles(files);
+                }}
+                style={{ width: '100%', padding: '8px', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+              />
+              {form.images && form.images.length > 0 && (
+                <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {form.images.map((url, idx) => (
+                    <img key={idx} src={url} alt={`Existing ${idx}`} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
+                  ))}
+                </div>
+              )}
+              {imageFiles.length > 0 && (
+                <div style={{ marginTop: '8px' }}>
+                  <p style={{ fontSize: '12px', color: '#6b7280' }}>New images to upload:</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {imageFiles.map((file, idx) => (
+                      <img key={idx} src={URL.createObjectURL(file)} alt={`Preview ${idx}`} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Contacts */}
             <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', margin: '0' }}>Contact Persons</h3>
-                <button
-                  type="button"
-                  onClick={addContact}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: '#f0fdf4',
-                    color: '#2d5016',
-                    border: '1px solid #d1fae5',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    cursor: 'pointer'
-                  }}
-                >
+                <button type="button" onClick={addContact} style={{ padding: '6px 12px', backgroundColor: '#f0fdf4', color: '#2d5016', border: '1px solid #d1fae5', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}>
                   + Add Contact
                 </button>
               </div>
@@ -447,110 +527,48 @@ export default function AdminEvents() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                     <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>Contact {index + 1}</span>
                     {index > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => removeContact(index)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#dc2626',
-                          padding: '4px'
-                        }}
-                      >
+                      <button type="button" onClick={() => removeContact(index)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626' }}>
                         <X size={16} />
                       </button>
                     )}
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-                    <input
-                      type="text"
-                      value={contact.name}
-                      onChange={(e) => updateContact(index, 'name', e.target.value)}
-                      placeholder="Name"
-                      style={{
-                        padding: '10px 12px',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                    <input
-                      type="email"
-                      value={contact.email}
-                      onChange={(e) => updateContact(index, 'email', e.target.value)}
-                      placeholder="Email"
-                      style={{
-                        padding: '10px 12px',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                    <input
-                      type="tel"
-                      value={contact.phone}
-                      onChange={(e) => updateContact(index, 'phone', e.target.value)}
-                      placeholder="Phone"
-                      style={{
-                        padding: '10px 12px',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        boxSizing: 'border-box'
-                      }}
-                    />
+                    <input type="text" value={contact.name} onChange={(e) => updateContact(index, 'name', e.target.value)} placeholder="Name" style={{ padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '13px' }} />
+                    <input type="email" value={contact.email} onChange={(e) => updateContact(index, 'email', e.target.value)} placeholder="Email" style={{ padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '13px' }} />
+                    <input type="tel" value={contact.phone} onChange={(e) => updateContact(index, 'phone', e.target.value)} placeholder="Phone" style={{ padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '13px' }} />
                   </div>
                 </div>
               ))}
             </div>
 
+            {/* Details Confirmed */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="checkbox"
-                id="detailsConfirmed"
-                checked={form.detailsConfirmed}
-                onChange={(e) => setForm({ ...form, detailsConfirmed: e.target.checked })}
-                style={{ cursor: 'pointer' }}
-              />
-              <label htmlFor="detailsConfirmed" style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
-                Details Confirmed
-              </label>
+              <input type="checkbox" id="detailsConfirmed" checked={form.detailsConfirmed} onChange={(e) => setForm({...form, detailsConfirmed: e.target.checked})} />
+              <label htmlFor="detailsConfirmed" style={{ fontSize: '14px', color: '#374151' }}>Details Confirmed</label>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
+              disabled={uploading}
               style={{
                 width: '100%',
                 padding: '14px 24px',
                 borderRadius: '8px',
                 fontSize: '16px',
-                fontWeight: 'normal',
-                backgroundColor: '#2d5016',
+                backgroundColor: uploading ? '#9ca3af' : '#2d5016',
                 color: 'white',
                 border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#1a3009';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 16px rgba(45, 80, 22, 0.2)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#2d5016';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
+                cursor: uploading ? 'not-allowed' : 'pointer',
               }}
             >
-              {editingId ? 'Update Event' : 'Add Event'}
+              {uploading ? 'Uploading...' : (editingId ? 'Update Event' : 'Add Event')}
             </button>
           </form>
         </div>
       )}
 
+      {/* Search, Filter, Sort */}
       <div style={{
         backgroundColor: 'white',
         borderRadius: '12px',
@@ -562,24 +580,34 @@ export default function AdminEvents() {
             <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#111827', margin: '0' }}>
               Events ({filteredEvents.length}{filteredEvents.length !== events.length ? ` of ${events.length}` : ''})
             </h2>
+            {/* ✅ My Events Toggle */}
+            {user && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#374151' }}>
+                <input
+                  type="checkbox"
+                  checked={showMyEventsOnly}
+                  onChange={(e) => setShowMyEventsOnly(e.target.checked)}
+                />
+                Show only my events
+              </label>
+            )}
           </div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
             <input
               type="text"
               placeholder="Search by name, venue or contact..."
               value={searchQuery}
-              onChange={(ev) => setSearchQuery(ev.target.value)}
-              style={{ flex: 1, minWidth: '200px', padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' as const, backgroundColor: 'white' }}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ flex: 1, minWidth: '200px', padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: 'white' }}
             />
-            <select value={sortBy} onChange={(ev) => setSortBy(ev.target.value as any)}
-              style={{ padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: 'white', cursor: 'pointer', minWidth: '170px' }}>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} style={{ padding: '8px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: 'white', minWidth: '170px' }}>
               <option value="az">Name · A to Z</option>
               <option value="za">Name · Z to A</option>
               <option value="date-asc">Date · Oldest First</option>
               <option value="date-desc">Date · Newest First</option>
             </select>
-            {(searchQuery.trim() || sortBy !== 'date-asc') && (
-              <button onClick={() => { setSearchQuery(''); setSortBy('date-asc'); }}
+            {(searchQuery.trim() || showMyEventsOnly) && (
+              <button onClick={() => { setSearchQuery(''); setShowMyEventsOnly(false); }}
                 style={{ padding: '8px 14px', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontWeight: 'normal' }}>
                 Clear all
               </button>
@@ -587,14 +615,11 @@ export default function AdminEvents() {
           </div>
         </div>
 
+        {/* Events Table */}
         {events.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '60px 24px',
-            color: '#6b7280'
-          }}>
+          <div style={{ textAlign: 'center', padding: '60px 24px', color: '#6b7280' }}>
             <Calendar size={48} style={{ margin: '0 auto 16px', opacity: '0.5' }} />
-            <p style={{ fontSize: '16px' }}>No events yet. Click "Add New Event" to get started!</p>
+            <p>No events yet. Click "Add New Event" to get started!</p>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -612,127 +637,43 @@ export default function AdminEvents() {
                 </tr>
               </thead>
               <tbody>
-                {filteredEvents.map((e, idx) => {
-                  const contactNames = e.contacts && Array.isArray(e.contacts)
-                    ? e.contacts
-                        .filter((c: any) => c && typeof c === 'object' && c.name)
-                        .map((c: any) => c.name)
-                        .join(', ')
-                    : '';
-                  
+                {filteredEvents.map((ev, idx) => {
+                  const contactNames = ev.contacts?.map(c => c.name).join(', ') || '-';
                   return (
-                    <tr 
-                      key={e.id} 
-                      style={{
-                        borderBottom: '1px solid #e5e7eb',
-                        backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f9fafb',
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={(row) => (row.currentTarget.style.backgroundColor = '#f3f4f6')}
-                      onMouseLeave={(row) => (row.currentTarget.style.backgroundColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb')}
-                    >
-                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Calendar size={16} color="#6b7280" />
-                          {e.date}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px', fontSize: '14px', fontWeight: '600', color: '#111827' }}>{e.event}</td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Clock size={16} color="#6b7280" />
-                          {e.startTime} - {e.endTime}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '4px 12px',
-                          borderRadius: '6px',
-                          backgroundColor: e.eventType === 'in-person' ? '#dbeafe' : '#fef3c7',
-                          color: e.eventType === 'in-person' ? '#0369a1' : '#92400e',
-                          fontSize: '13px',
-                          fontWeight: '600'
-                        }}>
-                          {e.eventType === 'in-person' ? 'In-Person' : 'Online'}
+                    <tr key={ev.id} style={{ borderBottom: '1px solid #e5e7eb', backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f9fafb' }}>
+                      <td style={{ padding: '16px', fontSize: '14px' }}>{ev.date}</td>
+                      <td style={{ padding: '16px', fontSize: '14px', fontWeight: '600', color: '#111827' }}>{ev.event}</td>
+                      <td style={{ padding: '16px', fontSize: '14px' }}>{ev.startTime} - {ev.endTime}</td>
+                      <td style={{ padding: '16px', fontSize: '14px' }}>
+                        <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '6px', backgroundColor: ev.eventType === 'in-person' ? '#dbeafe' : '#fef3c7', color: ev.eventType === 'in-person' ? '#0369a1' : '#92400e' }}>
+                          {ev.eventType === 'in-person' ? 'In-Person' : 'Online'}
                         </span>
                       </td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <MapPin size={16} color="#6b7280" />
-                          {e.eventType === 'in-person' ? e.venue : e.eventLink ? 'Link set' : '-'}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>{contactNames || '-'}</td>
+                      <td style={{ padding: '16px', fontSize: '14px' }}>{ev.eventType === 'in-person' ? ev.venue : ev.eventLink ? 'Link set' : '-'}</td>
+                      <td style={{ padding: '16px', fontSize: '14px' }}>{contactNames}</td>
                       <td style={{ padding: '16px', fontSize: '14px' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '4px 12px',
-                          borderRadius: '6px',
-                          backgroundColor: e.detailsConfirmed ? '#dcfce7' : '#fee2e2',
-                          color: e.detailsConfirmed ? '#166534' : '#991b1b',
-                          fontSize: '13px',
-                          fontWeight: '600'
-                        }}>
-                          {e.detailsConfirmed ? 'Confirmed' : 'Pending'}
+                        <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '6px', backgroundColor: ev.detailsConfirmed ? '#dcfce7' : '#fee2e2', color: ev.detailsConfirmed ? '#166534' : '#991b1b' }}>
+                          {ev.detailsConfirmed ? 'Confirmed' : 'Pending'}
                         </span>
                       </td>
                       <td style={{ padding: '16px', textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                          <button
-                            onClick={() => handleEdit(e)}
-                            style={{
-                              padding: '8px 12px',
-                              borderRadius: '6px',
-                              border: '1px solid #e5e7eb',
-                              backgroundColor: 'white',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              fontSize: '13px',
-                              fontWeight: 'normal',
-                              color: '#2d5016',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f0fdf4';
-                              e.currentTarget.style.borderColor = '#2d5016';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'white';
-                              e.currentTarget.style.borderColor = '#e5e7eb';
-                            }}
-                          >
-                            <Edit2 size={14} /> Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(e.id)}
-                            style={{
-                              padding: '8px 12px',
-                              borderRadius: '6px',
-                              border: '1px solid #e5e7eb',
-                              backgroundColor: 'white',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              fontSize: '13px',
-                              fontWeight: 'normal',
-                              color: '#dc2626',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#fef2f2';
-                              e.currentTarget.style.borderColor = '#dc2626';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'white';
-                              e.currentTarget.style.borderColor = '#e5e7eb';
-                            }}
-                          >
-                            <Trash2 size={14} /> Delete
-                          </button>
+                          {canEdit(ev) && (
+                            <button
+                              onClick={() => handleEdit(ev)}
+                              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #e5e7eb', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#2d5016' }}
+                            >
+                              <Edit2 size={14} /> Edit
+                            </button>
+                          )}
+                          {canDelete(ev) && (
+                            <button
+                              onClick={() => handleDelete(ev.id)}
+                              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #e5e7eb', backgroundColor: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#dc2626' }}
+                            >
+                              <Trash2 size={14} /> Delete
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

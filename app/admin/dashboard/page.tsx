@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
-import { LogOut, BarChart3, Calendar, Tag, Building2, Package, ClipboardList, Settings } from 'lucide-react';
+import { LogOut, BarChart3, Calendar, Tag, Building2, Package, ClipboardList, ImageIcon } from 'lucide-react';
 
 // Import all sections
 import AdminOverview from '@/components/admin/AdminOverview';
@@ -15,38 +15,66 @@ import ProductsManagement from '@/components/admin/ProductsManagement';
 import OrdersManagement from '@/components/admin/OrdersManagement';
 import MembershipsManagement from '@/components/admin/MembershipsManagement';
 import DonationsManagement from '@/components/admin/DonationsManagement';
+import AdminPastEvents from '@/components/admin/AdminPastEvents';
+import EventRequestsManagement from '@/components/admin/EventRequestsManagement'; // New
 
-type SectionType = 'overview' | 'events' | 'categories' | 'businesses' | 'products' | 'orders' | 'memberships' | 'donations';
+type SectionType = 
+  | 'overview' 
+  | 'events' 
+  | 'eventRequests'    // New – placed after Events
+  | 'pastGallery'
+  | 'categories' 
+  | 'businesses' 
+  | 'products' 
+  | 'orders' 
+  | 'memberships' 
+  | 'donations';
 
 interface MenuItem {
   id: SectionType;
   label: string;
   icon: React.ReactNode;
+  allowedEmails?: string[];
 }
-
-const menuItems: MenuItem[] = [
-  { id: 'overview', label: 'Overview', icon: <BarChart3 size={20} /> },
-  { id: 'events', label: 'Events', icon: <Calendar size={20} /> },
-  { id: 'categories', label: 'Categories', icon: <Tag size={20} /> },
-  { id: 'businesses', label: 'Businesses', icon: <Building2 size={20} /> },
-  { id: 'products', label: 'Products', icon: <Package size={20} /> },
-  { id: 'orders', label: 'Orders', icon: <ClipboardList size={20} /> },
-  { id: 'memberships', label: 'Memberships', icon: <ClipboardList size={20} /> },
-  { id: 'donations', label: 'Donations', icon: <ClipboardList size={20} /> },
-];
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<SectionType>('overview');
   const router = useRouter();
 
+  const menuItems: MenuItem[] = [
+    { id: 'overview', label: 'Overview', icon: <BarChart3 size={20} /> },
+    { id: 'events', label: 'Events', icon: <Calendar size={20} /> },
+    // Event Requests – after Events, only admin
+    { 
+      id: 'eventRequests', 
+      label: 'Event Requests', 
+      icon: <ClipboardList size={20} />,
+      allowedEmails: ['members.ebosch@gmail.com']
+    },
+    { 
+      id: 'pastGallery', 
+      label: 'Past Gallery', 
+      icon: <ImageIcon size={20} />,
+      allowedEmails: ['members.ebosch@gmail.com', 'office.ebosch@gmail.com']
+    },
+    { id: 'categories', label: 'Categories', icon: <Tag size={20} /> },
+    { id: 'businesses', label: 'Businesses', icon: <Building2 size={20} /> },
+    { id: 'products', label: 'Products', icon: <Package size={20} /> },
+    { id: 'orders', label: 'Orders', icon: <ClipboardList size={20} /> },
+    { id: 'memberships', label: 'Memberships', icon: <ClipboardList size={20} /> },
+    { id: 'donations', label: 'Donations', icon: <ClipboardList size={20} /> },
+  ];
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (!currentUser || currentUser.email !== 'members.ebosch@gmail.com') {
+      if (!currentUser) {
         router.push('/admin');
       } else {
         setUser(currentUser);
       }
+      setLoading(false);
     });
     return unsubscribe;
   }, [router]);
@@ -56,12 +84,22 @@ export default function AdminDashboard() {
     router.push('/admin');
   };
 
+  const visibleMenuItems = menuItems.filter(item => {
+    if (!item.allowedEmails) return true;
+    const userEmail = user?.email?.toLowerCase();
+    return item.allowedEmails.some(email => email.toLowerCase() === userEmail);
+  });
+
   const renderSection = () => {
     switch (activeSection) {
       case 'overview':
         return <AdminOverview />;
       case 'events':
         return <AdminEvents />;
+      case 'eventRequests':
+        return <EventRequestsManagement />;
+      case 'pastGallery':
+        return <AdminPastEvents />;
       case 'categories':
         return <CategoriesManagement />;
       case 'businesses':
@@ -79,9 +117,17 @@ export default function AdminDashboard() {
     }
   };
 
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb' }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      {/* Sidebar - Always Visible */}
+      {/* Sidebar */}
       <div
         style={{
           width: '250px',
@@ -92,7 +138,6 @@ export default function AdminDashboard() {
           position: 'relative'
         }}
       >
-        {/* Sidebar Header */}
         <div style={{
           padding: '24px',
           borderBottom: '1px solid #e5e7eb',
@@ -130,13 +175,12 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Menu Items */}
         <nav style={{
           flex: 1,
           padding: '16px',
           overflowY: 'auto'
         }}>
-          {menuItems.map((item) => (
+          {visibleMenuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id)}
@@ -176,7 +220,6 @@ export default function AdminDashboard() {
           ))}
         </nav>
 
-        {/* Logout Button */}
         <div style={{
           padding: '16px',
           borderTop: '1px solid #e5e7eb'
@@ -213,7 +256,6 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Top Bar */}
         <div style={{
           backgroundColor: 'white',
           borderBottom: '1px solid #e5e7eb',
@@ -250,7 +292,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Content Area */}
         <div style={{
           flex: 1,
           overflowY: 'auto'
