@@ -51,7 +51,6 @@ export default function About() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Xhosa about content
   const aboutContent = {
     en: [
       "e'Bosch is a future heritage project",
@@ -79,6 +78,26 @@ export default function About() {
     return director.role;
   };
 
+  const navLinkStyle = {
+    textDecoration: 'none',
+    color: '#4b5563',
+    fontSize: '16px',
+    fontWeight: '500',
+    paddingBottom: '4px',
+    borderBottom: '2px solid transparent',
+    transition: 'all 0.3s ease'
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (e.target as HTMLElement).style.color = '#2d5016';
+    (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (e.target as HTMLElement).style.color = '#4b5563';
+    (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -93,39 +112,16 @@ export default function About() {
         transition: 'box-shadow 0.3s ease'
       }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center'
-          }}>
-            {/* Navigation links - minimalist underline style */}
-            <nav style={{
-              display: 'flex',
-              gap: '40px',
-              alignItems: 'center'
-            }}>
-              <Link href="/" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <nav style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
+
+              <Link href="/" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Home'}
                 {language === 'af' && 'Tuis'}
                 {language === 'xh' && 'Ikhaya'}
               </Link>
 
+              {/* About - active/current page */}
               <Link href="/about" style={{
                 textDecoration: 'none',
                 color: '#2d5016',
@@ -135,100 +131,39 @@ export default function About() {
                 borderBottom: '2px solid #2d5016',
                 transition: 'all 0.3s ease'
               }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.opacity = '0.7';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.opacity = '1';
-              }}>
+              onMouseEnter={(e) => { (e.target as HTMLElement).style.opacity = '0.7'; }}
+              onMouseLeave={(e) => { (e.target as HTMLElement).style.opacity = '1'; }}>
                 {language === 'en' && 'About'}
                 {language === 'af' && 'Oor'}
                 {language === 'xh' && 'Malunga'}
               </Link>
 
-              <Link href="/events" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+              <Link href="/events" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Events'}
                 {language === 'af' && 'Geleenthede'}
                 {language === 'xh' && 'Iziganeko'}
               </Link>
 
-              <Link href="/store" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+              <Link href="/store" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && "e'Bosch Store"}
                 {language === 'af' && "e'Bosch Winkel"}
                 {language === 'xh' && "e'Bosch Inkolo"}
               </Link>
 
-              <Link href="/membership" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+              <Link href="/membership" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Membership'}
                 {language === 'af' && 'Lidmaatskap'}
                 {language === 'xh' && 'Ubulungu'}
               </Link>
 
-              <Link href="/contact" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+              {/* Publicity link - newly added */}
+              <Link href="/publicity" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                {language === 'en' && 'Publicity'}
+                {language === 'af' && 'Publisiteit'}
+                {language === 'xh' && 'Isaziso'}
+              </Link>
+
+              <Link href="/contact" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Contact'}
                 {language === 'af' && 'Kontak'}
                 {language === 'xh' && 'Xhomekela'}
@@ -262,6 +197,7 @@ export default function About() {
                 <option value="af">Afrikaans</option>
                 <option value="xh">Xhosa</option>
               </select>
+
             </nav>
           </div>
         </div>

@@ -117,36 +117,39 @@ export default function EventsPage() {
       home: 'Home',
       about: 'About',
       events: 'Events',
+      publicity: 'Publicity',
       contact: 'Contact',
       calendarTitle: 'Event Calendar',
       noEventsMessage: 'Click on a date with events to see details',
       time: 'Time',
       venue: 'Venue',
-      contact: 'Contact',
+      contactLabel: 'Contact',
       buyTickets: 'Buy Tickets',
     },
     af: {
       home: 'Tuis',
       about: 'Oor Ons',
       events: 'Geleenthede',
+      publicity: 'Publisiteit',
       contact: 'Kontak',
       calendarTitle: 'Gebeure Kalender',
-      noEventsMessage: 'Klik op \'n datum met geleenthede vir besonderhede',
+      noEventsMessage: "Klik op 'n datum met geleenthede vir besonderhede",
       time: 'Tyd',
       venue: 'Plek',
-      contact: 'Kontak',
+      contactLabel: 'Kontak',
       buyTickets: 'Koop Kaartjies',
     },
     xh: {
       home: 'Ikhaya',
       about: 'Malunga',
       events: 'Iziganeko',
-      contact: 'Unxibelelwano',
+      publicity: 'Isaziso',
+      contact: 'Xhomekela',
       calendarTitle: 'Ikhalenda yoMsitho',
       noEventsMessage: 'Cofa umhla one events ukuze ubone iinkcukacha',
       time: 'Ixesha',
       venue: 'Indawo',
-      contact: 'Unxibelelwano',
+      contactLabel: 'Unxibelelwano',
       buyTickets: 'Thenga Itikhiti',
     },
   };
@@ -218,6 +221,26 @@ export default function EventsPage() {
 
   const monthName = `${monthNames[language][selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
 
+  const navLinkStyle = {
+    textDecoration: 'none',
+    color: '#4b5563',
+    fontSize: '16px',
+    fontWeight: '500',
+    paddingBottom: '4px',
+    borderBottom: '2px solid transparent',
+    transition: 'all 0.3s ease'
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (e.target as HTMLElement).style.color = '#2d5016';
+    (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (e.target as HTMLElement).style.color = '#4b5563';
+    (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -231,61 +254,22 @@ export default function EventsPage() {
         boxShadow: 'none'
       }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center'
-          }}>
-            {/* Navigation links - minimalist underline style */}
-            <nav style={{
-              display: 'flex',
-              gap: '40px',
-              alignItems: 'center'
-            }}>
-              <Link href="/" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <nav style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
+
+              <Link href="/" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Home'}
                 {language === 'af' && 'Tuis'}
                 {language === 'xh' && 'Ikhaya'}
               </Link>
 
-              <Link href="/about" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+              <Link href="/about" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'About'}
                 {language === 'af' && 'Oor'}
                 {language === 'xh' && 'Malunga'}
               </Link>
 
+              {/* Events - active/current page */}
               <Link href="/events" style={{
                 textDecoration: 'none',
                 color: '#2d5016',
@@ -295,78 +279,33 @@ export default function EventsPage() {
                 borderBottom: '2px solid #2d5016',
                 transition: 'all 0.3s ease'
               }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.opacity = '0.7';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.opacity = '1';
-              }}>
+              onMouseEnter={(e) => { (e.target as HTMLElement).style.opacity = '0.7'; }}
+              onMouseLeave={(e) => { (e.target as HTMLElement).style.opacity = '1'; }}>
                 {language === 'en' && 'Events'}
                 {language === 'af' && 'Geleenthede'}
                 {language === 'xh' && 'Iziganeko'}
               </Link>
 
-              <Link href="/store" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+              <Link href="/store" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && "e'Bosch Store"}
                 {language === 'af' && "e'Bosch Winkel"}
                 {language === 'xh' && "e'Bosch Inkolo"}
               </Link>
 
-              <Link href="/membership" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+              <Link href="/membership" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Membership'}
                 {language === 'af' && 'Lidmaatskap'}
                 {language === 'xh' && 'Ubulungu'}
               </Link>
 
-              <Link href="/contact" style={{
-                textDecoration: 'none',
-                color: '#4b5563',
-                fontSize: '16px',
-                fontWeight: '500',
-                paddingBottom: '4px',
-                borderBottom: '2px solid transparent',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.color = '#2d5016';
-                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = '#4b5563';
-                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-              }}>
+              {/* Publicity link - added */}
+              <Link href="/publicity" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                {language === 'en' && 'Publicity'}
+                {language === 'af' && 'Publisiteit'}
+                {language === 'xh' && 'Isaziso'}
+              </Link>
+
+              <Link href="/contact" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Contact'}
                 {language === 'af' && 'Kontak'}
                 {language === 'xh' && 'Xhomekela'}
@@ -400,6 +339,7 @@ export default function EventsPage() {
                 <option value="af">Afrikaans</option>
                 <option value="xh">Xhosa</option>
               </select>
+
             </nav>
           </div>
         </div>
@@ -495,9 +435,9 @@ export default function EventsPage() {
                 const dayEvents = getEventsForDate(day);
                 const isToday = day?.toDateString() === new Date().toDateString();
                 const greenShades = ['#2d5016', '#16a34a', '#059669', '#10b981', '#14b8a6'];
-                
+
                 return (
-                  <button key={`${wi}-${di}`} onClick={() => day && handleDayClick(day)} 
+                  <button key={`${wi}-${di}`} onClick={() => day && handleDayClick(day)}
                     className="aspect-square rounded-lg font-semibold transition flex flex-col items-center justify-center relative hover:shadow-md"
                     style={{
                       backgroundColor: isToday ? '#9ca8a0' : '#f9fafb',
@@ -544,26 +484,22 @@ export default function EventsPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, overflowY: 'auto' }}>
           <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', maxWidth: '500px', width: '90%', boxShadow: '0 10px 40px rgba(0,0,0,0.3)', margin: '20px auto' }}>
             <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px', color: '#2d5016' }}>{modalEvent.event}</h3>
-            
-            {/* Date */}
+
             <div style={{ marginBottom: '16px' }}>
               <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Date</p>
               <p style={{ color: '#1f2937' }}>{modalEvent.date}</p>
             </div>
 
-            {/* Time */}
             <div style={{ marginBottom: '16px' }}>
               <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.time}</p>
               <p style={{ color: '#1f2937' }}>{modalEvent.time}</p>
             </div>
 
-            {/* Event Type */}
             <div style={{ marginBottom: '16px' }}>
               <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Event Type</p>
               <p style={{ color: '#1f2937', textTransform: 'capitalize' }}>{modalEvent.eventType}</p>
             </div>
 
-            {/* Venue or Link */}
             {modalEvent.eventType === 'in-person' ? (
               <div style={{ marginBottom: '16px' }}>
                 <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.venue}</p>
@@ -578,7 +514,6 @@ export default function EventsPage() {
               </div>
             )}
 
-            {/* Details Confirmed - ONLY if present */}
             {modalEvent.detailsConfirmed !== undefined && (
               <div style={{ marginBottom: '16px' }}>
                 <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Details Status</p>
@@ -586,10 +521,9 @@ export default function EventsPage() {
               </div>
             )}
 
-            {/* Contact - ONLY if has value - Extract from array */}
             {modalEvent.contacts && Array.isArray(modalEvent.contacts) && modalEvent.contacts.length > 0 && (
               <div style={{ marginBottom: '16px' }}>
-                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.contact}</p>
+                <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>{t.contactLabel}</p>
                 <div style={{ color: '#1f2937' }}>
                   {modalEvent.contacts.map((contact: any, idx: number) => (
                     <div key={idx}>
@@ -604,7 +538,6 @@ export default function EventsPage() {
               </div>
             )}
 
-            {/* Ticket Link - ONLY if has value */}
             {modalEvent.ticketLink && (
               <div style={{ marginBottom: '16px' }}>
                 <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>Tickets</p>
@@ -614,21 +547,20 @@ export default function EventsPage() {
               </div>
             )}
 
-            {/* Buttons */}
             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {modalEvent.ticketLink && new Date(modalEvent.date) >= new Date(new Date().toDateString()) && (
-                <a href={modalEvent.ticketLink} target="_blank" rel="noopener noreferrer" 
+                <a href={modalEvent.ticketLink} target="_blank" rel="noopener noreferrer"
                   style={{ display: 'block', width: '100%', padding: '10px', backgroundColor: '#2d5016', color: 'white', textAlign: 'center', borderRadius: '6px', textDecoration: 'none', fontWeight: 'normal' }}>
                   {t.buyTickets}
                 </a>
               )}
-              <button 
+              <button
                 onClick={() => {
                   const startTime = modalEvent.time.split(' - ')[0];
                   const endTime = modalEvent.time.split(' - ')[1];
                   const startDate = new Date(modalEvent.date + 'T' + startTime);
                   const endDate = new Date(modalEvent.date + 'T' + endTime);
-                  
+
                   const formatDate = (date: Date) => {
                     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
                   };
@@ -660,7 +592,7 @@ END:VCALENDAR`;
                 style={{ width: '100%', padding: '10px', backgroundColor: '#4a5240', color: 'white', textAlign: 'center', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
                 Add to Calendar
               </button>
-              <button onClick={() => setModalOpen(false)} 
+              <button onClick={() => setModalOpen(false)}
                 style={{ width: '100%', padding: '10px', backgroundColor: '#e5e7eb', color: '#1f2937', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
                 Close
               </button>

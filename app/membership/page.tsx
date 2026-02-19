@@ -188,6 +188,9 @@ export default function MembershipPage() {
               <Link href="/membership" style={navLinkActive} onMouseEnter={(e) => { (e.target as HTMLElement).style.opacity = '0.7'; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.opacity = '1'; }}>
                 {language === 'en' && 'Membership'}{language === 'af' && 'Lidmaatskap'}{language === 'xh' && 'Ubulungu'}
               </Link>
+              <Link href="/publicity" style={navLinkStyle} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#2d5016'; (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016'; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = '#4b5563'; (e.target as HTMLElement).style.borderBottom = '2px solid transparent'; }}>
+                {language === 'en' && 'Publicity'}{language === 'af' && 'Publisiteit'}{language === 'xh' && 'Isaziso'}
+              </Link>
               <Link href="/contact" style={navLinkStyle} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = '#2d5016'; (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016'; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = '#4b5563'; (e.target as HTMLElement).style.borderBottom = '2px solid transparent'; }}>
                 {language === 'en' && 'Contact'}{language === 'af' && 'Kontak'}{language === 'xh' && 'Xhomekela'}
               </Link>

@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 
 type Language = 'en' | 'af' | 'xh';
 
-// All images from highest to lowest number
-// Missing: photo6, photo29, photo51
+// All images from highest to lowest, missing: photo6, photo29, photo51
 const photos = [
   { src: '/publicity/photo53.jpg' },
   { src: '/publicity/photo52.jpg' },
@@ -57,34 +56,41 @@ const photos = [
   { src: '/publicity/photo5.jpg' },
   { src: '/publicity/photo4.jpg' },
   { src: '/publicity/photo3.jpeg' },
-  { src: '/publicity/photo2.jpeg' },
   { src: '/publicity/photo1.jpeg' },
 ];
 
-// Split into 3 columns for masonry
-const col1 = photos.filter((_, i) => i % 3 === 0);
-const col2 = photos.filter((_, i) => i % 3 === 1);
-const col3 = photos.filter((_, i) => i % 3 === 2);
+// Distribute into 3 columns — photo2 and photo3 forced into column 3 at the end
+const col1: { src: string }[] = [];
+const col2: { src: string }[] = [];
+const col3: { src: string }[] = [];
+const forcedToCol3 = ['/publicity/photo2.jpeg', '/publicity/photo3.jpeg'];
+photos.filter(p => !forcedToCol3.includes(p.src)).forEach((photo, i) => {
+  if (i % 3 === 0) col1.push(photo);
+  else if (i % 3 === 1) col2.push(photo);
+  else col3.push(photo);
+});
+col3.push({ src: '/publicity/photo3.jpeg' });
+col3.push({ src: '/publicity/photo2.jpeg' });
 
 export default function Publicity() {
   const [language, setLanguage] = useState<Language>('en');
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
-  const navLinkStyle = {
+  const navLinkStyle: React.CSSProperties = {
     textDecoration: 'none',
     color: '#4b5563',
     fontSize: '16px',
     fontWeight: '500',
     paddingBottom: '4px',
     borderBottom: '2px solid transparent',
-    transition: 'all 0.3s ease'
+    transition: 'all 0.3s ease',
   };
 
-  const activeNavLinkStyle = {
+  const activeNavLinkStyle: React.CSSProperties = {
     ...navLinkStyle,
     color: '#2d5016',
     fontWeight: '600',
-    borderBottom: '2px solid #2d5016'
+    borderBottom: '2px solid #2d5016',
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -99,8 +105,7 @@ export default function Publicity() {
 
   const mediaContent = {
     en: {
-      title: 'Publicity',
-      subtitle: 'Media Release',
+      subtitle: 'Media Releases',
       description: (
         <>
           The <strong style={{ color: '#228B22' }}>e'Bosch Heritage Project</strong> hosts a wide range of events that celebrate{' '}
@@ -110,11 +115,9 @@ export default function Publicity() {
       ),
       tags: ['School Choir Festivals', 'Talent Showcases', 'Public Lectures', 'Leadership Courses', 'Art Exhibitions', 'Community Workshops'],
       footer: 'Each event is designed to bring people together, promote inclusion and highlight the rich diversity of local traditions. Activities are featured in media releases, social media, newspapers, magazines and other platforms.',
-      galleryTitle: 'Media Gallery'
     },
     af: {
-      title: 'Publisiteit',
-      subtitle: 'Media Vrylating',
+      subtitle: 'Media Vrylatings',
       description: (
         <>
           Die <strong style={{ color: '#228B22' }}>e'Bosch Erfenisprojek</strong> bied 'n wye reeks geleenthede aan wat{' '}
@@ -123,12 +126,10 @@ export default function Publicity() {
         </>
       ),
       tags: ['Skoolkoorfees', 'Talentvertoning', 'Openbare Lesings', 'Leierskapkursusse', 'Kunsuitstalling', 'Gemeenskapswerkswinkels'],
-      footer: 'Elke geleentheid is ontwerp om mense saam te bring, insluiting te bevorder en die ryk diversiteit van plaaslike tradisies uit te lig. Aktiwiteite word in mediavrylating, sosiale media, koerante, tydskrifte en ander platforms vertoon.',
-      galleryTitle: 'Media Galery'
+      footer: "Elke geleentheid is ontwerp om mense saam te bring, insluiting te bevorder en die ryk diversiteit van plaaslike tradisies uit te lig. Aktiwiteite word in mediavrylating, sosiale media, koerante, tydskrifte en ander platforms vertoon.",
     },
     xh: {
-      title: 'Isaziso',
-      subtitle: 'Isikhululo Seendaba',
+      subtitle: 'Izikhululo Zeendaba',
       description: (
         <>
           I-<strong style={{ color: '#228B22' }}>e'Bosch Heritage Project</strong> ibamba uluhlu olubanzi lweziganeko ezibhiyozela{' '}
@@ -138,14 +139,13 @@ export default function Publicity() {
       ),
       tags: ['Iifestivali Zekhwayarele', 'Iimboniso Zezakhono', 'Iifundo Zoluntu', 'Iikosi Zobunkokheli', 'Iimboniso Zobugcisa', 'Iiseminali Zeluntu'],
       footer: 'Isiganeko ngasinye sihlelelwe ukudibanisa abantu, ukukhuthaza ukubandakanywa kunye nokugqamisa ubutyebi bamasiko endawo. Imisebenzi iboniswa kwimiyalezo yeendaba, kwezentlalo, amaphephandaba, imagazini kunye nezinye iindawo.',
-      galleryTitle: 'Isiqwengana Seendaba'
-    }
+    },
   };
 
   const content = mediaContent[language];
 
-  const MasonryColumn = ({ items }: { items: typeof photos }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+  const MasonryColumn = ({ items }: { items: { src: string }[] }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {items.map((photo, idx) => (
         <div
           key={idx}
@@ -155,7 +155,7 @@ export default function Publicity() {
             borderRadius: '8px',
             overflow: 'hidden',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
@@ -188,11 +188,12 @@ export default function Publicity() {
         zIndex: 50,
         backgroundColor: 'white',
         boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-        transition: 'box-shadow 0.3s ease'
+        transition: 'box-shadow 0.3s ease',
       }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <nav style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
+
               <Link href="/" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Home'}
                 {language === 'af' && 'Tuis'}
@@ -237,7 +238,6 @@ export default function Publicity() {
                 {language === 'xh' && 'Xhomekela'}
               </Link>
 
-              {/* Language selector */}
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as Language)}
@@ -250,7 +250,7 @@ export default function Publicity() {
                   fontWeight: '500',
                   color: '#111827',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.3s ease',
                 }}
                 onMouseEnter={(e) => {
                   (e.target as HTMLElement).style.borderColor = '#2d5016';
@@ -265,25 +265,15 @@ export default function Publicity() {
                 <option value="af">Afrikaans</option>
                 <option value="xh">Xhosa</option>
               </select>
+
             </nav>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" style={{ paddingTop: '110px' }}>
+      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '110px 48px 48px 48px' }}>
 
-        {/* Page Title */}
-        <h1 style={{
-          fontSize: '40px',
-          fontWeight: 'bold',
-          color: '#111827',
-          textAlign: 'center',
-          marginBottom: '40px'
-        }}>
-          {content.title}
-        </h1>
-
-        {/* Media Release Section */}
+        {/* Media Releases Section */}
         <section style={{ marginBottom: '60px' }}>
           <div style={{
             maxWidth: '800px',
@@ -293,7 +283,7 @@ export default function Publicity() {
             textAlign: 'center',
             borderLeft: '4px solid #2d5016',
             borderRadius: '8px',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
+            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
           }}>
             <h3 style={{ color: '#006400', fontSize: '28px', marginBottom: '20px' }}>
               {content.subtitle}
@@ -306,7 +296,12 @@ export default function Publicity() {
                 const colors = ['#006400', '#228B22', '#2E8B57', '#3CB371', '#32CD32', '#9ACD32'];
                 const sizes = ['22px', '20px', '18px', '22px', '20px', '18px'];
                 return (
-                  <span key={i} style={{ color: colors[i], fontSize: sizes[i], fontWeight: i % 2 === 0 ? 'bold' : 'normal', fontStyle: i === 2 ? 'italic' : 'normal' }}>
+                  <span key={i} style={{
+                    color: colors[i],
+                    fontSize: sizes[i],
+                    fontWeight: i % 2 === 0 ? 'bold' : 'normal',
+                    fontStyle: i === 2 ? 'italic' : 'normal',
+                  }}>
                     {tag}
                   </span>
                 );
@@ -318,25 +313,15 @@ export default function Publicity() {
           </div>
         </section>
 
-        {/* Gallery Title */}
-        <h2 style={{
-          fontSize: '28px',
-          fontWeight: 'bold',
-          color: '#111827',
-          textAlign: 'center',
-          marginBottom: '32px'
-        }}>
-          {content.galleryTitle}
-        </h2>
-
         {/* Masonry Gallery */}
         <section style={{ marginBottom: '80px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', alignItems: 'start' }}>
             <MasonryColumn items={col1} />
             <MasonryColumn items={col2} />
             <MasonryColumn items={col3} />
           </div>
         </section>
+
       </main>
 
       {/* Lightbox */}
@@ -352,7 +337,7 @@ export default function Publicity() {
             alignItems: 'center',
             justifyContent: 'center',
             padding: '20px',
-            cursor: 'zoom-out'
+            cursor: 'zoom-out',
           }}
         >
           <img
@@ -363,7 +348,7 @@ export default function Publicity() {
               maxHeight: '90vh',
               objectFit: 'contain',
               borderRadius: '8px',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.5)'
+              boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
             }}
           />
           <button
@@ -377,7 +362,7 @@ export default function Publicity() {
               color: 'white',
               fontSize: '36px',
               cursor: 'pointer',
-              lineHeight: 1
+              lineHeight: 1,
             }}
           >
             ×

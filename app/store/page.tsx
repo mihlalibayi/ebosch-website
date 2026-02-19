@@ -316,6 +316,28 @@ export default function Store() {
                 {language === 'xh' && 'Ubulungu'}
               </Link>
 
+              <Link href="/publicity" style={{
+                textDecoration: 'none',
+                color: '#4b5563',
+                fontSize: '16px',
+                fontWeight: '500',
+                paddingBottom: '4px',
+                borderBottom: '2px solid transparent',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.color = '#2d5016';
+                (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.color = '#4b5563';
+                (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+              }}>
+                {language === 'en' && 'Publicity'}
+                {language === 'af' && 'Publisiteit'}
+                {language === 'xh' && 'Isaziso'}
+              </Link>
+
               <Link href="/contact" style={{
                 textDecoration: 'none',
                 color: '#4b5563',
