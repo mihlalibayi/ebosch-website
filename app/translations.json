@@ -13,6 +13,7 @@
       "store": "e'Bosch Store",
       "membership": "Membership",
       "publicity": "Publicity",
+      "partners": "Our Partners",
       "contact": "Contact"
     },
     "publicity": {
@@ -233,6 +234,7 @@
       "store": "e'Bosch Winkel",
       "membership": "Lidmaatskap",
       "publicity": "Publisiteit",
+      "partners": "Ons Vennote",
       "contact": "Kontak"
     },
     "publicity": {
@@ -453,6 +455,7 @@
       "store": "e'Bosch Inkolo",
       "membership": "Ubulungu",
       "publicity": "Isaziso",
+      "partners": "Abalingani Bethu",
       "contact": "Xhomekela"
     },
     "publicity": {

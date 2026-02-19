@@ -156,11 +156,16 @@ export default function About() {
                 {language === 'xh' && 'Ubulungu'}
               </Link>
 
-              {/* Publicity link - newly added */}
               <Link href="/publicity" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Publicity'}
                 {language === 'af' && 'Publisiteit'}
                 {language === 'xh' && 'Isaziso'}
+              </Link>
+
+              <Link href="/partners" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                {language === 'en' && 'Our Partners'}
+                {language === 'af' && 'Ons Vennote'}
+                {language === 'xh' && 'Abalingani Bethu'}
               </Link>
 
               <Link href="/contact" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>

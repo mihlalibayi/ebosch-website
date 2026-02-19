@@ -14,8 +14,9 @@ import BusinessesManagement from '@/components/admin/BusinessesManagement';
 import ProductsManagement from '@/components/admin/ProductsManagement';
 import OrdersManagement from '@/components/admin/OrdersManagement';
 import MembershipsManagement from '@/components/admin/MembershipsManagement';
+import DonationsManagement from '@/components/admin/DonationsManagement';
 
-type SectionType = 'overview' | 'events' | 'categories' | 'businesses' | 'products' | 'orders' | 'memberships';
+type SectionType = 'overview' | 'events' | 'categories' | 'businesses' | 'products' | 'orders' | 'memberships' | 'donations';
 
 interface MenuItem {
   id: SectionType;
@@ -31,6 +32,7 @@ const menuItems: MenuItem[] = [
   { id: 'products', label: 'Products', icon: <Package size={20} /> },
   { id: 'orders', label: 'Orders', icon: <ClipboardList size={20} /> },
   { id: 'memberships', label: 'Memberships', icon: <ClipboardList size={20} /> },
+  { id: 'donations', label: 'Donations', icon: <ClipboardList size={20} /> },
 ];
 
 export default function AdminDashboard() {
@@ -70,6 +72,8 @@ export default function AdminDashboard() {
         return <OrdersManagement />;
       case 'memberships':
         return <MembershipsManagement />;
+      case 'donations':
+        return <DonationsManagement />;
       default:
         return <AdminOverview />;
     }
