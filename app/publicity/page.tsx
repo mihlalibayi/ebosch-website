@@ -145,7 +145,7 @@ export default function Publicity() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header (unchanged) */}
+      {/* Header */}
       <header style={{
         position: 'fixed',
         top: 0,
@@ -230,15 +230,16 @@ export default function Publicity() {
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '110px 48px 48px 48px' }}>
 
-        {/* Media Releases Section (unchanged) */}
+        {/* Media Releases Section - now wider with both borders */}
         <section style={{ marginBottom: '60px' }}>
           <div style={{
-            maxWidth: '800px',
-            margin: 'auto',
+            maxWidth: '1000px',        // increased from 800px
+            margin: '0 auto',          // centered with space on sides
             padding: '30px',
             background: '#ffffff',
             textAlign: 'center',
             borderLeft: '4px solid #2d5016',
+            borderRight: '4px solid #2d5016',  // added right border
             borderRadius: '8px',
             boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
           }}>
@@ -270,7 +271,7 @@ export default function Publicity() {
           </div>
         </section>
 
-        {/* Masonry Gallery - from Firestore, newest first */}
+        {/* Masonry Gallery */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>Loading gallery...</div>
         ) : images.length === 0 ? (
@@ -292,7 +293,7 @@ export default function Publicity() {
 
       </main>
 
-      {/* Lightbox (unchanged) */}
+      {/* Lightbox */}
       {lightboxSrc && (
         <div
           onClick={() => setLightboxSrc(null)}
