@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '@/lib/firebase-config';
-import { collection, getDocs, query, orderBy, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 
 type Language = 'en' | 'af' | 'xh';
 
@@ -17,7 +16,8 @@ interface PastEvent {
   descriptionAf: string;
   descriptionXh: string;
   images: string[];
-  createdAt: any;
+  order?: number;
+  createdAt?: any;
 }
 
 interface CalendarEvent {
@@ -38,16 +38,12 @@ export default function EventsPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [pastEvents, setPastEvents] = useState<PastEvent[]>([]);
   const [selectedImageIndexes, setSelectedImageIndexes] = useState<{ [key: string]: number }>({});
-  const [pastPage, setPastPage] = useState(1);
-  const pastEventsPerPage = 2;
   
   const [selectedDate, setSelectedDate] = useState(new Date(2026, 1, 15));
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalEvent, setModalEvent] = useState<CalendarEvent | null>(null);
   const [scrolled, setScrolled] = useState(false);
-
-  // Request event modal – now with startTime and endTime
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestForm, setRequestForm] = useState({
     eventName: '',
@@ -63,18 +59,29 @@ export default function EventsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
 
-  // Load past events from Firestore
   useEffect(() => {
     const fetchPastEvents = async () => {
       try {
-        const q = query(collection(db, 'pastEvents'), orderBy('createdAt', 'desc'));
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({
+        const snapshot = await getDocs(collection(db, 'pastEvents'));
+        let data = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
         })) as PastEvent[];
+        // Sort by order, then createdAt
+        data.sort((a, b) => {
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          } else if (a.order !== undefined) {
+            return -1;
+          } else if (b.order !== undefined) {
+            return 1;
+          } else {
+            const aTime = a.createdAt?.toMillis?.() || 0;
+            const bTime = b.createdAt?.toMillis?.() || 0;
+            return aTime - bTime;
+          }
+        });
         setPastEvents(data);
-        // Initialize selected image index for each event
         const initialIndexes: { [key: string]: number } = {};
         data.forEach(e => { initialIndexes[e.id] = 0; });
         setSelectedImageIndexes(initialIndexes);
@@ -85,7 +92,6 @@ export default function EventsPage() {
     fetchPastEvents();
   }, []);
 
-  // Load calendar events
   useEffect(() => {
     const loadEvents = async () => {
       try {
@@ -109,14 +115,6 @@ export default function EventsPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Pagination
-  const totalPastPages = Math.ceil(pastEvents.length / pastEventsPerPage);
-  const currentPastEvents = pastEvents.slice(
-    (pastPage - 1) * pastEventsPerPage,
-    pastPage * pastEventsPerPage
-  );
-
-  // Translations with distinct keys for suggestion form
   const translations = {
     en: {
       home: 'Home',
@@ -130,7 +128,6 @@ export default function EventsPage() {
       venue: 'Venue',
       contactLabel: 'Contact',
       buyTickets: 'Buy Tickets',
-      // Suggestion form keys
       suggestEvent: 'Suggest an Event',
       formEventName: 'Event Name',
       formDate: 'Date',
@@ -159,7 +156,6 @@ export default function EventsPage() {
       venue: 'Plek',
       contactLabel: 'Kontak',
       buyTickets: 'Koop Kaartjies',
-      // Suggestion form keys
       suggestEvent: 'Stel \'n Gebeurtenis Voor',
       formEventName: 'Gebeurtenis Naam',
       formDate: 'Datum',
@@ -188,7 +184,6 @@ export default function EventsPage() {
       venue: 'Indawo',
       contactLabel: 'Unxibelelwano',
       buyTickets: 'Thenga Itikhiti',
-      // Suggestion form keys
       suggestEvent: 'Cebisa uMsitho',
       formEventName: 'Igama loMsitho',
       formDate: 'Umhla',
@@ -209,7 +204,6 @@ export default function EventsPage() {
 
   const t = translations[language];
 
-  // Calendar helpers
   const renderCalendar = () => {
     const year = selectedDate.getFullYear();
     const month = selectedDate.getMonth();
@@ -274,11 +268,10 @@ export default function EventsPage() {
     setSubmitting(true);
     setSubmitMessage('');
     try {
-      // Combine startTime and endTime into a single "time" string for storage (optional)
       const timeString = `${requestForm.startTime} - ${requestForm.endTime}`;
       await addDoc(collection(db, 'eventRequests'), {
         ...requestForm,
-        time: timeString, // store combined time as well
+        time: timeString,
         status: 'pending',
         createdAt: new Date(),
       });
@@ -301,7 +294,6 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header (unchanged) */}
       <header style={{
         position: 'fixed',
         top: 0,
@@ -382,55 +374,63 @@ export default function EventsPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-16" style={{ paddingTop: '100px' }}>
-        {/* Past Events Gallery (unchanged) */}
-        {currentPastEvents.length > 0 && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              {currentPastEvents.map((event) => {
+        {/* Past Events Gallery – two per row, centered */}
+        {pastEvents.length > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', 
+              gap: '64px',
+              maxWidth: '1200px',
+              margin: '0 auto'
+            }}>
+              {pastEvents.map((event) => {
                 const currentIndex = selectedImageIndexes[event.id] || 0;
                 const currentImage = event.images[currentIndex];
                 const title = language === 'en' ? event.titleEn : language === 'af' ? event.titleAf : event.titleXh;
                 const description = language === 'en' ? event.descriptionEn : language === 'af' ? event.descriptionAf : event.descriptionXh;
 
                 return (
-                  <div key={event.id}>
-                    <div className="mb-4 max-w-xs">
-                      <h2 className="text-xl font-bold mb-2" style={{ color: '#2d5016' }}>
+                  <div key={event.id} style={{ maxWidth: '500px' }}>
+                    <div style={{ marginBottom: '20px' }}>
+                      <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#2d5016', margin: '0 0 8px 0' }}>
                         {title}
                       </h2>
-                      <p className="text-gray-600 text-sm">
+                      <p style={{ fontSize: '14px', color: '#4b5563', margin: 0 }}>
                         {description}
                       </p>
                     </div>
-                    <div className="flex gap-6">
-                      <div className="flex-shrink-0">
+                    <div style={{ display: 'flex', gap: '24px' }}>
+                      <div style={{ flexShrink: 0 }}>
                         <img
                           src={currentImage}
                           alt={title}
-                          className="rounded-lg shadow-lg"
-                          style={{ width: '380px', height: '380px', objectFit: 'contain', backgroundColor: '#ffffff' }}
+                          style={{ width: '380px', height: '380px', objectFit: 'contain', backgroundColor: '#f9fafb', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
                         />
                       </div>
-                      <div className="flex-shrink-0">
-                        <div className="grid grid-cols-2 gap-2">
-                          {event.images.map((img: string, idx: number) => (
+                      <div style={{ flexShrink: 0 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                          {event.images.map((img, idx) => (
                             <button
                               key={idx}
                               onClick={() => setSelectedImageIndexes({...selectedImageIndexes, [event.id]: idx})}
-                              className={`rounded-lg overflow-hidden transition-all cursor-pointer ${
-                                idx === currentIndex ? 'ring-3 ring-green-600 shadow-lg' : 'hover:shadow-md opacity-70 hover:opacity-100'
-                              }`}
-                              style={{ width: '60px', height: '60px' }}
+                              style={{
+                                width: '70px',
+                                height: '70px',
+                                padding: 0,
+                                border: idx === currentIndex ? '3px solid #2d5016' : '1px solid #e5e7eb',
+                                borderRadius: '8px',
+                                overflow: 'hidden',
+                                cursor: 'pointer',
+                                opacity: idx === currentIndex ? 1 : 0.7,
+                                transition: 'all 0.2s',
+                              }}
                             >
-                              <img
-                                src={img}
-                                alt={`Thumbnail ${idx + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition"
-                              />
+                              <img src={img} alt={`thumb ${idx+1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </button>
                           ))}
                         </div>
-                        <p className="text-xs text-gray-600 mt-2 text-center">
+                        <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px', textAlign: 'center' }}>
                           {currentIndex + 1} / {event.images.length}
                         </p>
                       </div>
@@ -439,71 +439,35 @@ export default function EventsPage() {
                 );
               })}
             </div>
-
-            {/* Pagination */}
-            {totalPastPages > 1 && (
-              <div className="flex justify-center gap-4 mb-16">
-                <button
-                  onClick={() => setPastPage(p => Math.max(1, p - 1))}
-                  disabled={pastPage === 1}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    backgroundColor: pastPage === 1 ? '#e5e7eb' : '#2d5016',
-                    color: pastPage === 1 ? '#9ca3af' : 'white',
-                    border: 'none',
-                    cursor: pastPage === 1 ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  Previous
-                </button>
-                <span style={{ alignSelf: 'center', color: '#4b5563' }}>
-                  Page {pastPage} of {totalPastPages}
-                </span>
-                <button
-                  onClick={() => setPastPage(p => Math.min(totalPastPages, p + 1))}
-                  disabled={pastPage === totalPastPages}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    backgroundColor: pastPage === totalPastPages ? '#e5e7eb' : '#2d5016',
-                    color: pastPage === totalPastPages ? '#9ca3af' : 'white',
-                    border: 'none',
-                    cursor: pastPage === totalPastPages ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </>
+          </div>
         )}
 
-        {/* Calendar Section with Title and Button */}
+        {/* Calendar Section */}
         <div style={{ marginTop: '80px', paddingTop: '20px' }}>
-          {/* Centered title and button */}
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
             <h2 className="text-3xl font-bold" style={{ color: '#2d5016', margin: 0 }}>{t.calendarTitle}</h2>
             <button
               onClick={() => setShowRequestModal(true)}
               style={{
-                padding: '10px 20px',
-                backgroundColor: '#2d5016',
-                color: 'white',
+                background: 'none',
                 border: 'none',
-                borderRadius: '8px',
+                color: '#2d5016',
                 fontSize: '16px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '4px',
+                padding: 0,
+                textDecoration: 'underline',
+                textUnderlineOffset: '2px',
               }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#1a3009'}
+              onMouseLeave={(e) => e.currentTarget.style.color = '#2d5016'}
             >
               {t.suggestEvent} <span style={{ fontSize: '20px' }}>→</span>
             </button>
           </div>
 
-          {/* Calendar (unchanged) */}
           <div className="bg-white rounded-xl shadow-lg p-8 mx-auto" style={{ maxWidth: '1000px' }}>
             <div className="flex justify-between items-center mb-8">
               <button onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1))} className="p-2 hover:bg-gray-100 rounded">←</button>
@@ -566,7 +530,7 @@ export default function EventsPage() {
           </div>
         </div>
 
-        {/* Request Modal (unchanged) */}
+        {/* Request Modal */}
         {showRequestModal && (
           <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -689,7 +653,7 @@ export default function EventsPage() {
         )}
       </main>
 
-      {/* Event Modal (unchanged) */}
+      {/* Event Modal */}
       {modalOpen && modalEvent && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, overflowY: 'auto' }}>
           <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', maxWidth: '500px', width: '90%', boxShadow: '0 10px 40px rgba(0,0,0,0.3)', margin: '20px auto' }}>

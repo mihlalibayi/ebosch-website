@@ -29,7 +29,7 @@ interface Product {
   payWhatYouWant: boolean;
   minimumAmount?: number;
   isMembership?: boolean;
-  membershipType?: 'individual' | 'business';
+  membershipType?: 'individual' | 'business' | 'social_impact'; // added social_impact
   createdAt?: any;
 }
 
@@ -67,7 +67,7 @@ export default function ProductsManagement() {
     payWhatYouWant: false,
     minimumAmount: 0,
     isMembership: false,
-    membershipType: '' as 'individual' | 'business' | ''
+    membershipType: '' as 'individual' | 'business' | 'social_impact' | '' // updated
   });
 
   useEffect(() => {
@@ -99,7 +99,17 @@ export default function ProductsManagement() {
   const loadBusinesses = async () => {
     try {
       const snap = await getDocs(collection(db, 'businesses'));
-      const data = snap.docs.map(d => ({ id: d.id, name: d.data().name, bankAccount: d.data().bankAccount, bankName: d.data().bankName, bankAccountHolder: d.data().bankAccountHolder, payfastMerchantId: d.data().payfastMerchantId, paymentMethod: d.data().paymentMethod, subcategory: d.data().subcategory || '', rootCategory: d.data().rootCategory || '' }));
+      const data = snap.docs.map(d => ({ 
+        id: d.id, 
+        name: d.data().name, 
+        bankAccount: d.data().bankAccount, 
+        bankName: d.data().bankName, 
+        bankAccountHolder: d.data().bankAccountHolder, 
+        payfastMerchantId: d.data().payfastMerchantId, 
+        paymentMethod: d.data().paymentMethod, 
+        subcategory: d.data().subcategory || '', 
+        rootCategory: d.data().rootCategory || '' 
+      }));
       setBusinessesList(data);
     } catch (e) {}
   };
@@ -472,7 +482,7 @@ export default function ProductsManagement() {
                 />
               </div>
 
-              {/* Description - Optional for Social Impact */}
+              {/* Description */}
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'normal', color: '#111827', fontSize: '14px' }}>
                   Description {activeTab === 'memberships' && form.membershipType === 'social_impact' ? '' : '*'}
@@ -889,13 +899,13 @@ export default function ProductsManagement() {
                   <span style={{
                     display: 'inline-block',
                     padding: '4px 12px',
-                    backgroundColor: product.membershipType === 'individual' ? '#dbeafe' : '#fef3c7',
-                    color: product.membershipType === 'individual' ? '#0369a1' : '#92400e',
+                    backgroundColor: product.membershipType === 'individual' ? '#dbeafe' : product.membershipType === 'business' ? '#fef3c7' : '#f0fdf4',
+                    color: product.membershipType === 'individual' ? '#0369a1' : product.membershipType === 'business' ? '#92400e' : '#065f46',
                     fontSize: '12px',
                     fontWeight: 'normal',
                     borderRadius: '4px'
                   }}>
-                    {product.membershipType === 'individual' ? 'Individual' : 'Business'}
+                    {product.membershipType === 'individual' ? 'Individual' : product.membershipType === 'business' ? 'Business' : 'Social Impact'}
                   </span>
                 ) : (
                   <span style={{
