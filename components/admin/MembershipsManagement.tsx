@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase-config';
 import { collection, getDocs, updateDoc, doc, deleteDoc, addDoc } from 'firebase/firestore';
+import { Eye } from 'lucide-react';
 
 interface Membership {
   id: string;
@@ -35,6 +36,10 @@ interface Membership {
   referredByOther?: string;
 }
 
+interface Props {
+  user: any; // from Firebase Auth
+}
+
 const TEAM_MEMBERS = ['Amanda Horne', 'William Horne', 'Other'];
 const HEARD_FROM_OPTIONS = ['Email', "e'Bosch Event", 'Introduction by team member', 'Other'];
 
@@ -48,7 +53,7 @@ const emptyForm = {
   heardFrom: '', heardFromOther: '', referredBy: '', referredByOther: '',
 };
 
-export default function MembershipsManagement() {
+export default function MembershipsManagement({ user }: Props) {
   const [activeTab, setActiveTab] = useState<'annual' | 'monthly'>('annual');
   const [members, setMembers] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +70,9 @@ export default function MembershipsManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMember, setEditingMember] = useState<Membership | null>(null);
   const [addForm, setAddForm] = useState(emptyForm);
+
+  // Permission check
+  const isAdmin = user?.email === 'members.ebosch@gmail.com';
 
   useEffect(() => { loadMemberships(); }, [activeTab]);
 
@@ -98,6 +106,7 @@ export default function MembershipsManagement() {
   };
 
   const updateStatus = async (memberId: string, newStatus: string) => {
+    if (!isAdmin) return;
     try {
       const member = members.find(m => m.id === memberId);
       if (!member) return;
@@ -107,6 +116,7 @@ export default function MembershipsManagement() {
   };
 
   const renewMembership = async (memberId: string) => {
+    if (!isAdmin) return;
     try {
       const member = members.find(m => m.id === memberId);
       if (!member) return;
@@ -119,6 +129,7 @@ export default function MembershipsManagement() {
   };
 
   const markPaymentReceived = async (memberId: string) => {
+    if (!isAdmin) return;
     try {
       const nextPaymentDate = new Date();
       nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
@@ -131,6 +142,7 @@ export default function MembershipsManagement() {
   };
 
   const deleteMember = async (memberId: string) => {
+    if (!isAdmin) return;
     if (!confirm('Are you sure you want to delete this member? This cannot be undone.')) return;
     try {
       const member = members.find(m => m.id === memberId);
@@ -141,6 +153,7 @@ export default function MembershipsManagement() {
   };
 
   const openEditModal = (member: Membership) => {
+    if (!isAdmin) return;
     setEditingMember(member);
     setAddForm({
       firstName: member.firstName || '',
@@ -169,6 +182,7 @@ export default function MembershipsManagement() {
   };
 
   const handleSaveMember = async () => {
+    if (!isAdmin) return;
     try {
       const data: any = {
         firstName: addForm.firstName,
@@ -267,7 +281,6 @@ export default function MembershipsManagement() {
     return details;
   };
 
-  // Apply filters, search, sort
   const getMemberName = (m: Membership) => {
     if (m.firstName && m.lastName) return `${m.firstName} ${m.lastName}`;
     if (m.firstName) return m.firstName;
@@ -309,12 +322,19 @@ export default function MembershipsManagement() {
           <h1 style={{ fontSize: '32px', fontWeight: 'normal', color: '#111827', margin: '0 0 8px 0' }}>Memberships Management</h1>
           <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>Manage annual and monthly memberships</p>
         </div>
-        <button
-          onClick={() => { setEditingMember(null); setAddForm(emptyForm); setShowAddModal(true); }}
-          style={{ padding: '10px 20px', backgroundColor: '#2d5016', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'normal', cursor: 'pointer' }}
-        >
-          + Add Member
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => { setEditingMember(null); setAddForm(emptyForm); setShowAddModal(true); }}
+            style={{ padding: '10px 20px', backgroundColor: '#2d5016', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'normal', cursor: 'pointer' }}
+          >
+            + Add Member
+          </button>
+        )}
+        {!isAdmin && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', fontSize: '14px', padding: '8px 12px', backgroundColor: '#f3f4f6', borderRadius: '8px' }}>
+            <Eye size={18} /> View Only
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -329,7 +349,6 @@ export default function MembershipsManagement() {
 
       {/* Search + Filters */}
       <div style={{ marginBottom: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-        {/* Search */}
         <div style={{ flex: 1, minWidth: '220px' }}>
           <label style={{ ...labelStyle, marginBottom: '6px' }}>Search</label>
           <input
@@ -341,7 +360,6 @@ export default function MembershipsManagement() {
           />
         </div>
 
-        {/* Filter by Type */}
         <div>
           <label style={{ ...labelStyle, marginBottom: '6px' }}>Filter by Type</label>
           <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
@@ -353,7 +371,6 @@ export default function MembershipsManagement() {
           </select>
         </div>
 
-        {/* Sort */}
         <div>
           <label style={{ ...labelStyle, marginBottom: '6px' }}>Sort by</label>
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}
@@ -365,7 +382,6 @@ export default function MembershipsManagement() {
           </select>
         </div>
 
-        {/* Count + Clear */}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', marginLeft: 'auto' }}>
           {(searchQuery.trim() || filterType !== 'all' || sortBy !== 'az') && (
             <button
@@ -413,8 +429,12 @@ export default function MembershipsManagement() {
                 </div>
                 <div>
                   <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Status</p>
-                  <select value={member.status} onChange={(e) => { e.stopPropagation(); updateStatus(member.id, e.target.value); }}
-                    style={{ padding: '6px 12px', backgroundColor: getStatusColor(member.status), color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'normal', cursor: 'pointer' }}>
+                  <select 
+                    value={member.status} 
+                    onChange={(e) => { e.stopPropagation(); updateStatus(member.id, e.target.value); }}
+                    style={{ padding: '6px 12px', backgroundColor: getStatusColor(member.status), color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'normal', cursor: isAdmin ? 'pointer' : 'not-allowed' }}
+                    disabled={!isAdmin}
+                  >
                     {activeTab === 'annual' ? (
                       <><option value="active">Active</option><option value="expired">Expired</option><option value="pending_payment">Pending Payment</option></>
                     ) : (
@@ -433,19 +453,28 @@ export default function MembershipsManagement() {
                       )}
                     </div>
                   )}
-                  <button onClick={(e) => { e.stopPropagation(); openEditModal(member); }}
-                    title="Edit member"
-                    style={{ padding: '8px 10px', backgroundColor: '#dbeafe', color: '#1d4ed8', border: '1px solid #93c5fd', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' }}>
-                    ✏️
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); if (activeTab === 'annual') renewMembership(member.id); else { setSelectedMember(member); setShowPaymentModal(true); } }}
-                    style={{ padding: '8px 16px', backgroundColor: activeTab === 'annual' ? '#10b981' : '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'normal', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                    {activeTab === 'annual' ? '🔄 Renew' : '💰 Payment'}
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); deleteMember(member.id); }}
-                    style={{ padding: '8px 10px', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' }}>
-                    🗑️
-                  </button>
+                  {isAdmin && (
+                    <>
+                      <button onClick={(e) => { e.stopPropagation(); openEditModal(member); }}
+                        title="Edit member"
+                        style={{ padding: '8px 10px', backgroundColor: '#dbeafe', color: '#1d4ed8', border: '1px solid #93c5fd', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' }}>
+                        ✏️
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); if (activeTab === 'annual') renewMembership(member.id); else { setSelectedMember(member); setShowPaymentModal(true); } }}
+                        style={{ padding: '8px 16px', backgroundColor: activeTab === 'annual' ? '#10b981' : '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'normal', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                        {activeTab === 'annual' ? '🔄 Renew' : '💰 Payment'}
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); deleteMember(member.id); }}
+                        style={{ padding: '8px 10px', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' }}>
+                        🗑️
+                      </button>
+                    </>
+                  )}
+                  {!isAdmin && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', fontSize: '12px', padding: '4px 8px', backgroundColor: '#f3f4f6', borderRadius: '4px' }}>
+                      <Eye size={14} /> View only
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -493,7 +522,7 @@ export default function MembershipsManagement() {
       )}
 
       {/* Add / Edit Member Modal */}
-      {showAddModal && (
+      {showAddModal && isAdmin && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
           <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px', maxWidth: '700px', width: '100%', boxShadow: '0 20px 25px rgba(0,0,0,0.15)', maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '20px', fontWeight: 'normal', color: '#111827', marginTop: 0, marginBottom: '24px' }}>
@@ -591,7 +620,7 @@ export default function MembershipsManagement() {
 
               {/* How did you hear */}
               <div style={{ gridColumn: '1 / -1' }}>
-                <label style={labelStyle}>How did they hear about e&apos;Bosch Membership?</label>
+                <label style={labelStyle}>How did they hear about e'Bosch Membership?</label>
                 <select value={addForm.heardFrom} onChange={(e) => setAddForm({ ...addForm, heardFrom: e.target.value, referredBy: '', referredByOther: '', heardFromOther: '' })} style={inputStyle}>
                   <option value="">Select an option</option>
                   {HEARD_FROM_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
@@ -637,7 +666,7 @@ export default function MembershipsManagement() {
       )}
 
       {/* Payment Modal */}
-      {showPaymentModal && selectedMember && (
+      {showPaymentModal && selectedMember && isAdmin && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px', maxWidth: '400px', width: '90%', boxShadow: '0 20px 25px rgba(0,0,0,0.15)' }}>
             <h3 style={{ fontSize: '20px', fontWeight: 'normal', color: '#111827', marginBottom: '24px', marginTop: 0 }}>Mark Payment Received</h3>

@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
-import { LogOut, BarChart3, Calendar, Tag, Building2, Package, ClipboardList, ImageIcon } from 'lucide-react';
+import { 
+  LogOut, BarChart3, Calendar, Tag, Building2, Package, 
+  ClipboardList, ImageIcon, Users, CreditCard 
+} from 'lucide-react';
 
 // Import all sections
 import AdminOverview from '@/components/admin/AdminOverview';
@@ -16,12 +19,12 @@ import OrdersManagement from '@/components/admin/OrdersManagement';
 import MembershipsManagement from '@/components/admin/MembershipsManagement';
 import DonationsManagement from '@/components/admin/DonationsManagement';
 import AdminPastEvents from '@/components/admin/AdminPastEvents';
-import EventRequestsManagement from '@/components/admin/EventRequestsManagement'; // New
+import EventRequestsManagement from '@/components/admin/EventRequestsManagement';
 
 type SectionType = 
   | 'overview' 
   | 'events' 
-  | 'eventRequests'    // New – placed after Events
+  | 'eventRequests'
   | 'pastGallery'
   | 'categories' 
   | 'businesses' 
@@ -46,7 +49,6 @@ export default function AdminDashboard() {
   const menuItems: MenuItem[] = [
     { id: 'overview', label: 'Overview', icon: <BarChart3 size={20} /> },
     { id: 'events', label: 'Events', icon: <Calendar size={20} /> },
-    // Event Requests – after Events, only admin
     { 
       id: 'eventRequests', 
       label: 'Event Requests', 
@@ -59,12 +61,12 @@ export default function AdminDashboard() {
       icon: <ImageIcon size={20} />,
       allowedEmails: ['members.ebosch@gmail.com', 'office.ebosch@gmail.com']
     },
-    { id: 'categories', label: 'Categories', icon: <Tag size={20} /> },
-    { id: 'businesses', label: 'Businesses', icon: <Building2 size={20} /> },
-    { id: 'products', label: 'Products', icon: <Package size={20} /> },
-    { id: 'orders', label: 'Orders', icon: <ClipboardList size={20} /> },
-    { id: 'memberships', label: 'Memberships', icon: <ClipboardList size={20} /> },
-    { id: 'donations', label: 'Donations', icon: <ClipboardList size={20} /> },
+    { id: 'categories', label: 'Categories', icon: <Tag size={20} />, allowedEmails: ['members.ebosch@gmail.com'] },
+    { id: 'businesses', label: 'Businesses', icon: <Building2 size={20} />, allowedEmails: ['members.ebosch@gmail.com'] },
+    { id: 'products', label: 'Products', icon: <Package size={20} />, allowedEmails: ['members.ebosch@gmail.com'] },
+    { id: 'orders', label: 'Orders', icon: <ClipboardList size={20} />, allowedEmails: ['members.ebosch@gmail.com'] },
+    { id: 'memberships', label: 'Memberships', icon: <Users size={20} /> },
+    { id: 'donations', label: 'Donations', icon: <CreditCard size={20} />, allowedEmails: ['members.ebosch@gmail.com'] },
   ];
 
   useEffect(() => {
@@ -109,7 +111,7 @@ export default function AdminDashboard() {
       case 'orders':
         return <OrdersManagement />;
       case 'memberships':
-        return <MembershipsManagement />;
+        return <MembershipsManagement user={user} />;
       case 'donations':
         return <DonationsManagement />;
       default:
