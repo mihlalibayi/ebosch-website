@@ -6,7 +6,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
 import { 
   LogOut, BarChart3, Calendar, Tag, Building2, Package, 
-  ClipboardList, ImageIcon, Users, CreditCard 
+  ClipboardList, ImageIcon, Users, CreditCard, Handshake, Camera 
 } from 'lucide-react';
 
 // Import all sections
@@ -20,6 +20,8 @@ import MembershipsManagement from '@/components/admin/MembershipsManagement';
 import DonationsManagement from '@/components/admin/DonationsManagement';
 import AdminPastEvents from '@/components/admin/AdminPastEvents';
 import EventRequestsManagement from '@/components/admin/EventRequestsManagement';
+import PartnersManagement from '@/components/admin/PartnersManagement';
+import PublicityManagement from '@/components/admin/PublicityManagement'; // new
 
 type SectionType = 
   | 'overview' 
@@ -31,7 +33,9 @@ type SectionType =
   | 'products' 
   | 'orders' 
   | 'memberships' 
-  | 'donations';
+  | 'donations'
+  | 'partners'
+  | 'publicity'; // new
 
 interface MenuItem {
   id: SectionType;
@@ -67,6 +71,18 @@ export default function AdminDashboard() {
     { id: 'orders', label: 'Orders', icon: <ClipboardList size={20} />, allowedEmails: ['members.ebosch@gmail.com'] },
     { id: 'memberships', label: 'Memberships', icon: <Users size={20} /> },
     { id: 'donations', label: 'Donations', icon: <CreditCard size={20} />, allowedEmails: ['members.ebosch@gmail.com'] },
+    { 
+      id: 'partners', 
+      label: 'Partners', 
+      icon: <Handshake size={20} />,
+      allowedEmails: ['members.ebosch@gmail.com']
+    },
+    { 
+      id: 'publicity', 
+      label: 'Publicity', 
+      icon: <Camera size={20} />,
+      allowedEmails: ['members.ebosch@gmail.com', 'school.ebosch@gmail.com'] // admin + school
+    },
   ];
 
   useEffect(() => {
@@ -114,6 +130,10 @@ export default function AdminDashboard() {
         return <MembershipsManagement user={user} />;
       case 'donations':
         return <DonationsManagement />;
+      case 'partners':
+        return <PartnersManagement user={user} />;
+      case 'publicity':
+        return <PublicityManagement user={user} />;
       default:
         return <AdminOverview />;
     }

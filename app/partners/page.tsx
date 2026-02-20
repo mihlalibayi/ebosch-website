@@ -1,38 +1,27 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/firebase-config';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 
 type Language = 'en' | 'af' | 'xh';
 type DonatorType = 'individual' | 'business';
 type DonationMethod = 'no-tax' | 'section18a' | null;
 
-const sponsors = [
-  { src: '/sponsors/capewinelands.jpg', alt: 'Cape Winelands District Municipality' },
-  { src: '/sponsors/stellmunicipal.jpg', alt: 'Stellenbosch Municipality' },
-  { src: '/sponsors/stelluni.jpg', alt: 'Stellenbosch University' },
-  { src: '/sponsors/academofsport.webp', alt: 'Stellenbosch Academy of Sport' },
-  { src: '/sponsors/wcgov.jpeg', alt: 'Western Cape Government' },
-  { src: '/sponsors/voortrekker.jpg', alt: 'Die Voortrekkers' },
-  { src: '/sponsors/jannie-mouton.png', alt: 'Jannie Mouton Foundation' },
-  { src: '/sponsors/acwstell.png', alt: 'ACVV' },
-  { src: '/sponsors/stellcare.jpg', alt: 'StellCare' },
-  { src: '/sponsors/remgro.jpg', alt: 'Remgro Limited' },
-  { src: '/sponsors/gsv.jpg', alt: 'GSV' },
-  { src: '/sponsors/eikestaadnuus.png', alt: 'Eikestadnuus' },
-  { src: '/sponsors/moore.png', alt: 'Moore' },
-  { src: '/sponsors/stellenbosch-museum.gif', alt: 'Stellenbosch Museum' },
-  { src: '/sponsors/dennis-moss.png', alt: 'Dennis Moss Partnership' },
-  { src: '/sponsors/hungrylion.webp', alt: 'Hungry Lion' },
-  { src: '/sponsors/aquelle.png', alt: 'aQuellé' },
-  { src: '/sponsors/nedbank.jpg', alt: 'Nedbank' },
-  { src: '/sponsors/ultiimate-air.gif', alt: 'Ultimate Air Solutions' },
-];
+interface Partner {
+  id: string;
+  imageUrl: string;
+  altText: string;
+  order: number;
+}
 
 export default function Partners() {
   const [language, setLanguage] = useState<Language>('en');
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [loadingPartners, setLoadingPartners] = useState(true);
+
+  // Donation modal states (unchanged)
   const [showModal, setShowModal] = useState(false);
   const [donatorType, setDonatorType] = useState<DonatorType>('individual');
   const [donationMethod, setDonationMethod] = useState<DonationMethod>(null);
@@ -54,6 +43,27 @@ export default function Partners() {
     phone: '',
   });
 
+  // Fetch partners from Firestore
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'partners'));
+        let data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Partner[];
+        data.sort((a, b) => (a.order || 0) - (b.order || 0));
+        setPartners(data);
+      } catch (error) {
+        console.error('Error fetching partners:', error);
+      } finally {
+        setLoadingPartners(false);
+      }
+    };
+    fetchPartners();
+  }, []);
+
+  // Donation modal functions (unchanged)
   const resetForm = () => {
     setDonationMethod(null);
     setPaymentAmount(null);
@@ -68,26 +78,6 @@ export default function Partners() {
   const closeModal = () => {
     setShowModal(false);
     resetForm();
-  };
-
-  const navLinkStyle = {
-    textDecoration: 'none',
-    color: '#4b5563',
-    fontSize: '16px',
-    fontWeight: '500',
-    paddingBottom: '4px',
-    borderBottom: '2px solid transparent',
-    transition: 'all 0.3s ease',
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    (e.target as HTMLElement).style.color = '#2d5016';
-    (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    (e.target as HTMLElement).style.color = '#4b5563';
-    (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
   };
 
   const handleFileDrop = (e: React.DragEvent) => {
@@ -154,10 +144,30 @@ export default function Partners() {
     outline: 'none',
   };
 
+  const navLinkStyle = {
+    textDecoration: 'none',
+    color: '#4b5563',
+    fontSize: '16px',
+    fontWeight: '500',
+    paddingBottom: '4px',
+    borderBottom: '2px solid transparent',
+    transition: 'all 0.3s ease',
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (e.target as HTMLElement).style.color = '#2d5016';
+    (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (e.target as HTMLElement).style.color = '#4b5563';
+    (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+  };
+
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Header */}
+      {/* Header (unchanged) */}
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
         backgroundColor: 'white', boxShadow: 'none', transition: 'box-shadow 0.3s ease'
@@ -165,44 +175,36 @@ export default function Partners() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <nav style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
-
               <Link href="/" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Home'}
                 {language === 'af' && 'Tuis'}
                 {language === 'xh' && 'Ikhaya'}
               </Link>
-
               <Link href="/about" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'About'}
                 {language === 'af' && 'Oor'}
                 {language === 'xh' && 'Malunga'}
               </Link>
-
               <Link href="/events" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Events'}
                 {language === 'af' && 'Geleenthede'}
                 {language === 'xh' && 'Iziganeko'}
               </Link>
-
               <Link href="/store" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && "e'Bosch Store"}
                 {language === 'af' && "e'Bosch Winkel"}
                 {language === 'xh' && "e'Bosch Inkolo"}
               </Link>
-
               <Link href="/membership" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Membership'}
                 {language === 'af' && 'Lidmaatskap'}
                 {language === 'xh' && 'Ubulungu'}
               </Link>
-
               <Link href="/publicity" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Publicity'}
                 {language === 'af' && 'Publisiteit'}
                 {language === 'xh' && 'Isaziso'}
               </Link>
-
-              {/* Our Partners — active page */}
               <Link href="/partners" style={{
                 textDecoration: 'none',
                 color: '#2d5016',
@@ -218,13 +220,11 @@ export default function Partners() {
                 {language === 'af' && 'Ons Vennote'}
                 {language === 'xh' && 'Abalingani Bethu'}
               </Link>
-
               <Link href="/contact" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Contact'}
                 {language === 'af' && 'Kontak'}
                 {language === 'xh' && 'Xhomekela'}
               </Link>
-
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as Language)}
@@ -246,7 +246,6 @@ export default function Partners() {
                 <option value="af">Afrikaans</option>
                 <option value="xh">Xhosa</option>
               </select>
-
             </nav>
           </div>
         </div>
@@ -284,43 +283,58 @@ export default function Partners() {
           </button>
         </div>
 
-        {/* Sponsor Logos */}
-        <section style={{ marginBottom: '80px' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: '32px',
-            alignItems: 'center',
-          }}>
-            {sponsors.map((sponsor, i) => (
-              <div key={i}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  padding: '20px', borderRadius: '12px', background: '#fafafa',
-                  border: '1px solid #f3f4f6', transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(45,80,22,0.1)';
-                  e.currentTarget.style.borderColor = '#d1fae5';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = 'none';
-                  e.currentTarget.style.borderColor = '#f3f4f6';
-                }}>
-                <img
-                  src={sponsor.src}
-                  alt={sponsor.alt}
-                  style={{ maxWidth: '140px', maxHeight: '80px', objectFit: 'contain', filter: 'grayscale(20%)' }}
-                  loading="lazy"
-                />
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Partner Logos - dynamic from Firestore */}
+        {loadingPartners ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>Loading partners...</div>
+        ) : (
+          <section style={{ marginBottom: '80px' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '32px',
+              alignItems: 'center',
+              justifyItems: 'center',
+              padding: '0 20px',
+            }}>
+              {partners.map((partner) => (
+                <div key={partner.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '16px', borderRadius: '12px', background: '#fafafa',
+                    border: '1px solid #f3f4f6', transition: 'all 0.2s',
+                    width: '100%',
+                    height: '160px', // fixed height for consistency
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(45,80,22,0.1)';
+                    e.currentTarget.style.borderColor = '#d1fae5';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.borderColor = '#f3f4f6';
+                  }}>
+                  <img
+                    src={partner.imageUrl}
+                    alt={partner.altText}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain',
+                      filter: 'grayscale(20%)',
+                    }}
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
       </main>
 
-      {/* ── DONATION MODAL ── */}
+      {/* Donation Modal – unchanged (kept for completeness) */}
       {showModal && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
@@ -373,10 +387,9 @@ export default function Partners() {
               </p>
             </div>
 
-            {/* RIGHT: Donation form */}
+            {/* RIGHT: Donation form (unchanged) */}
             <div style={{ padding: '36px', position: 'relative' }}>
 
-              {/* Close button */}
               <button onClick={closeModal}
                 style={{ position: 'absolute', top: '16px', right: '20px', background: 'none', border: 'none', fontSize: '22px', color: '#9ca3af', cursor: 'pointer', lineHeight: 1 }}>
                 ✕
@@ -388,7 +401,7 @@ export default function Partners() {
                   <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#2d5016', marginBottom: '12px' }}>
                     {language === 'en' && 'Thank you for your contribution!'}
                     {language === 'af' && 'Baie dankie vir jou bydrae!'}
-                    {language === 'xh' && 'Enkosi kakhulu ngeegalelo lakho!'}
+                    {language === 'xh' && 'Enkosi kakhulu ngegalelo lakho!'}
                   </h3>
                   <p style={{ color: '#6b7280', fontSize: '15px', marginBottom: '24px' }}>
                     {language === 'en' && 'Your donation has been recorded. We will be in touch shortly.'}
@@ -698,7 +711,6 @@ export default function Partners() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

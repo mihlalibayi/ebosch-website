@@ -1,80 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { db } from '@/lib/firebase-config';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 type Language = 'en' | 'af' | 'xh';
 
-// All images from highest to lowest, missing: photo6, photo29, photo51
-const photos = [
-  { src: '/publicity/photo53.jpg' },
-  { src: '/publicity/photo52.jpg' },
-  { src: '/publicity/photo50.jpeg' },
-  { src: '/publicity/photo49.jpeg' },
-  { src: '/publicity/photo48.jpg' },
-  { src: '/publicity/photo47.jpeg' },
-  { src: '/publicity/photo46.jpg' },
-  { src: '/publicity/photo45.jpg' },
-  { src: '/publicity/photo44.jpg' },
-  { src: '/publicity/photo43.jpg' },
-  { src: '/publicity/photo42.jpg' },
-  { src: '/publicity/photo41.jpeg' },
-  { src: '/publicity/photo40.jpeg' },
-  { src: '/publicity/photo40.jpg' },
-  { src: '/publicity/photo39.jpg' },
-  { src: '/publicity/photo38.jpg' },
-  { src: '/publicity/photo37.jpeg' },
-  { src: '/publicity/photo36.jpg' },
-  { src: '/publicity/photo35.jpg' },
-  { src: '/publicity/photo34.jpg' },
-  { src: '/publicity/photo33.jpg' },
-  { src: '/publicity/photo32.jpeg' },
-  { src: '/publicity/photo31.jpeg' },
-  { src: '/publicity/photo30.jpg' },
-  { src: '/publicity/photo28.jpeg' },
-  { src: '/publicity/photo27.jpeg' },
-  { src: '/publicity/photo26.jpg' },
-  { src: '/publicity/photo25.jpeg' },
-  { src: '/publicity/photo24.jpg' },
-  { src: '/publicity/photo23.jpeg' },
-  { src: '/publicity/photo22.jpg' },
-  { src: '/publicity/photo21.jpg' },
-  { src: '/publicity/photo20.jpg' },
-  { src: '/publicity/photo19.jpg' },
-  { src: '/publicity/photo18.jpg' },
-  { src: '/publicity/photo17.jpg' },
-  { src: '/publicity/photo16.jpg' },
-  { src: '/publicity/photo15.jpg' },
-  { src: '/publicity/photo14.jpg' },
-  { src: '/publicity/photo13.jpg' },
-  { src: '/publicity/photo12.jpg' },
-  { src: '/publicity/photo11.jpg' },
-  { src: '/publicity/photo10.jpg' },
-  { src: '/publicity/photo9.jpg' },
-  { src: '/publicity/photo8.jpg' },
-  { src: '/publicity/photo7.jpg' },
-  { src: '/publicity/photo5.jpg' },
-  { src: '/publicity/photo4.jpg' },
-  { src: '/publicity/photo3.jpeg' },
-  { src: '/publicity/photo1.jpeg' },
-];
-
-// Distribute into 3 columns — photo2 and photo3 forced into column 3 at the end
-const col1: { src: string }[] = [];
-const col2: { src: string }[] = [];
-const col3: { src: string }[] = [];
-const forcedToCol3 = ['/publicity/photo2.jpeg', '/publicity/photo3.jpeg'];
-photos.filter(p => !forcedToCol3.includes(p.src)).forEach((photo, i) => {
-  if (i % 3 === 0) col1.push(photo);
-  else if (i % 3 === 1) col2.push(photo);
-  else col3.push(photo);
-});
-col3.push({ src: '/publicity/photo3.jpeg' });
-col3.push({ src: '/publicity/photo2.jpeg' });
+interface PublicityImage {
+  id: string;
+  imageUrl: string;
+}
 
 export default function Publicity() {
   const [language, setLanguage] = useState<Language>('en');
+  const [images, setImages] = useState<PublicityImage[]>([]);
+  const [loading, setLoading] = useState(true);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const q = query(collection(db, 'publicityImages'), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as PublicityImage[];
+        setImages(data);
+      } catch (error) {
+        console.error('Error fetching publicity images:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchImages();
+  }, []);
+
+  // Distribute into 3 columns
+  const col1 = images.filter((_, i) => i % 3 === 0);
+  const col2 = images.filter((_, i) => i % 3 === 1);
+  const col3 = images.filter((_, i) => i % 3 === 2);
 
   const navLinkStyle: React.CSSProperties = {
     textDecoration: 'none',
@@ -144,12 +110,12 @@ export default function Publicity() {
 
   const content = mediaContent[language];
 
-  const MasonryColumn = ({ items }: { items: { src: string }[] }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {items.map((photo, idx) => (
+  const MasonryColumn = ({ items }: { items: PublicityImage[] }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {items.map((photo) => (
         <div
-          key={idx}
-          onClick={() => setLightboxSrc(photo.src)}
+          key={photo.id}
+          onClick={() => setLightboxSrc(photo.imageUrl)}
           style={{
             cursor: 'pointer',
             borderRadius: '8px',
@@ -167,7 +133,7 @@ export default function Publicity() {
           }}
         >
           <img
-            src={photo.src}
+            src={photo.imageUrl}
             alt="e'Bosch media coverage"
             style={{ width: '100%', height: 'auto', display: 'block' }}
             loading="lazy"
@@ -179,7 +145,7 @@ export default function Publicity() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
+      {/* Header (unchanged) */}
       <header style={{
         position: 'fixed',
         top: 0,
@@ -193,37 +159,31 @@ export default function Publicity() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <nav style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
-
               <Link href="/" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Home'}
                 {language === 'af' && 'Tuis'}
                 {language === 'xh' && 'Ikhaya'}
               </Link>
-
               <Link href="/about" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'About'}
                 {language === 'af' && 'Oor'}
                 {language === 'xh' && 'Malunga'}
               </Link>
-
               <Link href="/events" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Events'}
                 {language === 'af' && 'Geleenthede'}
                 {language === 'xh' && 'Iziganeko'}
               </Link>
-
               <Link href="/store" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && "e'Bosch Store"}
                 {language === 'af' && "e'Bosch Winkel"}
                 {language === 'xh' && "e'Bosch Inkolo"}
               </Link>
-
               <Link href="/membership" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Membership'}
                 {language === 'af' && 'Lidmaatskap'}
                 {language === 'xh' && 'Ubulungu'}
               </Link>
-
               <Link href="/publicity" style={activeNavLinkStyle}
                 onMouseEnter={(e) => { (e.target as HTMLElement).style.opacity = '0.7'; }}
                 onMouseLeave={(e) => { (e.target as HTMLElement).style.opacity = '1'; }}>
@@ -231,13 +191,11 @@ export default function Publicity() {
                 {language === 'af' && 'Publisiteit'}
                 {language === 'xh' && 'Isaziso'}
               </Link>
-
               <Link href="/contact" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Contact'}
                 {language === 'af' && 'Kontak'}
                 {language === 'xh' && 'Xhomekela'}
               </Link>
-
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as Language)}
@@ -265,7 +223,6 @@ export default function Publicity() {
                 <option value="af">Afrikaans</option>
                 <option value="xh">Xhosa</option>
               </select>
-
             </nav>
           </div>
         </div>
@@ -273,7 +230,7 @@ export default function Publicity() {
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '110px 48px 48px 48px' }}>
 
-        {/* Media Releases Section */}
+        {/* Media Releases Section (unchanged) */}
         <section style={{ marginBottom: '60px' }}>
           <div style={{
             maxWidth: '800px',
@@ -285,21 +242,21 @@ export default function Publicity() {
             borderRadius: '8px',
             boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
           }}>
-            <h3 style={{ color: '#006400', fontSize: '28px', marginBottom: '20px' }}>
+            <h3 style={{ color: '#006400', fontSize: '28px', marginBottom: '20px', fontWeight: '600' }}>
               {content.subtitle}
             </h3>
-            <p style={{ fontSize: '20px', lineHeight: '1.6', color: '#333', marginBottom: '20px' }}>
+            <p style={{ fontSize: '18px', lineHeight: '1.6', color: '#333', marginBottom: '20px' }}>
               {content.description}
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '15px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px', marginBottom: '20px' }}>
               {content.tags.map((tag, i) => {
                 const colors = ['#006400', '#228B22', '#2E8B57', '#3CB371', '#32CD32', '#9ACD32'];
-                const sizes = ['22px', '20px', '18px', '22px', '20px', '18px'];
+                const sizes = ['20px', '18px', '16px', '20px', '18px', '16px'];
                 return (
                   <span key={i} style={{
                     color: colors[i],
                     fontSize: sizes[i],
-                    fontWeight: i % 2 === 0 ? 'bold' : 'normal',
+                    fontWeight: i % 2 === 0 ? '600' : '400',
                     fontStyle: i === 2 ? 'italic' : 'normal',
                   }}>
                     {tag}
@@ -307,24 +264,35 @@ export default function Publicity() {
                 );
               })}
             </div>
-            <p style={{ fontSize: '18px', lineHeight: '1.6', color: '#555' }}>
+            <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#555' }}>
               {content.footer}
             </p>
           </div>
         </section>
 
-        {/* Masonry Gallery */}
-        <section style={{ marginBottom: '80px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', alignItems: 'start' }}>
-            <MasonryColumn items={col1} />
-            <MasonryColumn items={col2} />
-            <MasonryColumn items={col3} />
-          </div>
-        </section>
+        {/* Masonry Gallery - from Firestore, newest first */}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>Loading gallery...</div>
+        ) : images.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>No images yet.</div>
+        ) : (
+          <section style={{ marginBottom: '80px' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '16px',
+              alignItems: 'start',
+            }}>
+              <MasonryColumn items={col1} />
+              <MasonryColumn items={col2} />
+              <MasonryColumn items={col3} />
+            </div>
+          </section>
+        )}
 
       </main>
 
-      {/* Lightbox */}
+      {/* Lightbox (unchanged) */}
       {lightboxSrc && (
         <div
           onClick={() => setLightboxSrc(null)}
