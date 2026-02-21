@@ -29,8 +29,12 @@ const archiveData: ArchiveItem[] = [
     titleEn: 'eBosch Projects',
     titleAf: 'eBosch Projekte',
     titleXh: 'Iiprojekthi ze-eBosch',
-    images: range(1, 21, '/archives/projects/project', 'jpg'),
-    imagesPerRow: 7,
+    // remove project19
+    images: [
+      ...range(1, 18, '/archives/projects/project', 'jpg'),
+      ...range(20, 21, '/archives/projects/project', 'jpg')
+    ],
+    imagesPerRow: 5, // 20 images -> 4 rows
   },
   {
     id: 'heritage-tour',
@@ -38,7 +42,7 @@ const archiveData: ArchiveItem[] = [
     titleAf: 'Museum Erfenis Toer',
     titleXh: 'Ukhenketho lweMnyuziyam yeLifa',
     images: range(1, 12, '/archives/heritagetour/tour', 'jpg'),
-    imagesPerRow: 6,
+    imagesPerRow: 4, // 12 images -> 3 rows
   },
   {
     id: 'cohesion-workshop',
@@ -46,7 +50,7 @@ const archiveData: ArchiveItem[] = [
     titleAf: 'Sosiale Samehorigheid Werkswinkel',
     titleXh: 'Ucweyo loManyano lweNtlalo',
     images: range(1, 10, '/archives/cohesionworkshop/workshop', 'jpg'),
-    imagesPerRow: 5,
+    imagesPerRow: 4, // 10 images -> 3 rows (4+4+2)
   },
   {
     id: 'tree-planting',
@@ -54,7 +58,7 @@ const archiveData: ArchiveItem[] = [
     titleAf: 'Boomplant Dag',
     titleXh: 'USuku lokuTyalwa kweMithi',
     images: range(1, 12, '/archives/plant/plant', 'jpg'),
-    imagesPerRow: 6,
+    imagesPerRow: 4, // 12 images -> 3 rows
   },
   {
     id: 'eerste-walk',
@@ -62,7 +66,7 @@ const archiveData: ArchiveItem[] = [
     titleAf: 'Eerste Water Walk Pelgrimstog',
     titleXh: 'Uhambo lwamanzi lwase-Eerste',
     images: range(1, 8, '/archives/eerstewalk/walk', 'jpg'),
-    imagesPerRow: 4, // 4 per row gives 2 rows
+    imagesPerRow: 4, // 8 images -> 2 rows
   },
   {
     id: 'legacy-concert',
@@ -85,11 +89,11 @@ const archiveData: ArchiveItem[] = [
     titleEn: "e'Bosch Crafts Alive Development Project",
     titleAf: "e'Bosch Crafts Alive Ontwikkelingsprojek",
     titleXh: 'Iprojekthi yoPhuhliso lweCrafts Alive ye-eBosch',
+    // remove craftalive4
     images: [
       '/archives/craftsalive/craftalive1.jpg',
       '/archives/craftsalive/craftalive2.jpeg',
       '/archives/craftsalive/craftalive3.jpeg',
-      '/archives/craftsalive/craftalive4.jpeg',
     ],
     textEn: [
       "The e'Bosch Craft Alive Development Project fostered collaboration across Stellenbosch's communities and sectors to strengthen the local craft industry as part of the town's socio-economic landscape. It promoted recognition and support for crafts as a way to empower skilled and motivated individuals, offering them job opportunities, sustainable income, and a deeper sense of belonging. The initiative contributed to positioning Stellenbosch as a true Centre for Entrepreneurship."
@@ -101,7 +105,7 @@ const archiveData: ArchiveItem[] = [
       "Iprojekthi yoPhuhliso lweCrafts Alive ye-eBosch ikhuthaze intsebenziswano kwiindawo zoluntu zaseStellenbosch kunye namacandelo ukuqinisa ishishini lasekuhlaleni lezandla njengenxalenye yemeko yezoqoqosho lwedolophu. Ikhuthaze ukuqatshelwa kunye nenkxaso yemisebenzi yezandla njengendlela yokuxhobisa abantu abanezakhono nabakhuthazekileyo, ibanike amathuba emisebenzi, ingeniso ezinzileyo, kunye nemvakalelo enzulu yokuba yinxalenye. Eli nyathelo libe negalelo ekubekeni iStellenbosch njengeZiko loShishino lokwenene."
     ],
     pdf: '/archives/craftsalive/ebosch_crafts_alive_project.pdf',
-    imagesPerRow: 4, // one row
+    imagesPerRow: 3, // one row
   },
   {
     id: 'wildlands',
@@ -179,7 +183,7 @@ const archiveData: ArchiveItem[] = [
       "Iilungiswe nguDennis Moss, inkokheli yeengcinga ye-e'Bosch."
     ],
     pdf: '/archives/biosphere/ebosch_stb_idp_sdf_discussion_doc.pdf',
-    imagesPerRow: 1, // no images, but placeholder
+    imagesPerRow: 1, // no images
   },
   {
     id: '100-identities',
@@ -497,20 +501,22 @@ export default function Archive() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" style={{ paddingTop: '100px' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827', marginBottom: '40px', textAlign: 'center' }}>
-          {language === 'en' && 'Project Archive'}
-          {language === 'af' && 'Projek Argief'}
-          {language === 'xh' && 'Ugcino lweProjekthi'}
-        </h1>
+      <main className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 py-12" style={{ paddingTop: '100px' }}>
+        {/* No main heading as requested */}
 
         {archiveData.map((item) => (
           <section key={item.id} style={{ marginBottom: '80px' }}>
-            <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: '#2d5016', marginBottom: '20px' }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#4b5563', // dark grey
+              marginBottom: '20px',
+              textAlign: 'center'
+            }}>
               {getTitle(item)}
             </h2>
 
-            {/* Text content (if any) – styled like about page but wider */}
+            {/* Text content – like about page but wider */}
             {getText(item).length > 0 && (
               <div style={{
                 background: 'linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%)',
@@ -535,43 +541,54 @@ export default function Archive() {
               </div>
             )}
 
-            {/* Image gallery */}
+            {/* Image gallery – now centered with max-width */}
             {item.images && item.images.length > 0 && (
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${item.imagesPerRow}, 1fr)`,
-                gap: '20px',
-                marginBottom: item.pdf ? '20px' : 0,
+                maxWidth: '1100px',
+                margin: '0 auto',
               }}>
-                {item.images.map((src, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => setLightboxSrc(src)}
-                    style={{
-                      cursor: 'pointer',
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                      aspectRatio: '1/1',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
-                      (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(45,80,22,0.2)';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-                      (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                    }}
-                  >
-                    <img
-                      src={src}
-                      alt={`${getTitle(item)} image ${idx + 1}`}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${item.imagesPerRow}, 1fr)`,
+                  gap: '20px',
+                  marginBottom: item.pdf ? '20px' : 0,
+                }}>
+                  {item.images.map((src, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => setLightboxSrc(src)}
+                      style={{
+                        cursor: 'pointer',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        aspectRatio: '1/1',
+                        maxHeight: item.id === 'sicmf' ? '300px' : 'none',
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(45,80,22,0.2)';
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                      }}
+                    >
+                      <img
+                        src={src}
+                        alt={`${getTitle(item)} image ${idx + 1}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: item.id === 'sicmf' ? 'contain' : 'cover',
+                          backgroundColor: '#f5f5f5',
+                        }}
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
