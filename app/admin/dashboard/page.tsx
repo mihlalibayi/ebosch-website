@@ -6,7 +6,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
 import { 
   LogOut, BarChart3, Calendar, Tag, Building2, Package, 
-  ClipboardList, ImageIcon, Users, CreditCard, Handshake, Camera 
+  ClipboardList, ImageIcon, Users, CreditCard, Handshake, Camera, FolderOpen 
 } from 'lucide-react';
 
 // Import all sections
@@ -21,7 +21,9 @@ import DonationsManagement from '@/components/admin/DonationsManagement';
 import AdminPastEvents from '@/components/admin/AdminPastEvents';
 import EventRequestsManagement from '@/components/admin/EventRequestsManagement';
 import PartnersManagement from '@/components/admin/PartnersManagement';
-import PublicityManagement from '@/components/admin/PublicityManagement'; // new
+import PublicityManagement from '@/components/admin/PublicityManagement';
+import GalleryFoldersManagement from '@/components/admin/GalleryFoldersManagement';
+import GalleryImagesManagement from '@/components/admin/GalleryImagesManagement';
 
 type SectionType = 
   | 'overview' 
@@ -35,7 +37,9 @@ type SectionType =
   | 'memberships' 
   | 'donations'
   | 'partners'
-  | 'publicity'; // new
+  | 'publicity'
+  | 'galleryFolders'
+  | 'galleryImages';
 
 interface MenuItem {
   id: SectionType;
@@ -81,7 +85,19 @@ export default function AdminDashboard() {
       id: 'publicity', 
       label: 'Publicity', 
       icon: <Camera size={20} />,
-      allowedEmails: ['members.ebosch@gmail.com', 'school.ebosch@gmail.com'] // admin + school
+      allowedEmails: ['members.ebosch@gmail.com', 'school.ebosch@gmail.com']
+    },
+    { 
+      id: 'galleryFolders', 
+      label: 'Gallery Folders', 
+      icon: <FolderOpen size={20} />,
+      allowedEmails: ['members.ebosch@gmail.com']
+    },
+    { 
+      id: 'galleryImages', 
+      label: 'Gallery Images', 
+      icon: <ImageIcon size={20} />,
+      allowedEmails: ['members.ebosch@gmail.com', 'office.ebosch@gmail.com']
     },
   ];
 
@@ -134,6 +150,10 @@ export default function AdminDashboard() {
         return <PartnersManagement user={user} />;
       case 'publicity':
         return <PublicityManagement user={user} />;
+      case 'galleryFolders':
+        return <GalleryFoldersManagement />;
+      case 'galleryImages':
+        return <GalleryImagesManagement user={user} />;
       default:
         return <AdminOverview />;
     }
