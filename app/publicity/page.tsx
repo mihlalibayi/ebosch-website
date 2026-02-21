@@ -37,11 +37,6 @@ export default function Publicity() {
     fetchImages();
   }, []);
 
-  // Distribute into 3 columns
-  const col1 = images.filter((_, i) => i % 3 === 0);
-  const col2 = images.filter((_, i) => i % 3 === 1);
-  const col3 = images.filter((_, i) => i % 3 === 2);
-
   const navLinkStyle: React.CSSProperties = {
     textDecoration: 'none',
     color: '#4b5563',
@@ -110,42 +105,25 @@ export default function Publicity() {
 
   const content = mediaContent[language];
 
-  const MasonryColumn = ({ items }: { items: PublicityImage[] }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {items.map((photo) => (
-        <div
-          key={photo.id}
-          onClick={() => setLightboxSrc(photo.imageUrl)}
-          style={{
-            cursor: 'pointer',
-            borderRadius: '8px',
-            overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
-            (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(45,80,22,0.2)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-            (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-          }}
-        >
-          <img
-            src={photo.imageUrl}
-            alt="e'Bosch media coverage"
-            style={{ width: '100%', height: 'auto', display: 'block' }}
-            loading="lazy"
-          />
-        </div>
-      ))}
-    </div>
-  );
+  // Distribute images into columns using "shortest column" algorithm
+  const columns = 3;
+  const distributeToColumns = (items: PublicityImage[]) => {
+    const cols: PublicityImage[][] = [[], [], []];
+    items.forEach(img => {
+      // Find the column with the fewest images
+      const shortestColIndex = cols
+        .map((col, idx) => ({ idx, len: col.length }))
+        .reduce((shortest, current) => current.len < shortest.len ? current : shortest).idx;
+      cols[shortestColIndex].push(img);
+    });
+    return cols;
+  };
+
+  const [col1, col2, col3] = distributeToColumns(images);
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
+      {/* Header with all navigation links */}
       <header style={{
         position: 'fixed',
         top: 0,
@@ -191,6 +169,16 @@ export default function Publicity() {
                 {language === 'af' && 'Publisiteit'}
                 {language === 'xh' && 'Isaziso'}
               </Link>
+              <Link href="/partners" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                {language === 'en' && 'Our Partners'}
+                {language === 'af' && 'Ons Vennote'}
+                {language === 'xh' && 'Abalingani Bethu'}
+              </Link>
+              <Link href="/archive" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                {language === 'en' && 'Archive'}
+                {language === 'af' && 'Argief'}
+                {language === 'xh' && 'Ugcino'}
+              </Link>
               <Link href="/contact" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {language === 'en' && 'Contact'}
                 {language === 'af' && 'Kontak'}
@@ -230,16 +218,16 @@ export default function Publicity() {
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '110px 48px 48px 48px' }}>
 
-        {/* Media Releases Section - now wider with both borders */}
+        {/* Media Releases Section - unchanged */}
         <section style={{ marginBottom: '60px' }}>
           <div style={{
-            maxWidth: '1000px',        // increased from 800px
-            margin: '0 auto',          // centered with space on sides
+            maxWidth: '1000px',
+            margin: '0 auto',
             padding: '30px',
             background: '#ffffff',
             textAlign: 'center',
             borderLeft: '4px solid #2d5016',
-            borderRight: '4px solid #2d5016',  // added right border
+            borderRight: '4px solid #2d5016',
             borderRadius: '8px',
             boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
           }}>
@@ -271,7 +259,7 @@ export default function Publicity() {
           </div>
         </section>
 
-        {/* Masonry Gallery */}
+        {/* Image Gallery – square grid with balanced columns */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>Loading gallery...</div>
         ) : images.length === 0 ? (
@@ -279,14 +267,113 @@ export default function Publicity() {
         ) : (
           <section style={{ marginBottom: '80px' }}>
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '16px',
-              alignItems: 'start',
+              maxWidth: '1100px',
+              margin: '0 auto',
             }}>
-              <MasonryColumn items={col1} />
-              <MasonryColumn items={col2} />
-              <MasonryColumn items={col3} />
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${columns}, 1fr)`,
+                gap: '20px',
+              }}>
+                {/* Column 1 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {col1.map((photo) => (
+                    <div
+                      key={photo.id}
+                      onClick={() => setLightboxSrc(photo.imageUrl)}
+                      style={{
+                        cursor: 'pointer',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        aspectRatio: '1/1',
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(45,80,22,0.2)';
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                      }}
+                    >
+                      <img
+                        src={photo.imageUrl}
+                        alt="e'Bosch media coverage"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Column 2 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {col2.map((photo) => (
+                    <div
+                      key={photo.id}
+                      onClick={() => setLightboxSrc(photo.imageUrl)}
+                      style={{
+                        cursor: 'pointer',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        aspectRatio: '1/1',
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(45,80,22,0.2)';
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                      }}
+                    >
+                      <img
+                        src={photo.imageUrl}
+                        alt="e'Bosch media coverage"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Column 3 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {col3.map((photo) => (
+                    <div
+                      key={photo.id}
+                      onClick={() => setLightboxSrc(photo.imageUrl)}
+                      style={{
+                        cursor: 'pointer',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        aspectRatio: '1/1',
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(45,80,22,0.2)';
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                      }}
+                    >
+                      <img
+                        src={photo.imageUrl}
+                        alt="e'Bosch media coverage"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
         )}

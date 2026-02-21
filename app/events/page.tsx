@@ -121,6 +121,8 @@ export default function EventsPage() {
       about: 'About',
       events: 'Events',
       publicity: 'Publicity',
+      partners: 'Our Partners',
+      archive: 'Archive',
       contact: 'Contact',
       calendarTitle: 'Event Calendar',
       noEventsMessage: 'Click on a date with events to see details',
@@ -149,6 +151,8 @@ export default function EventsPage() {
       about: 'Oor Ons',
       events: 'Geleenthede',
       publicity: 'Publisiteit',
+      partners: 'Ons Vennote',
+      archive: 'Argief',
       contact: 'Kontak',
       calendarTitle: 'Gebeure Kalender',
       noEventsMessage: "Klik op 'n datum met geleenthede vir besonderhede",
@@ -177,6 +181,8 @@ export default function EventsPage() {
       about: 'Malunga',
       events: 'Iziganeko',
       publicity: 'Isaziso',
+      partners: 'Abalingani Bethu',
+      archive: 'Ugcino',
       contact: 'Xhomekela',
       calendarTitle: 'Ikhalenda yoMsitho',
       noEventsMessage: 'Cofa umhla one events ukuze ubone iinkcukacha',
@@ -338,6 +344,14 @@ export default function EventsPage() {
               <Link href="/publicity" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {t.publicity}
               </Link>
+              {/* Our Partners link */}
+              <Link href="/partners" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                {t.partners}
+              </Link>
+              {/* Archive link */}
+              <Link href="/archive" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                {t.archive}
+              </Link>
               <Link href="/contact" style={navLinkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {t.contact}
               </Link>
@@ -454,9 +468,6 @@ export default function EventsPage() {
                 color: '#2d5016',
                 fontSize: '16px',
                 cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
                 padding: 0,
                 textDecoration: 'underline',
                 textUnderlineOffset: '2px',
@@ -464,7 +475,7 @@ export default function EventsPage() {
               onMouseEnter={(e) => e.currentTarget.style.color = '#1a3009'}
               onMouseLeave={(e) => e.currentTarget.style.color = '#2d5016'}
             >
-              {t.suggestEvent} <span style={{ fontSize: '20px' }}>→</span>
+              {t.suggestEvent}
             </button>
           </div>
 
