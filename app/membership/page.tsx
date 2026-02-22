@@ -208,16 +208,16 @@ export default function MembershipPage() {
 
       <section style={{ padding: '64px 24px', paddingTop: '100px' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '24px', alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '24px', alignItems: 'stretch' }}>
 
             {/* Individual */}
-            <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb', transition: 'all 0.3s' }}
+            <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '48px 32px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb', transition: 'all 0.3s', display: 'flex', flexDirection: 'column' as const }}
               onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px', textAlign: 'center' }}>👤</div>
+              <div style={{ fontSize: '56px', marginBottom: '24px', textAlign: 'center' }}>👤</div>
               <h3 style={{ fontSize: '21px', fontWeight: 'normal', color: '#000000', margin: '0 0 8px 0', textAlign: 'center' }}>{t.membership.individualMonthly}</h3>
               <p style={{ fontSize: '32px', fontWeight: 'normal', color: '#2d5016', margin: '0 0 24px 0' }}>R100<span style={{ fontSize: '14px', color: '#000000', fontWeight: 'normal' }}> {t.membership.perMonth}</span></p>
-              <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: '24px', flexGrow: 1 }}>
                 <p style={{ fontSize: '13px', fontWeight: 'normal', color: '#000000', textTransform: 'uppercase', margin: '0 0 12px 0', letterSpacing: '0.5px' }}>{t.membership.benefits}</p>
                 {['communitySupport', 'prizeParticipation'].map((benefit, idx) => (
                   <p key={idx} style={{ fontSize: '15px', color: '#000000', margin: '8px 0', display: 'flex', gap: '8px', fontWeight: 'normal' }}><span>✓</span>{t.membership[benefit as keyof typeof t.membership]}</p>
@@ -235,14 +235,14 @@ export default function MembershipPage() {
                 { option: membershipOptions[1], prize: true, benefits: ['listedWebsite', 'prizeAdvertised', 'prizeParticipation'], price: 'R100', prizeLabel: { en: 'With monthly prize', af: 'Met maandelikse prys', xh: 'Ngokuchopha ngenyanga' } },
                 { option: membershipOptions[2], prize: false, benefits: ['listedWebsite', 'promotedSupporter', 'prizeParticipation'], price: 'R200', prizeLabel: { en: 'No monthly prize', af: 'Geen maandelikse prys', xh: 'Akukho kulandelenisa kwenyanga' } }
               ].map(({ option, benefits, price, prizeLabel }) => (
-                <div key={option.id} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb', transition: 'all 0.3s' }}
+                <div key={option.id} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '48px 32px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb', transition: 'all 0.3s', display: 'flex', flexDirection: 'column' as const }}
                   onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px', textAlign: 'center' }}>🏢</div>
+                  <div style={{ fontSize: '56px', marginBottom: '24px', textAlign: 'center' }}>🏢</div>
                   <h3 style={{ fontSize: '19px', fontWeight: 'normal', color: '#000000', margin: '0 0 8px 0', textAlign: 'center' }}>{t.membership.businessMonthly}</h3>
                   <p style={{ fontSize: '13px', color: '#000000', margin: '0 0 12px 0', fontWeight: 'normal', textAlign: 'center' }}>{prizeLabel[language]}</p>
                   <p style={{ fontSize: '32px', fontWeight: 'normal', color: '#2d5016', margin: '0 0 24px 0' }}>{price}<span style={{ fontSize: '14px', color: '#000000', fontWeight: 'normal' }}> {t.membership.perMonth}</span></p>
-                  <div style={{ marginBottom: '24px' }}>
+                  <div style={{ marginBottom: '24px', flexGrow: 1 }}>
                     <p style={{ fontSize: '13px', fontWeight: 'normal', color: '#000000', textTransform: 'uppercase', margin: '0 0 12px 0', letterSpacing: '0.5px' }}>{t.membership.benefits}</p>
                     {benefits.map((benefit, idx) => (
                       <p key={idx} style={{ fontSize: '15px', color: '#000000', margin: '8px 0', display: 'flex', gap: '8px', fontWeight: 'normal' }}><span>✓</span>{t.membership[benefit as keyof typeof t.membership]}</p>
@@ -257,13 +257,13 @@ export default function MembershipPage() {
             </div>
 
             {/* Social Impact */}
-            <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb', transition: 'all 0.3s' }}
+            <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '48px 32px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb', transition: 'all 0.3s', display: 'flex', flexDirection: 'column' as const }}
               onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px', textAlign: 'center' }}>💰</div>
+              <div style={{ fontSize: '56px', marginBottom: '24px', textAlign: 'center' }}>💰</div>
               <h3 style={{ fontSize: '21px', fontWeight: 'normal', color: '#000000', margin: '0 0 8px 0', textAlign: 'center' }}>{t.membership.socialImpactMonthly}</h3>
               <p style={{ fontSize: '18px', fontWeight: 'normal', color: '#2d5016', margin: '0 0 24px 0' }}>R500 - R6,500 <span style={{ fontSize: '14px', color: '#000000', fontWeight: 'normal' }}>{t.membership.perMonth}</span></p>
-              <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: '24px', flexGrow: 1 }}>
                 <p style={{ fontSize: '13px', fontWeight: 'normal', color: '#000000', textTransform: 'uppercase', margin: '0 0 12px 0', letterSpacing: '0.5px' }}>{t.membership.benefits}</p>
                 {['communityVisibility', 'communitySupport'].map((benefit, idx) => (
                   <p key={idx} style={{ fontSize: '15px', color: '#000000', margin: '8px 0', display: 'flex', gap: '8px', fontWeight: 'normal' }}><span>✓</span>{t.membership[benefit as keyof typeof t.membership]}</p>

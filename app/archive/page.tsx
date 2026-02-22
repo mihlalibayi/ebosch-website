@@ -25,66 +25,6 @@ const range = (start: number, end: number, prefix: string, ext: string = 'jpg') 
 
 const archiveData: ArchiveItem[] = [
   {
-    id: 'projects',
-    titleEn: 'eBosch Projects',
-    titleAf: 'eBosch Projekte',
-    titleXh: 'Iiprojekthi ze-eBosch',
-    // remove project19
-    images: [
-      ...range(1, 18, '/archives/projects/project', 'jpg'),
-      ...range(20, 21, '/archives/projects/project', 'jpg')
-    ],
-    imagesPerRow: 5, // 20 images -> 4 rows
-  },
-  {
-    id: 'heritage-tour',
-    titleEn: 'Museum Heritage Tour',
-    titleAf: 'Museum Erfenis Toer',
-    titleXh: 'Ukhenketho lweMnyuziyam yeLifa',
-    images: range(1, 12, '/archives/heritagetour/tour', 'jpg'),
-    imagesPerRow: 4, // 12 images -> 3 rows
-  },
-  {
-    id: 'cohesion-workshop',
-    titleEn: 'Social Cohesion Workshop',
-    titleAf: 'Sosiale Samehorigheid Werkswinkel',
-    titleXh: 'Ucweyo loManyano lweNtlalo',
-    images: range(1, 10, '/archives/cohesionworkshop/workshop', 'jpg'),
-    imagesPerRow: 4, // 10 images -> 3 rows (4+4+2)
-  },
-  {
-    id: 'tree-planting',
-    titleEn: 'Tree Planting Day',
-    titleAf: 'Boomplant Dag',
-    titleXh: 'USuku lokuTyalwa kweMithi',
-    images: range(1, 12, '/archives/plant/plant', 'jpg'),
-    imagesPerRow: 4, // 12 images -> 3 rows
-  },
-  {
-    id: 'eerste-walk',
-    titleEn: 'Eerste Water Walk Pilgrimage',
-    titleAf: 'Eerste Water Walk Pelgrimstog',
-    titleXh: 'Uhambo lwamanzi lwase-Eerste',
-    images: range(1, 8, '/archives/eerstewalk/walk', 'jpg'),
-    imagesPerRow: 4, // 8 images -> 2 rows
-  },
-  {
-    id: 'legacy-concert',
-    titleEn: 'Legacy Concert',
-    titleAf: 'Erfenis Konsert',
-    titleXh: 'Ikonsathi yeLifa',
-    images: range(1, 6, '/archives/legacy/legacy', 'jpg'),
-    imagesPerRow: 6, // one row
-  },
-  {
-    id: 'art-competition',
-    titleEn: 'PJ Olivier Art Competition',
-    titleAf: 'PJ Olivier Kunswedstryd',
-    titleXh: 'Ukhuphiswano lobuGcisa lwe-PJ Olivier',
-    images: range(1, 4, '/archives/artcompetition/art', 'jpg'),
-    imagesPerRow: 4, // one row
-  },
-  {
     id: 'crafts-alive',
     titleEn: "e'Bosch Crafts Alive Development Project",
     titleAf: "e'Bosch Crafts Alive Ontwikkelingsprojek",
@@ -359,6 +299,66 @@ const archiveData: ArchiveItem[] = [
     ],
     pdf: '/archives/symposium/uitnodiging_na_simposium.pdf',
     imagesPerRow: 1, // no images
+  },
+  {
+    id: 'projects',
+    titleEn: 'eBosch Projects',
+    titleAf: 'eBosch Projekte',
+    titleXh: 'Iiprojekthi ze-eBosch',
+    // remove project19
+    images: [
+      ...range(1, 18, '/archives/projects/project', 'jpg'),
+      ...range(20, 21, '/archives/projects/project', 'jpg')
+    ],
+    imagesPerRow: 5, // 20 images -> 4 rows
+  },
+  {
+    id: 'heritage-tour',
+    titleEn: 'Museum Heritage Tour',
+    titleAf: 'Museum Erfenis Toer',
+    titleXh: 'Ukhenketho lweMnyuziyam yeLifa',
+    images: range(1, 12, '/archives/heritagetour/tour', 'jpg'),
+    imagesPerRow: 4, // 12 images -> 3 rows
+  },
+  {
+    id: 'cohesion-workshop',
+    titleEn: 'Social Cohesion Workshop',
+    titleAf: 'Sosiale Samehorigheid Werkswinkel',
+    titleXh: 'Ucweyo loManyano lweNtlalo',
+    images: range(1, 10, '/archives/cohesionworkshop/workshop', 'jpg'),
+    imagesPerRow: 4, // 10 images -> 3 rows (4+4+2)
+  },
+  {
+    id: 'tree-planting',
+    titleEn: 'Tree Planting Day',
+    titleAf: 'Boomplant Dag',
+    titleXh: 'USuku lokuTyalwa kweMithi',
+    images: range(1, 12, '/archives/plant/plant', 'jpg'),
+    imagesPerRow: 4, // 12 images -> 3 rows
+  },
+  {
+    id: 'eerste-walk',
+    titleEn: 'Eerste Water Walk Pilgrimage',
+    titleAf: 'Eerste Water Walk Pelgrimstog',
+    titleXh: 'Uhambo lwamanzi lwase-Eerste',
+    images: range(1, 8, '/archives/eerstewalk/walk', 'jpg'),
+    imagesPerRow: 4, // 8 images -> 2 rows
+  },
+  {
+    id: 'legacy-concert',
+    titleEn: 'Legacy Concert',
+    titleAf: 'Erfenis Konsert',
+    titleXh: 'Ikonsathi yeLifa',
+    images: range(1, 6, '/archives/legacy/legacy', 'jpg'),
+    imagesPerRow: 6, // one row
+  },
+  {
+    id: 'art-competition',
+    titleEn: 'PJ Olivier Art Competition',
+    titleAf: 'PJ Olivier Kunswedstryd',
+    titleXh: 'Ukhuphiswano lobuGcisa lwe-PJ Olivier',
+    images: range(1, 4, '/archives/artcompetition/art', 'jpg'),
+    imagesPerRow: 4, // one row
   },
 ];
 
