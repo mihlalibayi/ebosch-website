@@ -22,7 +22,6 @@ export default function Partners() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loadingPartners, setLoadingPartners] = useState(true);
 
-  // Donation modal states (unchanged)
   const [showModal, setShowModal] = useState(false);
   const [donatorType, setDonatorType] = useState<DonatorType>('individual');
   const [donationMethod, setDonationMethod] = useState<DonationMethod>(null);
@@ -44,15 +43,11 @@ export default function Partners() {
     phone: '',
   });
 
-  // Fetch partners from Firestore
   useEffect(() => {
     const fetchPartners = async () => {
       try {
         const snapshot = await getDocs(collection(db, 'partners'));
-        let data = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Partner[];
+        let data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Partner[];
         data.sort((a, b) => (a.order || 0) - (b.order || 0));
         setPartners(data);
       } catch (error) {
@@ -64,7 +59,6 @@ export default function Partners() {
     fetchPartners();
   }, []);
 
-  // Donation modal functions (unchanged)
   const resetForm = () => {
     setDonationMethod(null);
     setPaymentAmount(null);
@@ -76,29 +70,20 @@ export default function Partners() {
     setSubmitted(false);
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    resetForm();
-  };
+  const closeModal = () => { setShowModal(false); resetForm(); };
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.size <= 10.6 * 1024 * 1024) {
-      setUploadedFile(file);
-    } else {
-      alert('File too large. Max size is 10.6MB.');
-    }
+    if (file && file.size <= 10.6 * 1024 * 1024) { setUploadedFile(file); }
+    else { alert('File too large. Max size is 10.6MB.'); }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.size <= 10.6 * 1024 * 1024) {
-      setUploadedFile(file);
-    } else {
-      alert('File too large. Max size is 10.6MB.');
-    }
+    if (file && file.size <= 10.6 * 1024 * 1024) { setUploadedFile(file); }
+    else { alert('File too large. Max size is 10.6MB.'); }
   };
 
   const getFinalAmount = () => {
@@ -111,18 +96,15 @@ export default function Partners() {
     setSubmitting(true);
     try {
       await addDoc(collection(db, 'donations'), {
-        donatorType,
-        donationMethod,
+        donatorType, donationMethod,
         title: donatorType === 'individual' ? form.title : null,
         fullName: donatorType === 'individual' ? form.fullName : null,
         businessName: donatorType === 'business' ? form.businessName : null,
         websiteUrl: donatorType === 'business' ? form.websiteUrl : null,
-        email: form.email,
-        phone: form.phone,
+        email: form.email, phone: form.phone,
         amount: donationMethod === 'no-tax' ? getFinalAmount() : null,
         proofOfPaymentFileName: uploadedFile?.name || null,
-        createdAt: new Date(),
-        status: 'pending',
+        createdAt: new Date(), status: 'pending',
       });
       setSubmitted(true);
     } catch (error) {
@@ -135,40 +117,14 @@ export default function Partners() {
   const amountOptions = [500, 1000, 2000, 5000];
 
   const inputStyle: React.CSSProperties = {
-    padding: '10px 14px',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    fontSize: '15px',
-    fontWeight: 'normal',
-    width: '100%',
-    boxSizing: 'border-box',
-    outline: 'none',
-  };
-
-  const navLinkStyle = {
-    textDecoration: 'none',
-    color: '#4b5563',
-    fontSize: '16px',
-    fontWeight: '500',
-    paddingBottom: '4px',
-    borderBottom: '2px solid transparent',
-    transition: 'all 0.3s ease',
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    (e.target as HTMLElement).style.color = '#2d5016';
-    (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    (e.target as HTMLElement).style.color = '#4b5563';
-    (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
+    padding: '10px 14px', border: '1px solid #e5e7eb', borderRadius: '8px',
+    fontSize: '15px', fontWeight: 'normal', width: '100%',
+    boxSizing: 'border-box', outline: 'none',
   };
 
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Header */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
         .nav-wrap { font-family: 'DM Sans', sans-serif; }
@@ -241,7 +197,7 @@ export default function Partners() {
 
               <div className="nav-divider" />
 
-              {/* About - active on this page (Our Partners is under About group) */}
+              {/* About - active on this page */}
               <div className="nav-group">
                 <button className="nav-group-btn active"
                   onClick={() => setOpenMenu(openMenu === 'about' ? null : 'about')}>
@@ -273,8 +229,11 @@ export default function Partners() {
                     <Link href="/kids-program" onClick={() => setOpenMenu(null)}>
                       {language === 'en' ? 'School Holiday Program' : language === 'af' ? 'Skoolvakansie Program' : 'Inkqubo Yezikolo'}
                     </Link>
+                    <Link href="/ebosch-calendar" onClick={() => setOpenMenu(null)}>
+                      {language === 'en' ? "e'Bosch Calendar" : language === 'af' ? "e'Bosch Kalender" : "Ikhalenda ye-e'Bosch"}
+                    </Link>
                     <Link href="/heritage" onClick={() => setOpenMenu(null)}>
-                      {language === 'en' ? 'Heritage Program' : language === 'af' ? 'Erfenis Program' : 'Ilifa leNkcubeko'}
+                      {language === 'en' ? 'Heritage Project' : language === 'af' ? 'Erfenis Projek' : 'iprojekthi yeLifa leMveli'}
                     </Link>
                     <Link href="/publicity" onClick={() => setOpenMenu(null)}>
                       {language === 'en' ? 'Publicity' : language === 'af' ? 'Publisiteit' : 'Isaziso'}
@@ -343,79 +302,41 @@ export default function Partners() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ paddingTop: '100px', paddingBottom: '80px' }}>
 
-        {/* Title */}
         <h2 style={{ fontSize: '32px', fontWeight: 'bold', color: '#111827', textAlign: 'center', marginBottom: '16px' }}>
           {language === 'en' && 'Collaborators and Contributors'}
           {language === 'af' && 'Medewerkers en Bydraers'}
           {language === 'xh' && 'Abambiswano kunye Nabanegalelo'}
         </h2>
 
-        {/* NPO info + Donate button */}
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>
           <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>
             {language === 'en' && "The e'Bosch Heritage Project is a registered Non-Profit Organisation (Reg No. 150-564)"}
             {language === 'af' && "Die e'Bosch Erfenisprojek is 'n geregistreerde Nie-Winsgewende Organisasie (Reg Nr. 150-564)"}
             {language === 'xh' && "I-e'Bosch Heritage Project yinkampani ebhalisiweyo engenzangeniso (Reg No. 150-564)"}
           </p>
-          <button
-            onClick={() => setShowModal(true)}
-            style={{
-              padding: '12px 36px', backgroundColor: '#2d5016', color: 'white',
-              border: 'none', borderRadius: '8px', fontSize: '15px',
-              fontWeight: 'normal', cursor: 'pointer', transition: 'background-color 0.2s'
-            }}
+          <button onClick={() => setShowModal(true)}
+            style={{ padding: '12px 36px', backgroundColor: '#2d5016', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 'normal', cursor: 'pointer', transition: 'background-color 0.2s' }}
             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1a3009'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#2d5016'; }}
-          >
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#2d5016'; }}>
             {language === 'en' && 'Donate'}
             {language === 'af' && 'Skenk'}
             {language === 'xh' && 'Nikela'}
           </button>
         </div>
 
-        {/* Partner Logos - dynamic from Firestore */}
         {loadingPartners ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>Loading partners...</div>
         ) : (
           <section style={{ marginBottom: '80px' }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '32px',
-              alignItems: 'center',
-              justifyItems: 'center',
-              padding: '0 20px',
-            }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '32px', alignItems: 'center', justifyItems: 'center', padding: '0 20px' }}>
               {partners.map((partner) => (
                 <div key={partner.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    padding: '16px', borderRadius: '12px', background: '#fafafa',
-                    border: '1px solid #f3f4f6', transition: 'all 0.2s',
-                    width: '100%',
-                    height: '160px', // fixed height for consistency
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(45,80,22,0.1)';
-                    e.currentTarget.style.borderColor = '#d1fae5';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.style.borderColor = '#f3f4f6';
-                  }}>
-                  <img
-                    src={partner.imageUrl}
-                    alt={partner.altText}
-                    style={{
-                      maxWidth: '100%',
-                      maxHeight: '100%',
-                      width: 'auto',
-                      height: 'auto',
-                      objectFit: 'contain',
-                      filter: 'grayscale(20%)',
-                    }}
-                    loading="lazy"
-                  />
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', borderRadius: '12px', background: '#fafafa', border: '1px solid #f3f4f6', transition: 'all 0.2s', width: '100%', height: '160px' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(45,80,22,0.1)'; e.currentTarget.style.borderColor = '#d1fae5'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#f3f4f6'; }}>
+                  <img src={partner.imageUrl} alt={partner.altText}
+                    style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'contain', filter: 'grayscale(20%)' }}
+                    loading="lazy" />
                 </div>
               ))}
             </div>
@@ -424,22 +345,12 @@ export default function Partners() {
 
       </main>
 
-      {/* Donation Modal – unchanged (kept for completeness) */}
+      {/* Donation Modal - unchanged */}
       {showModal && (
-        <div
-          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
-          style={{
-            position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 1000, padding: '20px'
-          }}>
+        <div onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
 
-          <div style={{
-            backgroundColor: 'white', borderRadius: '16px', width: '100%',
-            maxWidth: '860px', maxHeight: '90vh', overflowY: 'auto',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
-            display: 'grid', gridTemplateColumns: '1fr 1fr'
-          }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '16px', width: '100%', maxWidth: '860px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 60px rgba(0,0,0,0.25)', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
 
             {/* LEFT: Section 18A info */}
             <div style={{ background: '#f0fdf4', borderRadius: '16px 0 0 16px', padding: '36px' }}>
@@ -459,16 +370,10 @@ export default function Partners() {
                 {language === 'xh' && 'Ukufumana isatifikethi se-18A, nceda yenza inkokhelo ye-R500, R1,000, R2,000, R5,000 okanye inani elikhethiweyo kwi-akhawunti ilandelayo:'}
               </p>
               <div style={{ background: 'white', borderRadius: '8px', padding: '16px', border: '1px solid #d1fae5', fontSize: '14px', color: '#111827', lineHeight: '2' }}>
-                <p>
-                  <strong>{language === 'en' ? 'Account Name' : language === 'af' ? 'Rekeningnaam' : 'Igama le-Akhawunti'}:</strong> Greater Stb Dev Trust
-                </p>
+                <p><strong>{language === 'en' ? 'Account Name' : language === 'af' ? 'Rekeningnaam' : 'Igama le-Akhawunti'}:</strong> Greater Stb Dev Trust</p>
                 <p><strong>{language === 'en' ? 'Bank' : 'IBhanki'}:</strong> FNB</p>
-                <p>
-                  <strong>{language === 'en' ? 'Account No' : language === 'af' ? 'Rekeningnr' : 'Inombolo ye-Akhawunti'}:</strong> 620 336 383 07
-                </p>
-                <p>
-                  <strong>{language === 'en' ? 'Reference' : language === 'af' ? 'Verwysing' : 'Inkomba'}:</strong> eBosch
-                </p>
+                <p><strong>{language === 'en' ? 'Account No' : language === 'af' ? 'Rekeningnr' : 'Inombolo ye-Akhawunti'}:</strong> 620 336 383 07</p>
+                <p><strong>{language === 'en' ? 'Reference' : language === 'af' ? 'Verwysing' : 'Inkomba'}:</strong> eBosch</p>
               </div>
               <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '16px', lineHeight: '1.6' }}>
                 {language === 'en' && '💡 Please save your proof of payment — you will need to upload it in the form to request your Section 18A certificate.'}
@@ -477,13 +382,9 @@ export default function Partners() {
               </p>
             </div>
 
-            {/* RIGHT: Donation form (unchanged) */}
+            {/* RIGHT: Donation form */}
             <div style={{ padding: '36px', position: 'relative' }}>
-
-              <button onClick={closeModal}
-                style={{ position: 'absolute', top: '16px', right: '20px', background: 'none', border: 'none', fontSize: '22px', color: '#9ca3af', cursor: 'pointer', lineHeight: 1 }}>
-                ✕
-              </button>
+              <button onClick={closeModal} style={{ position: 'absolute', top: '16px', right: '20px', background: 'none', border: 'none', fontSize: '22px', color: '#9ca3af', cursor: 'pointer', lineHeight: 1 }}>✕</button>
 
               {submitted ? (
                 <div style={{ textAlign: 'center', padding: '60px 0' }}>
@@ -499,14 +400,12 @@ export default function Partners() {
                     {language === 'xh' && 'Isipho sakho sibhaliswe. Siza kuqhagamshelana nawe kungekudala.'}
                   </p>
                   <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                    <button onClick={resetForm}
-                      style={{ padding: '10px 24px', backgroundColor: '#2d5016', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 'normal' }}>
+                    <button onClick={resetForm} style={{ padding: '10px 24px', backgroundColor: '#2d5016', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 'normal' }}>
                       {language === 'en' && 'Make Another Donation'}
                       {language === 'af' && "Maak Nog 'n Skenking"}
                       {language === 'xh' && 'Yenza Esinye Isipho'}
                     </button>
-                    <button onClick={closeModal}
-                      style={{ padding: '10px 24px', backgroundColor: '#f3f4f6', color: '#374151', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 'normal' }}>
+                    <button onClick={closeModal} style={{ padding: '10px 24px', backgroundColor: '#f3f4f6', color: '#374151', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 'normal' }}>
                       {language === 'en' && 'Close'}
                       {language === 'af' && 'Sluit'}
                       {language === 'xh' && 'Vala'}
@@ -523,7 +422,6 @@ export default function Partners() {
 
                   <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-                    {/* Donator Type */}
                     <div>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
                         {language === 'en' && 'Type of Donator *'}
@@ -533,14 +431,7 @@ export default function Partners() {
                       <div style={{ display: 'flex', gap: '12px' }}>
                         {(['individual', 'business'] as DonatorType[]).map(type => (
                           <button key={type} type="button" onClick={() => setDonatorType(type)}
-                            style={{
-                              flex: 1, padding: '10px', borderRadius: '8px', border: '2px solid',
-                              borderColor: donatorType === type ? '#2d5016' : '#e5e7eb',
-                              backgroundColor: donatorType === type ? '#f0fdf4' : 'white',
-                              color: donatorType === type ? '#2d5016' : '#6b7280',
-                              fontWeight: donatorType === type ? '600' : 'normal',
-                              cursor: 'pointer', fontSize: '14px', transition: 'all 0.2s'
-                            }}>
+                            style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '2px solid', borderColor: donatorType === type ? '#2d5016' : '#e5e7eb', backgroundColor: donatorType === type ? '#f0fdf4' : 'white', color: donatorType === type ? '#2d5016' : '#6b7280', fontWeight: donatorType === type ? '600' : 'normal', cursor: 'pointer', fontSize: '14px', transition: 'all 0.2s' }}>
                             {type === 'individual'
                               ? (language === 'en' ? '👤 Individual' : language === 'af' ? '👤 Individu' : '👤 Umntu Ngamnye')
                               : (language === 'en' ? '🏢 Business' : language === 'af' ? '🏢 Besigheid' : '🏢 Ishishini')}
@@ -549,7 +440,6 @@ export default function Partners() {
                       </div>
                     </div>
 
-                    {/* Individual fields */}
                     {donatorType === 'individual' && (
                       <>
                         <div>
@@ -570,15 +460,12 @@ export default function Partners() {
                             {language === 'af' && 'Volle Naam *'}
                             {language === 'xh' && 'Igama Eligcweleyo *'}
                           </label>
-                          <input type="text" required value={form.fullName}
-                            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                            placeholder={language === 'en' ? 'Full Name' : language === 'af' ? 'Volle Naam' : 'Igama Eligcweleyo'}
-                            style={inputStyle} />
+                          <input type="text" required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                            placeholder={language === 'en' ? 'Full Name' : language === 'af' ? 'Volle Naam' : 'Igama Eligcweleyo'} style={inputStyle} />
                         </div>
                       </>
                     )}
 
-                    {/* Business fields */}
                     {donatorType === 'business' && (
                       <>
                         <div>
@@ -587,10 +474,8 @@ export default function Partners() {
                             {language === 'af' && 'Naam van Besigheid *'}
                             {language === 'xh' && 'Igama Leshishini *'}
                           </label>
-                          <input type="text" required value={form.businessName}
-                            onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                            placeholder={language === 'en' ? 'Business Name' : language === 'af' ? 'Besigheidsnaam' : 'Igama Leshishini'}
-                            style={inputStyle} />
+                          <input type="text" required value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                            placeholder={language === 'en' ? 'Business Name' : language === 'af' ? 'Besigheidsnaam' : 'Igama Leshishini'} style={inputStyle} />
                         </div>
                         <div>
                           <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
@@ -601,39 +486,28 @@ export default function Partners() {
                               {language === 'en' ? '(optional)' : language === 'af' ? '(opsioneel)' : '(iyakhethwa)'}
                             </span>
                           </label>
-                          <input type="url" placeholder="https://..." value={form.websiteUrl}
-                            onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })}
-                            style={inputStyle} />
+                          <input type="url" placeholder="https://..." value={form.websiteUrl} onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })} style={inputStyle} />
                         </div>
                       </>
                     )}
 
-                    {/* Email */}
                     <div>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                        {language === 'en' && 'Email *'}
-                        {language === 'af' && 'E-pos *'}
-                        {language === 'xh' && 'I-imeyile *'}
+                        {language === 'en' && 'Email *'}{language === 'af' && 'E-pos *'}{language === 'xh' && 'I-imeyile *'}
                       </label>
-                      <input type="email" required placeholder="email@example.com" value={form.email}
-                        onChange={(e) => setForm({ ...form, email: e.target.value })} style={inputStyle} />
+                      <input type="email" required placeholder="email@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} style={inputStyle} />
                     </div>
 
-                    {/* Phone */}
                     <div>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                        {language === 'en' && 'Phone Number'}
-                        {language === 'af' && 'Telefoonnommer'}
-                        {language === 'xh' && 'Inombolo Yomnxeba'}
+                        {language === 'en' && 'Phone Number'}{language === 'af' && 'Telefoonnommer'}{language === 'xh' && 'Inombolo Yomnxeba'}
                         {' '}<span style={{ color: '#9ca3af', fontWeight: 'normal' }}>
                           {language === 'en' ? '(optional)' : language === 'af' ? '(opsioneel)' : '(iyakhethwa)'}
                         </span>
                       </label>
-                      <input type="tel" placeholder="+27 ..." value={form.phone}
-                        onChange={(e) => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
+                      <input type="tel" placeholder="+27 ..." value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
                     </div>
 
-                    {/* Donation Method */}
                     <div>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
                         {language === 'en' && 'Choose Donation Method *'}
@@ -642,84 +516,46 @@ export default function Partners() {
                       </label>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {[
-                          {
-                            value: 'no-tax',
-                            label: language === 'en' ? '💳 Donate with no Tax Exemption'
-                              : language === 'af' ? '💳 Skenk sonder Belastingvryheid'
-                              : '💳 Nikela ngaphandle Kwentlawulo'
-                          },
-                          {
-                            value: 'section18a',
-                            label: language === 'en' ? '📋 Section 18A Exemption Certificate available on request'
-                              : language === 'af' ? '📋 Artikel 18A Vryheidssertifikaat op versoek beskikbaar'
-                              : '📋 Isatifikethi se-18A sifumaneka ngokucela'
-                          },
+                          { value: 'no-tax', label: language === 'en' ? '💳 Donate with no Tax Exemption' : language === 'af' ? '💳 Skenk sonder Belastingvryheid' : '💳 Nikela ngaphandle Kwentlawulo' },
+                          { value: 'section18a', label: language === 'en' ? '📋 Section 18A Exemption Certificate available on request' : language === 'af' ? '📋 Artikel 18A Vryheidssertifikaat op versoek beskikbaar' : '📋 Isatifikethi se-18A sifumaneka ngokucela' },
                         ].map(opt => (
                           <button key={opt.value} type="button"
                             onClick={() => { setDonationMethod(opt.value as DonationMethod); setPaymentAmount(null); setUseCustom(false); setCustomAmount(''); setUploadedFile(null); }}
-                            style={{
-                              padding: '12px 16px', borderRadius: '8px', border: '2px solid', textAlign: 'left',
-                              borderColor: donationMethod === opt.value ? '#2d5016' : '#e5e7eb',
-                              backgroundColor: donationMethod === opt.value ? '#f0fdf4' : 'white',
-                              color: donationMethod === opt.value ? '#2d5016' : '#374151',
-                              fontWeight: donationMethod === opt.value ? '600' : 'normal',
-                              cursor: 'pointer', fontSize: '14px', transition: 'all 0.2s'
-                            }}>
+                            style={{ padding: '12px 16px', borderRadius: '8px', border: '2px solid', textAlign: 'left', borderColor: donationMethod === opt.value ? '#2d5016' : '#e5e7eb', backgroundColor: donationMethod === opt.value ? '#f0fdf4' : 'white', color: donationMethod === opt.value ? '#2d5016' : '#374151', fontWeight: donationMethod === opt.value ? '600' : 'normal', cursor: 'pointer', fontSize: '14px', transition: 'all 0.2s' }}>
                             {opt.label}
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    {/* No Tax: payment amount */}
                     {donationMethod === 'no-tax' && (
                       <div>
                         <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                          {language === 'en' && 'Payment Amount *'}
-                          {language === 'af' && 'Betalingsbedrag *'}
-                          {language === 'xh' && 'Inani Lentlawulo *'}
+                          {language === 'en' && 'Payment Amount *'}{language === 'af' && 'Betalingsbedrag *'}{language === 'xh' && 'Inani Lentlawulo *'}
                         </label>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px' }}>
                           {amountOptions.map(amt => (
-                            <button key={amt} type="button"
-                              onClick={() => { setPaymentAmount(amt); setUseCustom(false); setCustomAmount(''); }}
-                              style={{
-                                padding: '10px', borderRadius: '8px', border: '2px solid',
-                                borderColor: paymentAmount === amt && !useCustom ? '#2d5016' : '#e5e7eb',
-                                backgroundColor: paymentAmount === amt && !useCustom ? '#f0fdf4' : 'white',
-                                color: paymentAmount === amt && !useCustom ? '#2d5016' : '#374151',
-                                fontWeight: paymentAmount === amt && !useCustom ? '700' : 'normal',
-                                cursor: 'pointer', fontSize: '14px'
-                              }}>
+                            <button key={amt} type="button" onClick={() => { setPaymentAmount(amt); setUseCustom(false); setCustomAmount(''); }}
+                              style={{ padding: '10px', borderRadius: '8px', border: '2px solid', borderColor: paymentAmount === amt && !useCustom ? '#2d5016' : '#e5e7eb', backgroundColor: paymentAmount === amt && !useCustom ? '#f0fdf4' : 'white', color: paymentAmount === amt && !useCustom ? '#2d5016' : '#374151', fontWeight: paymentAmount === amt && !useCustom ? '700' : 'normal', cursor: 'pointer', fontSize: '14px' }}>
                               R{amt.toLocaleString()}
                             </button>
                           ))}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <button type="button" onClick={() => { setUseCustom(true); setPaymentAmount(null); }}
-                            style={{
-                              padding: '10px 16px', borderRadius: '8px', border: '2px solid',
-                              borderColor: useCustom ? '#2d5016' : '#e5e7eb',
-                              backgroundColor: useCustom ? '#f0fdf4' : 'white',
-                              color: useCustom ? '#2d5016' : '#374151',
-                              fontWeight: useCustom ? '600' : 'normal',
-                              cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap'
-                            }}>
+                            style={{ padding: '10px 16px', borderRadius: '8px', border: '2px solid', borderColor: useCustom ? '#2d5016' : '#e5e7eb', backgroundColor: useCustom ? '#f0fdf4' : 'white', color: useCustom ? '#2d5016' : '#374151', fontWeight: useCustom ? '600' : 'normal', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap' }}>
                             {language === 'en' ? '+ Custom amount' : language === 'af' ? '+ Pasgemaakte bedrag' : '+ Inani elikhethiweyo'}
                           </button>
                           {useCustom && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
                               <span style={{ fontSize: '15px', fontWeight: '600', color: '#374151' }}>R</span>
-                              <input type="number" min="1" placeholder="0" value={customAmount}
-                                onChange={(e) => setCustomAmount(e.target.value)}
-                                style={{ ...inputStyle, flex: 1 }} required={useCustom} />
+                              <input type="number" min="1" placeholder="0" value={customAmount} onChange={(e) => setCustomAmount(e.target.value)} style={{ ...inputStyle, flex: 1 }} required={useCustom} />
                             </div>
                           )}
                         </div>
                       </div>
                     )}
 
-                    {/* Section 18A: bank details + upload */}
                     {donationMethod === 'section18a' && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <div style={{ background: '#f0fdf4', borderRadius: '8px', padding: '16px', border: '1px solid #bbf7d0', fontSize: '13px', color: '#111827', lineHeight: '2' }}>
@@ -739,19 +575,9 @@ export default function Partners() {
                             {language === 'af' && 'Laai Bewys van Betaling op *'}
                             {language === 'xh' && 'Layisha Ubungqina Bentlawulo *'}
                           </label>
-                          <div
-                            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                            onDragLeave={() => setIsDragging(false)}
-                            onDrop={handleFileDrop}
-                            onClick={() => fileInputRef.current?.click()}
-                            style={{
-                              border: `2px dashed ${isDragging ? '#2d5016' : '#d1d5db'}`,
-                              borderRadius: '8px', padding: '24px', textAlign: 'center',
-                              cursor: 'pointer', backgroundColor: isDragging ? '#f0fdf4' : '#fafafa',
-                              transition: 'all 0.2s'
-                            }}>
-                            <input ref={fileInputRef} type="file" style={{ display: 'none' }}
-                              onChange={handleFileSelect} accept=".pdf,.jpg,.jpeg,.png" />
+                          <div onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={handleFileDrop} onClick={() => fileInputRef.current?.click()}
+                            style={{ border: `2px dashed ${isDragging ? '#2d5016' : '#d1d5db'}`, borderRadius: '8px', padding: '24px', textAlign: 'center', cursor: 'pointer', backgroundColor: isDragging ? '#f0fdf4' : '#fafafa', transition: 'all 0.2s' }}>
+                            <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleFileSelect} accept=".pdf,.jpg,.jpeg,.png" />
                             {uploadedFile ? (
                               <div>
                                 <p style={{ color: '#2d5016', fontWeight: '600', fontSize: '14px' }}>✅ {uploadedFile.name}</p>
@@ -777,17 +603,9 @@ export default function Partners() {
                       </div>
                     )}
 
-                    {/* Submit */}
                     {donationMethod && (
                       <button type="submit" disabled={submitting}
-                        style={{
-                          width: '100%', padding: '14px',
-                          backgroundColor: submitting ? '#9ca3af' : '#2d5016',
-                          color: 'white', border: 'none', borderRadius: '8px',
-                          fontSize: '16px', fontWeight: 'normal',
-                          cursor: submitting ? 'not-allowed' : 'pointer',
-                          marginTop: '8px', transition: 'background-color 0.2s'
-                        }}>
+                        style={{ width: '100%', padding: '14px', backgroundColor: submitting ? '#9ca3af' : '#2d5016', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'normal', cursor: submitting ? 'not-allowed' : 'pointer', marginTop: '8px', transition: 'background-color 0.2s' }}>
                         {submitting
                           ? (language === 'en' ? 'Submitting...' : language === 'af' ? 'Besig om in te dien...' : 'Iyathunyelwa...')
                           : (language === 'en' ? 'Donate' : language === 'af' ? 'Skenk' : 'Nikela')}

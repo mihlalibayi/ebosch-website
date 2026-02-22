@@ -1,103 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { db } from '@/lib/firebase-config';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 type Language = 'en' | 'af' | 'xh';
 
-interface PublicityImage {
-  id: string;
-  imageUrl: string;
-}
-
-export default function Publicity() {
+export default function EboschCalendarPage() {
   const [language, setLanguage] = useState<Language>('en');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [images, setImages] = useState<PublicityImage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const q = query(collection(db, 'publicityImages'), orderBy('createdAt', 'desc'));
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as PublicityImage[];
-        setImages(data);
-      } catch (error) {
-        console.error('Error fetching publicity images:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchImages();
-  }, []);
-
-  const mediaContent = {
-    en: {
-      subtitle: 'Media Releases',
-      description: (
-        <>
-          The <strong style={{ color: '#228B22' }}>e'Bosch Heritage Project</strong> hosts a wide range of events that celebrate{' '}
-          <span style={{ color: '#2E8B57' }}>community</span>, <span style={{ color: '#3CB371' }}>music</span> and{' '}
-          <span style={{ color: '#32CD32' }}>cultural heritage</span> in Stellenbosch.
-        </>
-      ),
-      tags: ['School Choir Festivals', 'Talent Showcases', 'Public Lectures', 'Leadership Courses', 'Art Exhibitions', 'Community Workshops'],
-      footer: 'Each event is designed to bring people together, promote inclusion and highlight the rich diversity of local traditions. Activities are featured in media releases, social media, newspapers, magazines and other platforms.',
-    },
-    af: {
-      subtitle: 'Media Vrylatings',
-      description: (
-        <>
-          Die <strong style={{ color: '#228B22' }}>e'Bosch Erfenisprojek</strong> bied 'n wye reeks geleenthede aan wat{' '}
-          <span style={{ color: '#2E8B57' }}>gemeenskap</span>, <span style={{ color: '#3CB371' }}>musiek</span> en{' '}
-          <span style={{ color: '#32CD32' }}>kulturele erfenis</span> in Stellenbosch vier.
-        </>
-      ),
-      tags: ['Skoolkoorfees', 'Talentvertoning', 'Openbare Lesings', 'Leierskapkursusse', 'Kunsuitstalling', 'Gemeenskapswerkswinkels'],
-      footer: "Elke geleentheid is ontwerp om mense saam te bring, insluiting te bevorder en die ryk diversiteit van plaaslike tradisies uit te lig. Aktiwiteite word in mediavrylating, sosiale media, koerante, tydskrifte en ander platforms vertoon.",
-    },
-    xh: {
-      subtitle: 'Izikhululo Zeendaba',
-      description: (
-        <>
-          I-<strong style={{ color: '#228B22' }}>e'Bosch Heritage Project</strong> ibamba uluhlu olubanzi lweziganeko ezibhiyozela{' '}
-          <span style={{ color: '#2E8B57' }}>uluntu</span>, <span style={{ color: '#3CB371' }}>umculo</span> kunye{' '}
-          <span style={{ color: '#32CD32' }}>nenkcubeko yendalo</span> eStellenbosh.
-        </>
-      ),
-      tags: ['Iifestivali Zekhwayarele', 'Iimboniso Zezakhono', 'Iifundo Zoluntu', 'Iikosi Zobunkokheli', 'Iimboniso Zobugcisa', 'Iiseminali Zeluntu'],
-      footer: 'Isiganeko ngasinye sihlelelwe ukudibanisa abantu, ukukhuthaza ukubandakanywa kunye nokugqamisa ubutyebi bamasiko endawo. Imisebenzi iboniswa kwimiyalezo yeendaba, kwezentlalo, amaphephandaba, imagazini kunye nezinye iindawo.',
-    },
-  };
-
-  const content = mediaContent[language];
-
-  const columns = 3;
-  const distributeToColumns = (items: PublicityImage[]) => {
-    const cols: PublicityImage[][] = [[], [], []];
-    items.forEach(img => {
-      const shortestColIndex = cols
-        .map((col, idx) => ({ idx, len: col.length }))
-        .reduce((shortest, current) => current.len < shortest.len ? current : shortest).idx;
-      cols[shortestColIndex].push(img);
-    });
-    return cols;
-  };
-
-  const [col1, col2, col3] = distributeToColumns(images);
-
-  const photoCardStyle = {
-    cursor: 'pointer',
-    borderRadius: '8px',
-    overflow: 'hidden',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    aspectRatio: '1/1',
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -155,7 +65,7 @@ export default function Publicity() {
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 150,
         backgroundColor: 'white', borderBottom: '1px solid #f3f4f6',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.08)', transition: 'box-shadow 0.3s ease',
+        boxShadow: 'none', transition: 'box-shadow 0.3s ease'
       }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ paddingTop: '12px', paddingBottom: '12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -277,88 +187,16 @@ export default function Publicity() {
         </div>
       </header>
 
-      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '110px 48px 48px 48px' }}>
-
-        <section style={{ marginBottom: '60px' }}>
-          <div style={{
-            maxWidth: '1000px', margin: '0 auto', padding: '30px', background: '#ffffff',
-            textAlign: 'center', borderLeft: '4px solid #2d5016', borderRight: '4px solid #2d5016',
-            borderRadius: '8px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-          }}>
-            <h3 style={{ color: '#006400', fontSize: '28px', marginBottom: '20px', fontWeight: '600' }}>
-              {content.subtitle}
-            </h3>
-            <p style={{ fontSize: '18px', lineHeight: '1.6', color: '#333', marginBottom: '20px' }}>
-              {content.description}
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px', marginBottom: '20px' }}>
-              {content.tags.map((tag, i) => {
-                const colors = ['#006400', '#228B22', '#2E8B57', '#3CB371', '#32CD32', '#9ACD32'];
-                const sizes = ['20px', '18px', '16px', '20px', '18px', '16px'];
-                return (
-                  <span key={i} style={{
-                    color: colors[i], fontSize: sizes[i],
-                    fontWeight: i % 2 === 0 ? '600' : '400',
-                    fontStyle: i === 2 ? 'italic' : 'normal',
-                  }}>
-                    {tag}
-                  </span>
-                );
-              })}
-            </div>
-            <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#555' }}>{content.footer}</p>
-          </div>
-        </section>
-
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>Loading gallery...</div>
-        ) : images.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>No images yet.</div>
-        ) : (
-          <section style={{ marginBottom: '80px' }}>
-            <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: '20px' }}>
-                {[col1, col2, col3].map((col, colIdx) => (
-                  <div key={colIdx} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {col.map((photo) => (
-                      <div key={photo.id} onClick={() => setLightboxSrc(photo.imageUrl)}
-                        style={photoCardStyle}
-                        onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
-                          (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(45,80,22,0.2)';
-                        }}
-                        onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-                          (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                        }}>
-                        <img src={photo.imageUrl} alt="e'Bosch media coverage"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-      </main>
-
-      {lightboxSrc && (
-        <div onClick={() => setLightboxSrc(null)} style={{
-          position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 100,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', cursor: 'zoom-out',
-        }}>
-          <img src={lightboxSrc} alt="Enlarged media" style={{
-            maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain',
-            borderRadius: '8px', boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
-          }} />
-          <button onClick={() => setLightboxSrc(null)} style={{
-            position: 'absolute', top: '20px', right: '28px', background: 'none',
-            border: 'none', color: 'white', fontSize: '36px', cursor: 'pointer', lineHeight: 1,
-          }}>×</button>
+      <main style={{ paddingTop: '100px', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', padding: '0 24px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: '700', color: '#2d5016', marginBottom: '16px', fontFamily: 'DM Sans, sans-serif' }}>
+            {language === 'en' ? "e'Bosch Calendar" : language === 'af' ? "e'Bosch Kalender" : "Ikhalenda ye-e'Bosch"}
+          </h1>
+          <p style={{ fontSize: '18px', color: '#6b7280', fontWeight: 'normal', fontFamily: 'DM Sans, sans-serif' }}>
+            {language === 'en' ? 'Coming Soon' : language === 'af' ? 'Binnekort Beskikbaar' : 'Kuyeza Kamsinya'}
+          </p>
         </div>
-      )}
+      </main>
     </div>
   );
 }

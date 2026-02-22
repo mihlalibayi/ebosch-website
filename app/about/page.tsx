@@ -79,29 +79,9 @@ export default function About() {
     return director.role;
   };
 
-  const navLinkStyle = {
-    textDecoration: 'none',
-    color: '#4b5563',
-    fontSize: '16px',
-    fontWeight: '500',
-    paddingBottom: '4px',
-    borderBottom: '2px solid transparent',
-    transition: 'all 0.3s ease'
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    (e.target as HTMLElement).style.color = '#2d5016';
-    (e.target as HTMLElement).style.borderBottom = '2px solid #2d5016';
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    (e.target as HTMLElement).style.color = '#4b5563';
-    (e.target as HTMLElement).style.borderBottom = '2px solid transparent';
-  };
-
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
         .nav-wrap { font-family: 'DM Sans', sans-serif; }
@@ -177,7 +157,7 @@ export default function About() {
 
               {/* About - active on this page */}
               <div className="nav-group">
-                <button className={`nav-group-btn${openMenu === 'about' ? ' active' : ' active'}`}
+                <button className="nav-group-btn active"
                   onClick={() => setOpenMenu(openMenu === 'about' ? null : 'about')}>
                   {language === 'en' ? 'About' : language === 'af' ? 'Oor' : 'Malunga'} <span className="nav-arrow">▾</span>
                 </button>
@@ -207,8 +187,11 @@ export default function About() {
                     <Link href="/kids-program" onClick={() => setOpenMenu(null)}>
                       {language === 'en' ? 'School Holiday Program' : language === 'af' ? 'Skoolvakansie Program' : 'Inkqubo Yezikolo'}
                     </Link>
+                    <Link href="/ebosch-calendar" onClick={() => setOpenMenu(null)}>
+                      {language === 'en' ? "e'Bosch Calendar" : language === 'af' ? "e'Bosch Kalender" : "Ikhalenda ye-e'Bosch"}
+                    </Link>
                     <Link href="/heritage" onClick={() => setOpenMenu(null)}>
-                      {language === 'en' ? 'Heritage Program' : language === 'af' ? 'Erfenis Program' : 'Ilifa leNkcubeko'}
+                      {language === 'en' ? 'Heritage Project' : language === 'af' ? 'Erfenisprojek' : 'iProjekthi yeLifa leMveli'}
                     </Link>
                     <Link href="/publicity" onClick={() => setOpenMenu(null)}>
                       {language === 'en' ? 'Publicity' : language === 'af' ? 'Publisiteit' : 'Isaziso'}
@@ -276,6 +259,7 @@ export default function About() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" style={{ paddingTop: '100px' }}>
+
         {/* About Content Section */}
         <section style={{ marginBottom: '80px' }}>
           <div style={{
@@ -305,100 +289,48 @@ export default function About() {
         {/* Board of Directors */}
         <section style={{ marginBottom: '80px' }}>
           <h2 style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            color: '#111827',
-            marginBottom: '60px',
-            textAlign: 'center'
+            fontSize: '32px', fontWeight: 'bold', color: '#111827',
+            marginBottom: '60px', textAlign: 'center'
           }}>
-            {language === 'en' && 'Board of Directors'}
-            {language === 'af' && 'Raad van Direkteure'}
-            {language === 'xh' && 'Ibhodi Yabaphathi'}
+            {language === 'en' ? 'Board of Directors' : language === 'af' ? 'Raad van Direkteure' : 'Ibhodi Yabaphathi'}
           </h2>
 
-          {/* First Row - Sias and Matilda */}
+          {/* First Row */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '120px', marginBottom: '80px' }}>
             {directors.slice(0, 2).map((director) => (
               <div key={director.id} style={{ textAlign: 'center' }}>
-                <img
-                  src={director.image}
-                  alt={director.name}
-                  style={{
-                    width: '320px',
-                    height: '320px',
-                    objectFit: 'cover',
-                    borderRadius: '10px',
-                    marginBottom: '16px',
-                    display: 'block',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
-                />
-                <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
-                  {director.name}
-                </h3>
-                <p style={{ color: '#2d5016', fontWeight: '600', fontSize: '16px' }}>
-                  {getDirectorRole(director)}
-                </p>
+                <img src={director.image} alt={director.name}
+                  style={{ width: '320px', height: '320px', objectFit: 'cover', borderRadius: '10px', marginBottom: '16px', display: 'block', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>{director.name}</h3>
+                <p style={{ color: '#2d5016', fontWeight: '600', fontSize: '16px' }}>{getDirectorRole(director)}</p>
               </div>
             ))}
           </div>
 
-          {/* Second Row - Johann and Paul */}
+          {/* Second Row */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '120px' }}>
             {directors.slice(2, 4).map((director) => (
               <div key={director.id} style={{ textAlign: 'center' }}>
-                <img
-                  src={director.image}
-                  alt={director.name}
-                  style={{
-                    width: '320px',
-                    height: '320px',
-                    objectFit: 'cover',
-                    borderRadius: '10px',
-                    marginBottom: '16px',
-                    display: 'block',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
-                />
-                <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
-                  {director.name}
-                </h3>
-                <p style={{ color: '#2d5016', fontWeight: '600', fontSize: '16px' }}>
-                  {getDirectorRole(director)}
-                </p>
+                <img src={director.image} alt={director.name}
+                  style={{ width: '320px', height: '320px', objectFit: 'cover', borderRadius: '10px', marginBottom: '16px', display: 'block', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>{director.name}</h3>
+                <p style={{ color: '#2d5016', fontWeight: '600', fontSize: '16px' }}>{getDirectorRole(director)}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Declaration of Intent Section */}
+        {/* Declaration of Intent */}
         <section style={{ textAlign: 'center' }}>
-          <h3 style={{
-            fontSize: '24px',
-            fontWeight: '400',
-            color: '#374151',
-            marginBottom: '40px',
-            textAlign: 'center'
-          }}>
-            {language === 'en' && 'Declaration of Intent'}
-            {language === 'af' && 'Verklaring van Voorneme'}
-            {language === 'xh' && 'Isibhaso Sesiphumo'}
+          <h3 style={{ fontSize: '24px', fontWeight: '400', color: '#374151', marginBottom: '40px', textAlign: 'center' }}>
+            {language === 'en' ? 'Declaration of Intent' : language === 'af' ? 'Verklaring van Voorneme' : 'Isibhaso Sesiphumo'}
           </h3>
-
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <img
-              src="/about/declofint.jpg"
-              alt="Declaration of Intent"
-              style={{
-                maxWidth: '900px',
-                width: '100%',
-                height: 'auto',
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-              }}
-            />
+            <img src="/about/declofint.jpg" alt="Declaration of Intent"
+              style={{ maxWidth: '900px', width: '100%', height: 'auto', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
           </div>
         </section>
+
       </main>
     </div>
   );

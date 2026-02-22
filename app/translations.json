@@ -21,7 +21,14 @@
       "subtitle": "Media Release",
       "galleryTitle": "Media Gallery",
       "description": "The e'Bosch Heritage Project hosts a wide range of events that celebrate community, music and cultural heritage in Stellenbosch.",
-      "tags": ["School Choir Festivals", "Talent Showcases", "Public Lectures", "Leadership Courses", "Art Exhibitions", "Community Workshops"],
+      "tags": [
+        "School Choir Festivals",
+        "Talent Showcases",
+        "Public Lectures",
+        "Leadership Courses",
+        "Art Exhibitions",
+        "Community Workshops"
+      ],
       "footer": "Each event is designed to bring people together, promote inclusion and highlight the rich diversity of local traditions. Activities are featured in media releases, social media, newspapers, magazines and other platforms."
     },
     "months": {
@@ -190,7 +197,8 @@
       "monthlyMembership": "Monthly Membership",
       "subscribeNow": "Subscribe Now",
       "supportEBosch": "Support e'Bosch Monthly",
-      "chooseType": "Choose Your Membership Type"
+      "chooseType": "Choose Your Membership Type",
+      "monthlyFee": "Monthly Fee Amount"
     },
     "orders": {
       "title": "Orders Management",
@@ -215,8 +223,16 @@
     },
     "wordcloud": {
       "words": [
-        "Heritage", "Community", "Leadership",
-        "Youth", "Sport", "Lecture", "School Holiday", "Social", "Festivals", "School Choir"
+        "Heritage",
+        "Community",
+        "Leadership",
+        "Youth",
+        "Sport",
+        "Lecture",
+        "School Holiday",
+        "Social",
+        "Festivals",
+        "School Choir"
       ]
     }
   },
@@ -242,7 +258,14 @@
       "subtitle": "Media Vrylating",
       "galleryTitle": "Media Galery",
       "description": "Die e'Bosch Erfenisprojek bied 'n wye reeks geleenthede aan wat gemeenskap, musiek en kulturele erfenis in Stellenbosch vier.",
-      "tags": ["Skoolkoorfees", "Talentvertoning", "Openbare Lesings", "Leierskapkursusse", "Kunsuitstalling", "Gemeenskapswerkswinkels"],
+      "tags": [
+        "Skoolkoorfees",
+        "Talentvertoning",
+        "Openbare Lesings",
+        "Leierskapkursusse",
+        "Kunsuitstalling",
+        "Gemeenskapswerkswinkels"
+      ],
       "footer": "Elke geleentheid is ontwerp om mense saam te bring, insluiting te bevorder en die ryk diversiteit van plaaslike tradisies uit te lig. Aktiwiteite word in mediavrylating, sosiale media, koerante, tydskrifte en ander platforms vertoon."
     },
     "months": {
@@ -411,7 +434,8 @@
       "monthlyMembership": "Maandelikse Lidmaatskap",
       "subscribeNow": "Teken Nou In",
       "supportEBosch": "Ondersteun e'Bosch Maandeliks",
-      "chooseType": "Kies Jou Lidmaatskaption"
+      "chooseType": "Kies Jou Lidmaatskaption",
+      "monthlyFee": "Maandelikse Fooi Bedrag"
     },
     "orders": {
       "title": "Bestellings Bestuur",
@@ -436,8 +460,16 @@
     },
     "wordcloud": {
       "words": [
-        "Erfenis", "Gemeenskap", "Leierskap",
-        "Jeugd", "Sport", "Lezing", "Skoolvakansia", "Sosiaal", "Festiwale", "Skoolkoor"
+        "Erfenis",
+        "Gemeenskap",
+        "Leierskap",
+        "Jeugd",
+        "Sport",
+        "Lezing",
+        "Skoolvakansia",
+        "Sosiaal",
+        "Festiwale",
+        "Skoolkoor"
       ]
     }
   },
@@ -463,7 +495,14 @@
       "subtitle": "Isikhululo Seendaba",
       "galleryTitle": "Isiqwengana Seendaba",
       "description": "I-e'Bosch Heritage Project ibamba uluhlu olubanzi lweziganeko ezibhiyozela uluntu, umculo kunye nenkcubeko yendalo eStellenbosh.",
-      "tags": ["Iifestivali Zekhwayarele", "Iimboniso Zezakhono", "Iifundo Zoluntu", "Iikosi Zobunkokheli", "Iimboniso Zobugcisa", "Iiseminali Zeluntu"],
+      "tags": [
+        "Iifestivali Zekhwayarele",
+        "Iimboniso Zezakhono",
+        "Iifundo Zoluntu",
+        "Iikosi Zobunkokheli",
+        "Iimboniso Zobugcisa",
+        "Iiseminali Zeluntu"
+      ],
       "footer": "Isiganeko ngasinye sihlelelwe ukudibanisa abantu, ukukhuthaza ukubandakanywa kunye nokugqamisa ubutyebi bamasiko endawo. Imisebenzi iboniswa kwimiyalezo yeendaba, kwezentlalo, amaphephandaba, imagazini kunye nezinye iindawo."
     },
     "months": {
@@ -632,7 +671,8 @@
       "monthlyMembership": "Ubulungu Obusinyanga",
       "subscribeNow": "Bhalisela Ngoku",
       "supportEBosch": "Xhasa e'Bosch Ubusinyanga",
-      "chooseType": "Khetha Uhlobo Lwakho Lobulungu"
+      "chooseType": "Khetha Uhlobo Lwakho Lobulungu",
+      "monthlyFee": "Isixa Semali Yenyanga"
     },
     "orders": {
       "title": "Ukulawula Kwe-Order",
@@ -657,8 +697,16 @@
     },
     "wordcloud": {
       "words": [
-        "Inkcubeko", "Uluntu", "Ubunkokheli",
-        "Umuntu", "Umdlalo", "Isifundo", "Izilali", "Zizwe", "Izithwala", "Iqela"
+        "Inkcubeko",
+        "Uluntu",
+        "Ubunkokheli",
+        "Umuntu",
+        "Umdlalo",
+        "Isifundo",
+        "Izilali",
+        "Zizwe",
+        "Izithwala",
+        "Iqela"
       ]
     }
   }

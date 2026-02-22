@@ -51,9 +51,9 @@ const categories: Category[] = [
   },
   {
     id: 'heritage',
-    name: 'Heritage Program',
-    nameAf: 'Erfenis Program',
-    nameXh: 'Ikhaya Lengcali',
+    name: 'Heritage Project',
+    nameAf: 'Erfenisprojek',
+    nameXh: 'iProjekthi yeLifa leMveli',
     image: '/categories/heritageproject.jpg',
     href: '/heritage'
   },
@@ -124,7 +124,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
         .nav-wrap { font-family: 'DM Sans', sans-serif; }
@@ -186,7 +185,6 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ paddingTop: '14px', paddingBottom: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 
-            {/* Logo */}
             <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', marginLeft: '16px' }}>
               <img src="/logo.jpg" alt="e'Bosch Logo" style={{ height: '52px', width: 'auto', objectFit: 'contain' }} />
             </Link>
@@ -195,7 +193,6 @@ export default function Home() {
 
             <nav className="nav-wrap" style={{ display: 'flex', alignItems: 'center', gap: '2px', position: 'relative', zIndex: 201 }}>
 
-              {/* Home */}
               <Link href="/" className={`nav-home${activeSection === 'home' ? ' active' : ''}`}
                 onClick={() => { setOpenMenu(null); setActiveSection('home'); }}>
                 {language === 'en' ? 'Home' : language === 'af' ? 'Tuis' : 'Ikhaya'}
@@ -235,8 +232,11 @@ export default function Home() {
                     <Link href="/kids-program" onClick={() => setOpenMenu(null)}>
                       {language === 'en' ? 'School Holiday Program' : language === 'af' ? 'Skoolvakansie Program' : 'Inkqubo Yezikolo'}
                     </Link>
+                    <Link href="/ebosch-calendar" onClick={() => setOpenMenu(null)}>
+                      {language === 'en' ? "e'Bosch Calendar" : language === 'af' ? "e'Bosch Kalender" : "Ikhalenda ye-e'Bosch"}
+                    </Link>
                     <Link href="/heritage" onClick={() => setOpenMenu(null)}>
-                      {language === 'en' ? 'Heritage Program' : language === 'af' ? 'Erfenis Program' : 'Ilifa leNkcubeko'}
+                      {language === 'en' ? 'Heritage Project' : language === 'af' ? 'Erfenisprojek' : 'iProjekthi yeLifa leMveli'}
                     </Link>
                     <Link href="/publicity" onClick={() => setOpenMenu(null)}>
                       {language === 'en' ? 'Publicity' : language === 'af' ? 'Publisiteit' : 'Isaziso'}
@@ -289,7 +289,6 @@ export default function Home() {
 
               <div className="nav-divider" />
 
-              {/* Language selector - original style */}
               <select value={language} onChange={(e) => setLanguage(e.target.value as Language)}
                 style={{ padding: '8px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '15px', backgroundColor: 'white', fontWeight: '500', color: '#111827', cursor: 'pointer', transition: 'all 0.3s ease' }}
                 onMouseEnter={(e) => { (e.target as HTMLElement).style.borderColor = '#2d5016'; (e.target as HTMLElement).style.boxShadow = '0 0 0 2px rgba(45, 80, 22, 0.1)'; }}
@@ -305,7 +304,6 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" style={{ paddingTop: '100px' }}>
-        {/* Welcome Section */}
         <div className="text-center mb-20" style={{ marginTop: '30px' }}>
           <h1 style={{
             fontSize: '56px',
@@ -322,7 +320,6 @@ export default function Home() {
           </h1>
         </div>
 
-        {/* Categories Carousel */}
         <div className="relative mb-12" style={{ marginTop: '80px', paddingLeft: '40px', paddingRight: '40px' }}>
           <div style={{
             display: 'grid',
@@ -349,69 +346,29 @@ export default function Home() {
                   (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
                   (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
                 }}>
-                  {/* Image */}
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    overflow: 'hidden'
-                  }}>
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
                     <img
                       src={category.image}
                       alt={getCategoryName(category)}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.08)';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)';
-                      }}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.08)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)'; }}
                     />
                   </div>
-
-                  {/* Gradient Overlay */}
                   <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                     background: 'linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)',
                     pointerEvents: 'none'
                   }} />
-
-                  {/* Text Content */}
                   <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: '24px',
-                    color: 'white',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-end',
-                    height: '100%'
+                    position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px',
+                    color: 'white', display: 'flex', flexDirection: 'column',
+                    justifyContent: 'flex-end', height: '100%'
                   }}>
-                    <h3 style={{
-                      fontSize: '24px',
-                      fontWeight: '700',
-                      marginBottom: '12px'
-                    }}>
+                    <h3 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px' }}>
                       {getCategoryName(category)}
                     </h3>
-                    <p style={{
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: '#e0e0e0'
-                    }}>
+                    <p style={{ fontSize: '14px', fontWeight: '500', color: '#e0e0e0' }}>
                       {t.exploreNow} →
                     </p>
                   </div>
@@ -420,107 +377,38 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Navigation Controls */}
           {!isMobile && (
-            <>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: '32px'
-              }}>
-                {/* Previous Button - Show only if not on first slide */}
-                {currentSlide > 0 && (
-                  <button
-                    onClick={handlePrevious}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      padding: '10px 20px',
-                      backgroundColor: '#ffffff',
-                      border: '2px solid #000000',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      color: '#000000',
-                      fontWeight: '600',
-                      fontSize: '14px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f0f0f0';
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#ffffff';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                    aria-label="Previous"
-                  >
-                    <ChevronLeft size={20} />
-                    <span>{t.previous}</span>
-                  </button>
-                )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '32px' }}>
+              {currentSlide > 0 && (
+                <button onClick={handlePrevious}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 20px', backgroundColor: '#ffffff', border: '2px solid #000000', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.3s ease', color: '#000000', fontWeight: '600', fontSize: '14px' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0f0f0'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; e.currentTarget.style.boxShadow = 'none'; }}
+                  aria-label="Previous">
+                  <ChevronLeft size={20} />
+                  <span>{t.previous}</span>
+                </button>
+              )}
 
-                {/* Dots in the center */}
-                <div style={{
-                  display: 'flex',
-                  gap: '8px'
-                }}>
-                  {Array.from({ length: totalSlides }).map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentSlide(idx)}
-                      style={{
-                        width: idx === currentSlide ? '32px' : '12px',
-                        height: '12px',
-                        backgroundColor: idx === currentSlide ? '#2d5016' : '#d0d0d0',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                      }}
-                      aria-label={`Go to slide ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-
-                {/* Next Button - Show only if not on last slide */}
-                {currentSlide < totalSlides - 1 && (
-                  <button
-                    onClick={handleNext}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      padding: '10px 20px',
-                      backgroundColor: '#ffffff',
-                      border: '2px solid #000000',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      color: '#000000',
-                      fontWeight: '600',
-                      fontSize: '14px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f0f0f0';
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#ffffff';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                    aria-label="Next"
-                  >
-                    <span>{t.next}</span>
-                    <ChevronRight size={20} />
-                  </button>
-                )}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {Array.from({ length: totalSlides }).map((_, idx) => (
+                  <button key={idx} onClick={() => setCurrentSlide(idx)}
+                    style={{ width: idx === currentSlide ? '32px' : '12px', height: '12px', backgroundColor: idx === currentSlide ? '#2d5016' : '#d0d0d0', border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                    aria-label={`Go to slide ${idx + 1}`} />
+                ))}
               </div>
-            </>
+
+              {currentSlide < totalSlides - 1 && (
+                <button onClick={handleNext}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 20px', backgroundColor: '#ffffff', border: '2px solid #000000', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.3s ease', color: '#000000', fontWeight: '600', fontSize: '14px' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0f0f0'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; e.currentTarget.style.boxShadow = 'none'; }}
+                  aria-label="Next">
+                  <span>{t.next}</span>
+                  <ChevronRight size={20} />
+                </button>
+              )}
+            </div>
           )}
         </div>
       </main>
